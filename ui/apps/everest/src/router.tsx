@@ -58,6 +58,10 @@ const router = createBrowserRouter([
         element: <DatabasePage />,
       },
       {
+        path: 'databases/new-ui-generated',
+        element: <DatabasePage />,
+      },
+      {
         path: 'databases/:namespace/:dbClusterName',
         element: (
           <DbClusterContextProvider>

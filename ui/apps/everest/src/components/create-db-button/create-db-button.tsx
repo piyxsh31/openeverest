@@ -144,9 +144,8 @@ export const CreateDbButton = ({
       )}
       {availableEngines.length > 1 && (
         <Menu
-          data-testid={`${
-            createFromImport ? 'import' : 'add'
-          }-db-cluster-button-menu`}
+          data-testid={`${createFromImport ? 'import' : 'add'
+            }-db-cluster-button-menu`}
           anchorEl={anchorEl}
           open={open}
           onClose={closeMenu}
@@ -198,6 +197,19 @@ export const CreateDbButton = ({
                   {humanizeDbType(dbEngineToDbType(item.type))}
                 </MenuItem>
               ))}
+              <MenuItem
+                component={Link}
+                to="/databases/new-ui-generated"
+                sx={{
+                  display: 'flex',
+                  gap: 1,
+                  alignItems: 'center',
+                  px: 2,
+                  py: '10px',
+                }}
+              >
+                PSMDB generated
+              </MenuItem>
             </Box>
           }
         </Menu>
