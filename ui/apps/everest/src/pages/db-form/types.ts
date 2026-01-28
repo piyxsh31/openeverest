@@ -1,4 +1,6 @@
 import { SelectInput, TextInput } from "@percona/ui-lib";
+import AccordionWrapper from "./ui-generator/ui-group-wrappers/accordion-wrapper";
+import StackWrapper from "./ui-generator/ui-group-wrappers/stack-wrapper";
 
 export type OpenAPIObjectProperties = {
     label?: string;
@@ -12,8 +14,12 @@ export enum FieldType {
 
 export enum GroupType {
     Accordion = "accordion",
+    Line = "line",
 }
-
+export const componentGroupMap: Record<string, React.ElementType> = {
+    [GroupType.Accordion]: AccordionWrapper,
+    [GroupType.Line]: StackWrapper,
+}
 export const muiComponentMap: Record<string, React.ElementType> = {
     [FieldType.Number]: TextInput,
     [FieldType.Select]: SelectInput,
@@ -41,16 +47,18 @@ type FieldParamsMap = {
     number: BaseFieldParams & {
         maxLength?: number;
         placeholder?: string;
+        defaultValue?: number;
+        badge?: string;
     };
     select: BaseFieldParams & {
         options: { label: string; value: string }[];
     };
-    other: BaseFieldParams & {
-        badge?: string;
-        options?: { label: string; value: string }[];
-        placeholder?: string;
-        default?: string;
-    };
+    // other: BaseFieldParams & {
+    //     badge?: string;
+    //     options?: { label: string; value: string }[];
+    //     placeholder?: string;
+    //     defaultValue?: string;
+    // };
 };
 
 // Либо path, либо id - но не оба и не ни один
@@ -67,15 +75,20 @@ export type Component = {
 }[keyof FieldParamsMap];
 
 export type ComponentGroup = {
-    uiType: 'Group';
+    uiType: 'group';
+    name?: string;
+    //description?: string;
     groupType?: GroupType;
+    groupParams?: any; //TODO
     components: { [key: string]: Component } | ComponentGroup;
+    componentsOrder?: string[];
 };
 
 export type Section = {
     name?: string;
     description?: string;
-    components: { [key: string]: Component } | ComponentGroup;
+    components: { [key: string]: Component } | { [key: string]: ComponentGroup };
+    componentsOrder?: string[];
 };
 
 export type TopologyUISchemas = {

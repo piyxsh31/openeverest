@@ -27,6 +27,7 @@ import LoadBalancerConfiguration from 'pages/settings/policies/load-balancer-con
 import LoadBalancerConfigDetails from 'pages/settings/policies/load-balancer-configuration/load-balancer-config-detials/load-balancer-config-detials';
 import SettingsPoliciesRouter from 'pages/settings/settings-policies-router';
 import SplitHorizon from 'pages/settings/policies/split-horizon';
+import { DatabasePageGenerated } from 'pages/db-form/db-form';
 
 const router = createBrowserRouter([
   {
@@ -59,7 +60,7 @@ const router = createBrowserRouter([
       },
       {
         path: 'databases/new-ui-generated',
-        element: <DatabasePage />,
+        element: <DatabasePageGenerated />,
       },
       {
         path: 'databases/:namespace/:dbClusterName',
