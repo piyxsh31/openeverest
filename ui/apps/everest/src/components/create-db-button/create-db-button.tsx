@@ -144,8 +144,9 @@ export const CreateDbButton = ({
       )}
       {availableEngines.length > 1 && (
         <Menu
-          data-testid={`${createFromImport ? 'import' : 'add'
-            }-db-cluster-button-menu`}
+          data-testid={`${
+            createFromImport ? 'import' : 'add'
+          }-db-cluster-button-menu`}
           anchorEl={anchorEl}
           open={open}
           onClose={closeMenu}

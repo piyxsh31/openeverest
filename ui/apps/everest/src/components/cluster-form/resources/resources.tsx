@@ -564,9 +564,9 @@ const ResourcesForm = ({
 
   const handleAccordionChange =
     (panel: 'nodes' | 'proxies') =>
-      (_: React.SyntheticEvent, newExpanded: boolean) => {
-        setExpanded(newExpanded ? panel : false);
-      };
+    (_: React.SyntheticEvent, newExpanded: boolean) => {
+      setExpanded(newExpanded ? panel : false);
+    };
 
   useEffect(() => {
     const { isTouched: numberOfProxiesTouched } = getFieldState(

@@ -14,6 +14,7 @@
 // limitations under the License.
 import StorageIcon from '@mui/icons-material/Storage';
 import SettingsIcon from '@mui/icons-material/Settings';
+import InfoIcon from '@mui/icons-material/Info';
 import { EverestRoute } from './Drawer.types';
 import { SettingsTabs } from 'pages/settings/settings.types';
 
@@ -29,5 +30,10 @@ export const ROUTES: EverestRoute[] = [
     to: `settings/${SettingsTabs.storageLocations}`,
     icon: SettingsIcon,
     text: 'Settings',
+  },
+  {
+    to: '/new-page',
+    icon: InfoIcon,
+    text: 'UI Generator Builder',
   },
 ];

@@ -1,11 +1,19 @@
-import { Box, MenuItem } from "@mui/material";
-import { muiComponentMap, Component } from "pages/db-form/types";
-import React from "react";
-import { useFormContext } from "react-hook-form";
+import { MenuItem } from '@mui/material';
+import {
+  muiComponentMap,
+  Component,
+} from 'components/ui-generator/ui-generator.types';
+import React from 'react';
+import { useFormContext } from 'react-hook-form';
 
-type ComponentByType<T extends Component['uiType']> = Extract<Component, { uiType: T }>;
+type ComponentByType<T extends Component['uiType']> = Extract<
+  Component,
+  { uiType: T }
+>;
 
-export type ComponentProps<T extends Component['uiType'] = Component['uiType']> = {
+export type ComponentProps<
+  T extends Component['uiType'] = Component['uiType'],
+> = {
   item: ComponentByType<T>;
   name: string;
 };
@@ -14,7 +22,6 @@ function isSelectComponent(item: Component): item is ComponentByType<'select'> {
   return item.uiType === 'select';
 }
 
-// Remove generic from component declaration for simpler export
 const UIComponent: React.FC<ComponentProps> = ({ item, name }) => {
   const { uiType, fieldParams } = item;
   const methods = useFormContext();
@@ -24,16 +31,14 @@ const UIComponent: React.FC<ComponentProps> = ({ item, name }) => {
   const MuiComponent = muiComponentMap[uiType];
   if (!MuiComponent) return null;
 
-  // Type-safe handling of different field types
   const label = fieldParams?.label || '';
 
-  // Handle select options - TypeScript now knows the exact type!
   const options = isSelectComponent(item)
     ? item.fieldParams.options.map((option) => (
-      <MenuItem key={option.value} value={option.value}>
-        {option.label}
-      </MenuItem>
-    ))
+        <MenuItem key={option.value} value={option.value}>
+          {option.label}
+        </MenuItem>
+      ))
     : undefined;
 
   return (

@@ -14,6 +14,7 @@ import { MonitoringEndpoints } from 'pages/settings/monitoring-endpoints/monitor
 import { NoMatch } from 'pages/404/NoMatch';
 import { Backups } from 'pages/db-cluster-details/backups/backups';
 import { Namespaces } from './pages/settings/namespaces/namespaces';
+import { UIGeneratorBuilder } from 'pages/ui-generator-builder/ui-generator-builder';
 import NamespaceDetails from 'pages/settings/namespaces/namespace-details';
 import Restores from 'pages/db-cluster-details/restores';
 import Components from './pages/db-cluster-details/components';
@@ -114,6 +115,10 @@ const router = createBrowserRouter([
             element: <Policies />,
           },
         ],
+      },
+      {
+        path: 'new-page',
+        element: <UIGeneratorBuilder />,
       },
       {
         path: '/settings/policies/details',

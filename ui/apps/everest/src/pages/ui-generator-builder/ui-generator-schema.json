@@ -1,0 +1,77 @@
+{
+  "replica": {
+    "sections": {
+      "basicInfo": {
+        "name": "Basic Information",
+        "description": "Provide the basic information for your new database.",
+        "components": {
+          "version": {
+            "uiType": "select",
+            "path": "spec.engine.version",
+            "fieldParams": {
+              "label": "Database Version",
+              "options": [
+                {
+                  "label": "percona/percona-server-mongodb:6.0.19-16-multi",
+                  "value": "6.0.19-16"
+                },
+                {
+                  "label": "percona/percona-server-mongodb:6.0.21-18",
+                  "value": "6.0.21-18"
+                },
+                {
+                  "label": "percona/percona-server-mongodb:7.0.18-11",
+                  "value": "7.0.18-11"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "resources": {
+        "name": "Resources",
+        "description": "Configure the resources your new database will have access to.",
+        "components": {
+          "numberOfnodes": {
+            "path": "spec.replica.nodes",
+            "uiType": "number",
+            "fieldParams": {
+              "label": "Number of nodes"
+            }
+          },
+          "resources": {
+            "uiType": "group",
+            "groupType": "line",
+            "components": {
+              "cpu": {
+                "path": "spec.engine.resources.cpu",
+                "uiType": "number",
+                "fieldParams": {
+                  "badge": "CPU",
+                  "label": "CPU"
+                }
+              },
+              "memory": {
+                "path": "spec.engine.resources.memory",
+                "uiType": "number",
+                "fieldParams": {
+                  "badge": "Gi",
+                  "label": "Memory"
+                }
+              },
+              "disk": {
+                "path": "spec.engine.resources.memory",
+                "uiType": "number",
+                "fieldParams": {
+                  "badge": "Gi",
+                  "label": "Disk"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "sectionsOrder": ["basicInfo", "resources"]
+  }
+}
