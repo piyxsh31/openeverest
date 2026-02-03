@@ -93,6 +93,8 @@ export const EverestHorizontalDarkIcon = (props: SvgIconProps) => (
   </SvgIcon>
 );
 
+EverestMainIcon.displayName = 'EverestMainIcon';
+
 export const EverestHorizontalIcon = (props: SvgIconProps) => {
   const {
     palette: { mode },
@@ -176,6 +178,8 @@ export const EverestHorizontalAlternatveDarkIcon = (props: SvgIconProps) => (
   </SvgIcon>
 );
 
+EverestHorizontalIcon.displayName = 'EverestHorizontalIcon';
+
 export const EverestHorizontalAlternateIcon = (props: SvgIconProps) => {
   const {
     palette: { mode },
@@ -187,6 +191,8 @@ export const EverestHorizontalAlternateIcon = (props: SvgIconProps) => {
     <EverestHorizontalAlternatveDarkIcon {...props} />
   );
 };
+
+EverestHorizontalAlternateIcon.displayName = 'EverestHorizontalAlternateIcon';
 
 export const EverestAppSquareIcon = (props: SvgIconProps) => (
   <SvgIcon viewBox="0 0 97.36 97.36" {...props}>
@@ -225,6 +231,8 @@ export const EverestAppSquareIcon = (props: SvgIconProps) => (
     </defs>
   </SvgIcon>
 );
+
+EverestAppSquareIcon.displayName = 'EverestAppSquareIcon';
 
 export const EverestAppRoundIcon = (props: SvgIconProps) => (
   <SvgIcon viewBox="0 0 97.36 97.36" {...props}>
@@ -268,6 +276,8 @@ export const EverestAppRoundIcon = (props: SvgIconProps) => (
   </SvgIcon>
 );
 
+EverestAppRoundIcon.displayName = 'EverestAppRoundIcon';
+
 export const EverestAppCircleIcon = (props: SvgIconProps) => (
   <SvgIcon viewBox="0 0 97.36 97.36" {...props}>
     {/* Circle Background */}
@@ -309,3 +319,5 @@ export const EverestAppCircleIcon = (props: SvgIconProps) => (
     </defs>
   </SvgIcon>
 );
+
+EverestAppCircleIcon.displayName = 'EverestAppCircleIcon';
