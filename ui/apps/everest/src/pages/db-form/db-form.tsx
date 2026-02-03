@@ -1,12 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { topologyUiSchemas } from '../../components/ui-generator/ui-generator.mock';
 import { MenuItem, Stack, Step, StepLabel } from '@mui/material';
 import { SelectInput, Stepper } from '@percona/ui-lib';
 import DatabaseFormStepControllers from 'pages/database-form/database-form-body/DatabaseFormStepControllers';
 import { FormProvider, useForm } from 'react-hook-form';
 import { StepHeader } from 'pages/database-form/database-form-body/steps/step-header/step-header';
-import { getSteps } from 'components/ui-generator/utils/ui-generator.utils';
 import { UIGenerator } from 'components/ui-generator/ui-generator';
+import { getSteps } from 'components/ui-generator/utils/renderComponent';
 
 export const DatabasePageGenerated = () => {
   const [activeStep, setActiveStep] = useState(0);

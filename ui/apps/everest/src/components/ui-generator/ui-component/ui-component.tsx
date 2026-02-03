@@ -1,10 +1,8 @@
 import { MenuItem } from '@mui/material';
-import {
-  muiComponentMap,
-  Component,
-} from 'components/ui-generator/ui-generator.types';
+import { Component } from 'components/ui-generator/ui-generator.types';
 import React from 'react';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, get } from 'react-hook-form';
+import { muiComponentMap } from '../constants';
 
 type ComponentByType<T extends Component['uiType']> = Extract<
   Component,
@@ -26,7 +24,11 @@ const UIComponent: React.FC<ComponentProps> = ({ item, name }) => {
   const { uiType, fieldParams } = item;
   const methods = useFormContext();
   const errors = methods?.formState?.errors || {};
-  const error = errors[name]?.message as string | undefined;
+  // Use get() to access nested error paths like "spec.replica.nodes"
+  const errorObj = get(errors, name);
+  const error = errorObj?.message as string | undefined;
+
+  console.log(`UIComponent rendering with name: ${name}, uiType: ${uiType}`);
 
   const MuiComponent = muiComponentMap[uiType];
   if (!MuiComponent) return null;

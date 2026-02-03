@@ -1,7 +1,8 @@
 import { Stack, Typography } from '@mui/material';
-import { Section } from './ui-generator.types';
-import { orderComponents } from './utils/ui-generator.utils';
-import { renderComponent } from './utils/renderComponent';
+import { useCallback, useEffect } from 'react';
+import { useFormContext } from 'react-hook-form';
+import { Component, ComponentGroup, Section } from './ui-generator.types';
+import { orderComponents, renderComponent } from './utils/renderComponent';
 
 type UIGeneratorProps = {
   activeStep: number;
@@ -15,8 +16,18 @@ export const UIGenerator = ({
   stepLabels,
 }: UIGeneratorProps) => {
   debugger;
-  const section = sections[stepLabels[activeStep]];
+  const { getValues, formState } = useFormContext();
+  const sectionKey = stepLabels[activeStep];
+  const section = sections[sectionKey];
   const components = section?.components;
+
+  useEffect(() => {
+    console.log('UIGenerator form state', {
+      values: getValues(),
+      formState,
+      errors: formState.errors,
+    });
+  }, [getValues, formState]);
 
   //TODO we can handle different scenarios for section with empty ui components
   //TODO we should add a checking that uiType exists
@@ -29,15 +40,19 @@ export const UIGenerator = ({
     section?.componentsOrder
   );
 
+  // Build base path for field names (no topology key since it's already selected)
+  const basePath = sectionKey || '';
+
   return (
     <Stack spacing={2}>
       {orderedComponents.map(([key, item]) => {
         debugger;
         console.log(key, item, Object.values(components));
+        const fieldName = basePath ? `${basePath}.${key}` : key;
         return renderComponent({
           key,
           item,
-          name: key,
+          name: fieldName,
           siblings: Object.values(components),
         });
       })}

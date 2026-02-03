@@ -1,12 +1,15 @@
 import { FormProvider, useForm } from 'react-hook-form';
 import { UIGenerator } from 'components/ui-generator/ui-generator';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { SelectInput, Stepper } from '@percona/ui-lib';
-import { getSteps } from 'components/ui-generator/utils/ui-generator.utils';
 import { TopologyUISchemas } from 'components/ui-generator/ui-generator.types';
 import { MenuItem, Stack, Step, StepLabel } from '@mui/material';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { StepHeader } from 'pages/database-form/database-form-body/steps/step-header/step-header';
 import DatabaseFormStepControllers from 'pages/database-form/database-form-body/DatabaseFormStepControllers';
+import { getSteps } from 'components/ui-generator/utils/renderComponent';
+import { getDefaultValues } from './utils/getDefaultValues';
+import { buildZodSchema } from './utils/getZodSchema';
 
 export type DynamicFormProps = {
   schema: TopologyUISchemas;
@@ -16,18 +19,41 @@ export const DynamicForm = ({ schema }: DynamicFormProps) => {
   debugger;
   const [activeStep, setActiveStep] = useState(0);
   const topologies = Object.keys(schema);
-  const [selectedTopology, setSelectedTopology] = useState<string>('');
+  const hasMultipleTopologies = topologies.length > 1;
+  const defaultTopology = topologies[0] || '';
+  const [selectedTopology, setSelectedTopology] =
+    useState<string>(defaultTopology);
   const sections = getSteps(selectedTopology, schema);
-  const stepLabels = ['Choose topology', ...Object.keys(sections)];
+
+  // Skip topology selection step if only one topology exists
+  const stepLabels = hasMultipleTopologies
+    ? ['Choose topology', ...Object.keys(sections)]
+    : Object.keys(sections);
+
+  // Generate default values based on unique field IDs
+  const defaultValues = useMemo(() => {
+    const values = getDefaultValues(schema, selectedTopology);
+    return hasMultipleTopologies
+      ? { topology: { type: selectedTopology }, ...values }
+      : { topology: { type: defaultTopology }, ...values };
+  }, [schema, selectedTopology, hasMultipleTopologies, defaultTopology]);
+
+  // Build Zod validation schema for the selected topology
+  const { schema: zodSchema, celDependencyGroups } = buildZodSchema(
+    schema,
+    selectedTopology
+  );
 
   const methods = useForm({
     mode: 'onChange',
-    // resolver: async (data, context, options) => {
-    // //   const customResolver = zodResolver(schema);
-    //   const result = await customResolver(data, context, options);
-    //   return result;
-    // },
-    // defaultValues,
+    resolver: async (data, context, options) => {
+      console.log('Form validation triggered with data:', data);
+      const customResolver = zodResolver(zodSchema);
+      const result = await customResolver(data, context, options);
+      console.log('Validation result:', result);
+      return result;
+    },
+    defaultValues,
   });
 
   return (
@@ -47,7 +73,7 @@ export const DynamicForm = ({ schema }: DynamicFormProps) => {
           }
           pageDescription={sections[stepLabels[activeStep]]?.description ?? ''}
         />
-        {activeStep === 0 ? (
+        {activeStep === 0 && hasMultipleTopologies ? (
           <SelectInput name="topology.type" label="topology type">
             {topologies.map((topKey) => (
               <MenuItem

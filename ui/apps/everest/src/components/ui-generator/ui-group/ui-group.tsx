@@ -1,10 +1,10 @@
-import { Box, Stack } from '@mui/material';
+import { Stack } from '@mui/material';
 import {
   ComponentGroup,
-  componentGroupMap,
   GroupType,
 } from 'components/ui-generator/ui-generator.types';
 import React from 'react';
+import { componentGroupMap } from '../constants';
 
 export type UIGroupProps = {
   children: React.ReactNode;

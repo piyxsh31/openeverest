@@ -36,4 +36,10 @@ export const ROUTES: EverestRoute[] = [
     icon: InfoIcon,
     text: 'UI Generator Builder',
   },
+  // TODO legasy POC should be removed later
+  // {
+  //   to: `ui-generator`,
+  //   icon: SettingsIcon,
+  //   text: 'UI Generator',
+  // },
 ];
