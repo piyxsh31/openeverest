@@ -374,9 +374,8 @@ jobs:
           EVEREST_OUT_DIR=${GITHUB_WORKSPACE}/public/dist/ pnpm build
 
       - name: Everest - build binary
-        if: matrix.arch == 'amd64'
         run: |
-          RELEASE_VERSION=${VERSION_TAG} CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make rc
+          RELEASE_VERSION=${VERSION_TAG} CGO_ENABLED=0 GOOS=linux GOARCH=${{ matrix.arch }} make rc
           RELEASE_VERSION=${VERSION_TAG} make release-cli
 
       - name: Everest - copy CLI builds
