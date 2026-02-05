@@ -78,7 +78,7 @@ env:
 jobs:
   build:
     name: Build
-    timeout-minutes: 30
+    timeout-minutes: 90
 
     strategy:
       fail-fast: false
@@ -229,7 +229,7 @@ jobs:
         with:
           context: openeverest-operator
           push: true
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/arm64
           tags: ${{ steps.operator_meta.outputs.tags }}
           build-args: |
             FLAGS= -X 'github.com/percona/everest-operator/internal/consts.Version=${{ env.VERSION }}'
@@ -239,7 +239,7 @@ jobs:
         with:
           context: openeverest-operator
           push: true
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/arm64
           tags: ${{ steps.bundle_meta.outputs.tags }}
           file: openeverest-operator/bundle.Dockerfile
 
@@ -302,7 +302,7 @@ jobs:
         with:
           context: percona-version-service
           push: true
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/arm64
           tags: ${{ env.IMAGE_PREFIX }}/${{ env.EVEREST_VERSION_SERVICE_DEV_IMAGE_NAME }}:${{ env.VS_TAG }}
 
 
@@ -328,7 +328,7 @@ jobs:
         with:
           context: openeverest-catalog
           push: true
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/arm64
           tags: ${{ steps.catalog_meta.outputs.tags }}
           file: openeverest-catalog/everest-catalog.Dockerfile
 
@@ -389,7 +389,7 @@ jobs:
         with:
           context: .
           push: true
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/arm64
           tags: ${{ env.IMAGE_PREFIX }}/${{ env.EVEREST_SERVER_DEV_IMAGE_NAME }}:${{ env.VERSION }}
 
       - name: Create vs_tag file
