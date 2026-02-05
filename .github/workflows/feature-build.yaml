@@ -155,6 +155,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
       - name: Operator - check out
         uses: actions/checkout@v5
@@ -224,6 +229,7 @@ jobs:
         with:
           context: openeverest-operator
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: ${{ steps.operator_meta.outputs.tags }}
           build-args: |
             FLAGS= -X 'github.com/percona/everest-operator/internal/consts.Version=${{ env.VERSION }}'
@@ -233,6 +239,7 @@ jobs:
         with:
           context: openeverest-operator
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: ${{ steps.bundle_meta.outputs.tags }}
           file: openeverest-operator/bundle.Dockerfile
 
@@ -295,6 +302,7 @@ jobs:
         with:
           context: percona-version-service
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: ${{ env.IMAGE_PREFIX }}/${{ env.EVEREST_VERSION_SERVICE_DEV_IMAGE_NAME }}:${{ env.VS_TAG }}
 
 
@@ -320,6 +328,7 @@ jobs:
         with:
           context: openeverest-catalog
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: ${{ steps.catalog_meta.outputs.tags }}
           file: openeverest-catalog/everest-catalog.Dockerfile
 
@@ -380,6 +389,7 @@ jobs:
         with:
           context: .
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: ${{ env.IMAGE_PREFIX }}/${{ env.EVEREST_SERVER_DEV_IMAGE_NAME }}:${{ env.VERSION }}
 
       - name: Create vs_tag file
