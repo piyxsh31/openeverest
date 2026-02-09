@@ -2,7 +2,7 @@
   "replica": {
     "sections": {
       "basicInfo": {
-        "name": "Basic Information",
+        "label": "Basic Information",
         "description": "Provide the basic information for your new database.",
         "components": {
           "version": {
@@ -30,7 +30,7 @@
         }
       },
       "resources": {
-        "name": "Resources",
+        "label": "Resources",
         "description": "Some description about resources",
         "components": {
           "numberOfnodes": {
@@ -47,7 +47,7 @@
           "resources": {
             "uiType": "group",
             "groupType": "line",
-            "name": "Resources",
+            "label": "Resources",
             "components": {
               "cpu": {
                 "uiType": "number",
@@ -97,7 +97,7 @@
   "sharded": {
     "sections": {
       "basicInfo": {
-        "name": "Basic Information",
+        "label": "Basic Information",
         "description": "Provide the basic information for your new database.",
         "components": {
           "version": {
@@ -124,7 +124,7 @@
         }
       },
       "resources": {
-        "name": "Resources",
+        "label": "Resources",
         "description": "Some description about resources",
         "components": {
           "shards": {
@@ -154,7 +154,7 @@
         "componentsOrder": ["shards", "numberOfnodes", "numberOfConfigServers"]
       },
       "resources2": {
-        "name": "Resources",
+        "label": "Resources",
         "description": "Some description about resources",
         "components": {
           "shards": {
@@ -188,7 +188,7 @@
   "shardedInOneStep": {
     "sections": {
       "databaseInfo": {
-        "name": "Basic Information",
+        "label": "Basic Information",
         "description": "Fill the information for your new database.",
         "components": {
           "version": {
@@ -215,7 +215,7 @@
           "resources": {
             "uiType": "group",
             "groupType": "accordion",
-            "name": "Resources",
+            "label": "Resources",
             "components": {
               "shards": {
                 "uiType": "number",

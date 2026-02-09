@@ -22,7 +22,7 @@ const UIGroup = ({ groupType, children, groupParams, item }: UIGroupProps) => {
       {Component ? (
         React.createElement(Component, {
           children,
-          label: item?.name,
+          label: item?.label,
         })
       ) : (
         <Stack spacing={2}>{children}</Stack>

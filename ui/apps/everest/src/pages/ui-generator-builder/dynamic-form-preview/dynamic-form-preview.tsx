@@ -8,7 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { StepHeader } from 'pages/database-form/database-form-body/steps/step-header/step-header';
 import DatabaseFormStepControllers from 'pages/database-form/database-form-body/DatabaseFormStepControllers';
 import { getSteps } from 'components/ui-generator/utils/renderComponent';
-import { getDefaultValues } from './utils/getDefaultValues';
+import { getDefaultValues } from 'components/ui-generator/utils/get-default-values';
 import { buildZodSchema } from './utils/getZodSchema';
 
 export type DynamicFormProps = {
@@ -68,7 +68,7 @@ export const DynamicForm = ({ schema }: DynamicFormProps) => {
       <Stack spacing={2} sx={{ marginTop: 2 }}>
         <StepHeader
           pageTitle={
-            sections[stepLabels[activeStep]]?.name ??
+            sections[stepLabels[activeStep]]?.label ??
             (stepLabels[activeStep] || '')
           }
           pageDescription={sections[stepLabels[activeStep]]?.description ?? ''}

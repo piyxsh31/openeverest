@@ -28,8 +28,6 @@ import LoadBalancerConfiguration from 'pages/settings/policies/load-balancer-con
 import LoadBalancerConfigDetails from 'pages/settings/policies/load-balancer-configuration/load-balancer-config-detials/load-balancer-config-detials';
 import SettingsPoliciesRouter from 'pages/settings/settings-policies-router';
 import SplitHorizon from 'pages/settings/policies/split-horizon';
-// TODO legasy POC should be removed later
-// import { UIGeneratorNew } from 'pages/ui-generator/ui-schema/UiGenerator';
 
 const router = createBrowserRouter([
   {
@@ -117,9 +115,8 @@ const router = createBrowserRouter([
           },
         ],
       },
-      // TODO ui-generator builder should be commited and delivered separately with tests coverage
       {
-        path: 'new-page',
+        path: 'ui-generator-builder',
         element: <UIGeneratorBuilder />,
       },
       {
