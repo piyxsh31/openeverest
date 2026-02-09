@@ -199,7 +199,7 @@ export const CreateDbButton = ({
                 </MenuItem>
               ))}
               {/* TODO shouldn't be duplicated with previous version of form */}
-               {/* <MenuItem
+              {/* <MenuItem
                 data-testid={`add-db-cluster-button-psmdb-generated`}
                 component={Link}
                 to="/databases/new-ui-generated"
