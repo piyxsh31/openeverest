@@ -43,12 +43,19 @@ type FieldParamsMap = {
 
 type PathOrId = { path: string; id?: never } | { id: string; path?: never };
 
+export type CelExpression = {
+  celExpr: string;
+  message?: string;
+};
+
 export type Component = {
   [K in keyof FieldParamsMap]: {
     uiType: K;
     techPreview?: boolean;
     validation?: {
-      [key: string]: string | number;
+      min?: number;
+      max?: number;
+      celExpressions?: CelExpression[];
     };
     fieldParams: FieldParamsMap[K];
   } & PathOrId;

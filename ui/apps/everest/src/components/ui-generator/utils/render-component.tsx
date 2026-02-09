@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import React from 'react';
 import type {
   Component,
   ComponentGroup,
@@ -32,9 +33,7 @@ export const renderComponent = ({
 }): ReactNode => {
   debugger;
   const fieldName = generateFieldId(item, name);
-  console.log(
-    `renderComponent: key=${key}, generatedName=${name}, finalFieldName=${fieldName}`
-  );
+
   const isGroup = item?.uiType === 'group' && 'components' in item;
 
   // TODO can have different type of styles depenging on siblings and nesting level
@@ -51,11 +50,11 @@ export const renderComponent = ({
     ).map(([childKey, childItem]) => {
       debugger;
       const subSiblings = Object.values((item as ComponentGroup).components);
-      console.log('subSiblings', subSiblings);
+      const childFieldName = `${fieldName}.${childKey}`;
       return renderComponent({
-        key: childKey,
+        key: childFieldName,
         item: childItem,
-        name: `${fieldName}.${childKey}`,
+        name: childFieldName,
         siblings: subSiblings,
       });
     })
@@ -66,7 +65,7 @@ export const renderComponent = ({
   if (isGroup) {
     return (
       <UIGroup
-        key={key}
+        key={fieldName}
         item={item}
         groupType={(item as ComponentGroup).groupType}
         groupParams={(item as ComponentGroup).groupParams}
@@ -76,7 +75,7 @@ export const renderComponent = ({
     );
   }
 
-  return <>{children}</>;
+  return <React.Fragment key={fieldName}>{children}</React.Fragment>;
   //TODO in this place we can prepare a different type of wrapper, like accordion a
 };
 

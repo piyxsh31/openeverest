@@ -3,15 +3,24 @@ import {
   Component,
   ComponentGroup,
   TopologyUISchemas,
+  CelExpression,
+  Topology,
 } from 'components/ui-generator/ui-generator.types';
 import { ZOD_SCHEMA_MAP, zodRuleMap } from 'components/ui-generator/constants';
-import { generateFieldId } from 'components/ui-generator/utils/renderComponent';
+import { generateFieldId } from 'components/ui-generator/utils/render-component';
+import {
+  extractCelFieldPaths,
+  validateCelExpression,
+} from './cel-validation';
 
 export const buildZodSchema = (
   schema: TopologyUISchemas,
   selectedTopology: string
 ): { schema: z.ZodTypeAny; celDependencyGroups: string[][] } => {
-  const celExpValidations: { path: string[]; celExpr: string }[] = [];
+  const celExpValidations: {
+    path: string[];
+    celExpressions: CelExpression[];
+  }[] = [];
   const celDependencyGroups: string[][] = [];
 
   const buildShapeFromComponents = (
@@ -41,7 +50,7 @@ export const buildZodSchema = (
       const component = item as Component;
       let baseSchema = ZOD_SCHEMA_MAP[component.uiType] ?? z.any();
 
-      // Apply validation rules if present
+      // Apply validation rules if present in schema
       if ('validation' in component && component.validation) {
         // For number types, we need to build the final schema with validation
         if (component.uiType === 'number') {
@@ -50,8 +59,7 @@ export const buildZodSchema = (
           });
 
           Object.entries(component.validation).forEach(([rule, ruleValue]) => {
-            if (rule === 'celExpr') return;
-            // Handle CEL separately
+            if (rule === 'celExpressions') return; // Handle CEL separately
 
             const zodMethod = zodRuleMap[rule];
             if (
@@ -59,9 +67,6 @@ export const buildZodSchema = (
               typeof numberSchema[zodMethod as keyof typeof numberSchema] ===
                 'function'
             ) {
-              console.log(
-                `Applying ${zodMethod}(${ruleValue}) to field ${fieldId}`
-              );
               numberSchema = (numberSchema as any)[zodMethod](ruleValue);
             }
           });
@@ -74,7 +79,7 @@ export const buildZodSchema = (
           // For non-number types, apply validation rules directly
           fieldSchema = baseSchema;
           Object.entries(component.validation).forEach(([rule, ruleValue]) => {
-            if (rule === 'celExpr') return; // Handle CEL separately
+            if (rule === 'celExpressions') return; // Handle CEL separately
 
             const zodMethod = zodRuleMap[rule];
             if (
@@ -82,20 +87,34 @@ export const buildZodSchema = (
               typeof fieldSchema[zodMethod as keyof typeof fieldSchema] ===
                 'function'
             ) {
-              console.log(
-                `Applying ${zodMethod}(${ruleValue}) to field ${fieldId}`
-              );
               fieldSchema = (fieldSchema as any)[zodMethod](ruleValue);
             }
           });
         }
 
         // Handle CEL expressions for cross-field validation
-        if ('celExpr' in component.validation) {
-          celDependencyGroups.push([fieldId]);
+        if (
+          'celExpressions' in component.validation &&
+          component.validation.celExpressions
+        ) {
+          const celExpressions = component.validation.celExpressions;
+
+          // Extract all field dependencies from all CEL expressions
+          const allDeps = new Set<string>();
+          celExpressions.forEach((celExpr) => {
+            const deps = extractCelFieldPaths(celExpr.celExpr);
+            deps.forEach((dep) => allDeps.add(dep.join('.')));
+          });
+
+          // Add to dependency groups for re-validation triggers
+          if (allDeps.size > 0) {
+            celDependencyGroups.push([fieldId, ...Array.from(allDeps)]);
+          }
+
+          // Store for superRefine validation
           celExpValidations.push({
             path: [fieldId],
-            celExpr: component.validation.celExpr as string,
+            celExpressions,
           });
         }
       } else {
@@ -104,7 +123,6 @@ export const buildZodSchema = (
       }
 
       schemaShape[fieldId] = fieldSchema;
-      console.log(`Schema field added: ${fieldId}`, fieldSchema);
     });
 
     return schemaShape;
@@ -166,7 +184,7 @@ export const buildZodSchema = (
 
   // for selected topology only
   const buildCompleteSchema = (): z.ZodTypeAny => {
-    const topology = schema[selectedTopology];
+    const topology: Topology = schema[selectedTopology];
 
     if (!topology || !topology.sections) {
       console.warn(`No topology found for key: ${selectedTopology}`);
@@ -188,27 +206,39 @@ export const buildZodSchema = (
 
     // Convert flat schema to nested structure
     const nestedFields = convertToNestedSchema(flatFields);
-    console.log('Nested schema structure:', nestedFields);
-
     return z.object(nestedFields);
   };
 
   let zodSchema = buildCompleteSchema();
 
-  console.log('Final Zod Schema built:', zodSchema);
-
-  // TODO finish CEL expression validation using superRefine
+  // NOTE: superRefine only runs AFTER all basic field validations pass.
+  // This means CEL validation will not run if any field has a basic validation error
+  // (e.g., required field is empty, min/max violations, etc.).
+  // 
+  // WORKAROUND: Ensure all fields have default values so basic validation always passes.
+  // This allows CEL cross-field validation to run immediately when users modify fields.
+  // 
+  // FUTURE: When upgrading to Zod v4+, we can use the 'when' parameter on .refine()
+  // to run CEL validation independently of basic field validations.
+  // https://github.com/openeverest/openeverest/issues/1864
+  
   if (celExpValidations.length > 0) {
     zodSchema = zodSchema.superRefine((data, ctx) => {
-      celExpValidations.forEach(({ path, celExpr }) => {
-        // Placeholder for CEL evaluation
-        // In production, you would use: evaluate(celExpr, data)
-        console.log(
-          'CEL validation would run here:',
-          celExpr,
-          'for field:',
-          path
-        );
+      celExpValidations.forEach(({ path, celExpressions }) => {
+        const fieldPath = path.join('.');
+
+        // Evaluate each CEL expression for this field
+        celExpressions.forEach((celExpr) => {
+          const validationResult = validateCelExpression(celExpr, data);
+
+          if (!validationResult.isValid) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: validationResult.message || 'Validation failed',
+              path: path,
+            });
+          }
+        });
       });
     });
   }

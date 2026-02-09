@@ -370,7 +370,53 @@ The next is also valid:
 
 ### CELL Validation
 
-//TODO
+CELL (Common Expression Language) validation allows you to define cross-field validation rules using CEL expressions. These expressions can reference multiple fields and return `true` when validation passes or `false` when it fails.
+
+**Important:** CEL expressions should return `true` for valid data and `false` for invalid data.
+
+Example:
+
+```json
+{
+  "numberOfConfigServers": {
+    "uiType": "number",
+    "path": "spec.sharding.configServer.replicas",
+    "fieldParams": {
+      "label": "Number of configuration servers",
+      "defaultValue": 3
+    },
+    "validation": {
+      "celExpressions": [
+        {
+          "celExpr": "!(spec.replica.nodes > 1 && spec.sharding.configServer.replicas == 1)",
+          "message": "The number of configuration servers cannot be 1 if the number of database nodes is greater than 1"
+        }
+      ]
+    }
+  }
+}
+```
+
+In this example, the validation fails (returns false) when there are more than 1 database nodes AND the number of config servers is 1. The `!` operator negates the condition so it returns `false` when the invalid condition is true.
+
+#### Important Limitation
+
+**CEL validation only runs if all basic field validations pass first.** This is because CEL expressions are evaluated in Zod's `superRefine`, which only executes after all basic schema validations (required, min, max, etc.) succeed.
+
+**Implications:**
+
+- If ANY field in the form has a basic validation error (e.g., a required field is empty), CEL validation will not run at all
+- CEL validation errors will not appear until ALL basic validation errors are resolved
+- This affects the **entire form**, not just the fields involved in CEL expressions
+
+**Recommendations:**
+
+- **Provide `defaultValue` for ALL fields in the entire form if you use CEL conditions** - This is critical for CEL validation to work!
+- This ensures basic validation always passes for all fields across all steps, allowing CEL validation to run immediately
+- Users will see CEL validation errors in real-time as they change values
+- Without default values on all fields, users may not see CEL errors until they fill in every required field in the entire form (across all steps)
+
+**Note:** This limitation exists because the project uses Zod v3. [Zod v4](https://zod.dev/v4) introduces a `when` parameter on `.refine()` ([see GitHub issue #5197](https://github.com/colinhacks/zod/issues/5197)) that could bypass this limitation.
 
 ### CELL Condition rendering
 

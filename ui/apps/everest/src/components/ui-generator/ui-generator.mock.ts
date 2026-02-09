@@ -153,6 +153,17 @@ export const topologyUiSchemas: TopologyUISchemas = {
               label: 'Nº of configuration servers',
               defaultValue: 3,
             },
+            validation: {
+              celExpressions: [
+                {
+                  celExpr:
+                    '!(spec.replica.nodes > 1 && spec.sharding.configServer.replicas == 1)',
+                  message:
+                    'The number of configuration servers cannot be 1 if the number of database nodes is greater than 1',
+                },
+              ],
+            },
+          },
           },
         },
         componentsOrder: ['shards', 'numberOfnodes', 'numberOfConfigServers'],
@@ -163,22 +174,23 @@ export const topologyUiSchemas: TopologyUISchemas = {
         components: {
           shards: {
             uiType: 'number',
-            path: 'spec.sharding.shards',
+            path: 'spec.sharding.shards2',
             fieldParams: {
               label: 'Nº of shards',
               defaultValue: 1,
             },
           },
           numberOfnodes: {
-            path: 'spec.replica.nodes',
+            path: 'spec.replica.nodes2',
             uiType: 'number', // RadioButtons/Number/even Select
             fieldParams: {
               label: 'Number of nodes',
+              defaultValue: 3,
             },
           },
           numberOfConfigServers: {
             uiType: 'number', //can be something like NumberTabs or custom type
-            path: 'spec.sharding.configServer.replicas',
+            path: 'spec.sharding.configServer.replicas2',
             fieldParams: {
               label: 'Nº of configuration servers',
               defaultValue: 3,

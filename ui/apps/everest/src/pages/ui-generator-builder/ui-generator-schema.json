@@ -37,7 +37,8 @@
             "path": "spec.replica.nodes",
             "uiType": "number",
             "fieldParams": {
-              "label": "Number of nodes"
+              "label": "Number of nodes",
+              "defaultValue": 3
             },
             "validation": {
               "min": 1,
@@ -139,7 +140,8 @@
             "path": "spec.replica.nodes",
             "uiType": "number",
             "fieldParams": {
-              "label": "Number of nodes"
+              "label": "Number of nodes",
+              "defaultValue": 3
             }
           },
           "numberOfConfigServers": {
@@ -148,6 +150,14 @@
             "fieldParams": {
               "label": "Nº of configuration servers",
               "defaultValue": 3
+            },
+            "validation": {
+              "celExpressions": [
+                {
+                  "celExpr": "!(spec.replica.nodes > 1 && spec.sharding.configServer.replicas == 1)",
+                  "message": "The number of configuration servers cannot be 1 if the number of database nodes is greater than 1"
+                }
+              ]
             }
           }
         },
@@ -159,22 +169,23 @@
         "components": {
           "shards": {
             "uiType": "number",
-            "path": "spec.sharding.shards",
+            "path": "spec.sharding.shards2",
             "fieldParams": {
               "label": "Nº of shards",
               "defaultValue": 1
             }
           },
           "numberOfnodes": {
-            "path": "spec.replica.nodes",
+            "path": "spec.replica.nodes2",
             "uiType": "number",
             "fieldParams": {
-              "label": "Number of nodes"
+              "label": "Number of nodes",
+              "defaultValue": 3
             }
           },
           "numberOfConfigServers": {
             "uiType": "number",
-            "path": "spec.sharding.configServer.replicas",
+            "path": "spec.sharding.configServer.replicas2",
             "fieldParams": {
               "label": "Nº of configuration servers",
               "defaultValue": 3
@@ -229,7 +240,8 @@
                 "path": "spec.replica.nodes",
                 "uiType": "number",
                 "fieldParams": {
-                  "label": "Number of nodes"
+                  "label": "Number of nodes",
+                  "defaultValue": 3
                 }
               },
               "numberOfConfigServers": {

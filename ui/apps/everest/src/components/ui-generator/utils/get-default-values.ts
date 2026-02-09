@@ -4,7 +4,7 @@ import {
   Topology,
   TopologyUISchemas,
 } from 'components/ui-generator/ui-generator.types';
-import { generateFieldId } from 'components/ui-generator/utils/renderComponent';
+import { generateFieldId } from 'components/ui-generator/utils/render-component';
 import { UI_TYPE_DEFAULT_VALUE } from 'components/ui-generator/constants';
 
 export const getDefaultValues = (
