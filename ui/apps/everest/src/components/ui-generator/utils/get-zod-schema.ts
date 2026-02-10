@@ -8,10 +8,7 @@ import {
 } from 'components/ui-generator/ui-generator.types';
 import { ZOD_SCHEMA_MAP, zodRuleMap } from 'components/ui-generator/constants';
 import { generateFieldId } from 'components/ui-generator/utils/render-component';
-import {
-  extractCelFieldPaths,
-  validateCelExpression,
-} from './cel-validation';
+import { extractCelFieldPaths, validateCelExpression } from './cel-validation';
 
 export const buildZodSchema = (
   schema: TopologyUISchemas,

@@ -68,7 +68,12 @@ export const DynamicForm = ({ schema }: DynamicFormProps) => {
 
   return (
     <FormProvider {...methods} key={selectedTopology}>
-      <Stepper noConnector activeStep={activeStep} sx={{ marginBottom: 4 }} key={`stepper-${selectedTopology}`}>
+      <Stepper
+        noConnector
+        activeStep={activeStep}
+        sx={{ marginBottom: 4 }}
+        key={`stepper-${selectedTopology}`}
+      >
         {stepLabels.map((_, idx) => (
           <Step key={`${selectedTopology}-step-${idx + 1}`}>
             <StepLabel />
