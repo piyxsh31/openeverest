@@ -206,22 +206,11 @@ export const buildZodSchema = (
 
     // Convert flat schema to nested structure
     const nestedFields = convertToNestedSchema(flatFields);
-    return z.object(nestedFields);
+    return z.object(nestedFields).passthrough();
   };
 
   let zodSchema = buildCompleteSchema();
 
-  // NOTE: superRefine only runs AFTER all basic field validations pass.
-  // This means CEL validation will not run if any field has a basic validation error
-  // (e.g., required field is empty, min/max violations, etc.).
-  // 
-  // WORKAROUND: Ensure all fields have default values so basic validation always passes.
-  // This allows CEL cross-field validation to run immediately when users modify fields.
-  // 
-  // FUTURE: When upgrading to Zod v4+, we can use the 'when' parameter on .refine()
-  // to run CEL validation independently of basic field validations.
-  // https://github.com/openeverest/openeverest/issues/1864
-  
   if (celExpValidations.length > 0) {
     zodSchema = zodSchema.superRefine((data, ctx) => {
       celExpValidations.forEach(({ path, celExpressions }) => {
