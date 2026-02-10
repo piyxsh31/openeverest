@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getVersionFn } from 'api/version';
 import { PerconaQueryOptions } from 'shared-types/query.types';
-import { EverestVersion } from 'shared-types/version.types';
+import { EverestVersion } from 'types/api';
 
 export const useVersion = (options?: PerconaQueryOptions<EverestVersion>) =>
   useQuery({

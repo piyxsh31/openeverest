@@ -1,4 +1,4 @@
-import { EverestVersion } from 'shared-types/version.types';
+import { EverestVersion } from 'types/api';
 import { api } from './api';
 
 export const getVersionFn = async () => {
