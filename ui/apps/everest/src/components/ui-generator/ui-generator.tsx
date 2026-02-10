@@ -15,7 +15,7 @@ export const UIGenerator = ({
   sections,
   stepLabels,
 }: UIGeneratorProps) => {
-  debugger;
+
   const { getValues, formState } = useFormContext();
   const sectionKey = stepLabels[activeStep];
   const section = sections[sectionKey];

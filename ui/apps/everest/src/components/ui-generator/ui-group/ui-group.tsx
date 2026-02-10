@@ -15,7 +15,6 @@ export type UIGroupProps = {
 
 const UIGroup = ({ groupType, children, groupParams, item }: UIGroupProps) => {
   const Component = groupType ? componentGroupMap[groupType] : undefined;
-  debugger;
 
   return (
     <>

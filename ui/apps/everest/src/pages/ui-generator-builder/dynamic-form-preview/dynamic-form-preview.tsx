@@ -17,7 +17,7 @@ export type DynamicFormProps = {
 };
 
 export const DynamicForm = ({ schema }: DynamicFormProps) => {
-  debugger;
+
   const [activeStep, setActiveStep] = useState(0);
   const topologies = Object.keys(schema);
   const hasMultipleTopologies = topologies.length > 1;

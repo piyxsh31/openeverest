@@ -31,7 +31,7 @@ export const renderComponent = ({
   name: string;
   siblings?: (Component | ComponentGroup)[];
 }): ReactNode => {
-  debugger;
+
   const fieldName = generateFieldId(item, name);
 
   const isGroup = item?.uiType === 'group' && 'components' in item;
@@ -42,13 +42,13 @@ export const renderComponent = ({
   );
 
   const nestingLevel = fieldName.split('.').length;
-  debugger;
+
   const children = isGroup ? (
     orderComponents(
       (item as ComponentGroup).components,
       (item as ComponentGroup).componentsOrder
     ).map(([childKey, childItem]) => {
-      debugger;
+
       const subSiblings = Object.values((item as ComponentGroup).components);
       const childFieldName = `${fieldName}.${childKey}`;
       return renderComponent({
