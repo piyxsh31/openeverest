@@ -31,7 +31,6 @@ export const getDefaultValues = (
 
   // Convert flat object with dot-notation keys to nested object
   const nestedDefaults = convertToNestedObject(flatDefaults);
-  console.log('Final default values (nested):', nestedDefaults);
 
   return nestedDefaults;
 };
