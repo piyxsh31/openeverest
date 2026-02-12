@@ -1,5 +1,36 @@
 # UI Generator
 
+## Table of Contents
+
+- [What is UI Generator?](#what-is-ui-generator)
+- [How Does It Work?](#how-does-it-work)
+- [Top-Level Structure](#top-level-structure)
+  - [Topology](#topology)
+  - [Sections](#sections)
+  - [Components](#components)
+- [Component vs ComponentGroup](#component-vs-componentgroup)
+  - [Component (Single Field)](#component-single-field)
+  - [ComponentGroup (Nested Fields)](#componentgroup-nested-fields)
+- [Field Types](#field-types)
+  - [NumberField](#numberfield)
+  - [SelectField](#selectfield)
+  - [HiddenField](#hiddenfield)
+- [Groups](#groups)
+  - [Line Group](#line-group)
+  - [Accordion Group](#accordion-group)
+- [Validation](#validation)
+  - [Default Validation](#default-validation)
+  - [Schema Custom Validation](#schema-custom-validation)
+  - [Common Validation Rules](#common-validation-rules)
+    - [Required Field Validation](#required-field-validation)
+    - [Regex Validation](#regex-validation)
+  - [CEL Expression Validation](#cel-expression-validation)
+- [Advanced Properties](#advanced-properties)
+  - [Path vs ID](#path-vs-id)
+  - [Components Order](#components-order)
+  - [CEL Condition Rendering](#cel-condition-rendering)
+- [Complete Example](#complete-example)
+
 ## What is UI Generator?
 
 `ui-generator` is a utility for dynamically generating UI forms based on JSON schema definitions. It allows developers to create complex multi-step forms without writing repetitive UI code.
@@ -162,45 +193,82 @@ Example:
 
 ### NumberField
 
-A numeric input field
+A numeric input field for integer and decimal values.
 
 **Properties:**
 
-- `uiType`: `"number"`
-- `fieldParams`:
-  - `label`: Display label
-  - `placeholder`: Placeholder text
+- `uiType`: `"number"` (required)
+- `path` OR `id`: Data path or unique identifier (required)
+- `fieldParams`: Configuration object with the following optional properties:
+  - `label`: Display label for the field
+  - `placeholder`: Placeholder text shown when field is empty
   - `defaultValue`: Default numeric value
-  - `badge`: Suffix text (e.g., "GB", "CPU")
-  - `maxLength`: Maximum number of digits
-  - `description`: Help text
+  - `required`: Whether the field is required (default: `false`)
+  - `disabled`: Whether the field is disabled (default: `false`)
+  - `autoFocus`: Automatically focus this field on render
+  - `helperText`: Help text displayed below the field
+  - `step`: Increment/decrement step for arrow buttons (e.g., `0.1`, `5`, `10`)
+- `validation` (optional): Validation rules object with the following properties:
+  - `min`: Minimum value (inclusive) - value must be >= specified number
+  - `max`: Maximum value (inclusive) - value must be <= specified number
+  - `gt`: Greater than (exclusive) - value must be > specified number
+  - `lt`: Less than (exclusive) - value must be < specified number
+  - `int`: Must be an integer (boolean: `true`)
+  - `multipleOf`: Value must be a multiple of specified number
+  - `safe`: Must be a safe integer within JavaScript's safe integer range (boolean: `true`)
+  - `celExpressions`: Array of CEL validation expressions for cross-field validation
 
-**Native Validation:** Validate that input is numeric
+**Native Validation:** Validates that input is numeric
 
-**Custom Schema Validation:**
+**Validation Auto-Mapping:** The following validation rules are automatically applied to HTML input attributes for browser-level validation:
 
-- `min`: Minimum value
-- `max`: Maximum value
+- `validation.min` → HTML `min` attribute (inclusive lower bound)
+- `validation.max` → HTML `max` attribute (inclusive upper bound)
+- `validation.gt` → HTML `min` attribute (converted to exclusive lower bound)
+- `validation.lt` → HTML `max` attribute (converted to exclusive upper bound)
 
-**Example:**
+When converting exclusive bounds (`gt`/`lt`) to HTML attributes:
 
-//TODO can be changed, doubleCheck before merging
+- For integer validation (`int: true`): offset by 1 (e.g., `gt: 5` becomes `min="6"`)
+- With `step` defined: offset by step value (e.g., `gt: 5` with `step: 0.5` becomes `min="5.5"`)
+- For arbitrary decimals: offset by 0.000001 (e.g., `gt: 5` becomes `min="5.000001"`)
+- Explicit `min`/`max` always take priority over converted `gt`/`lt`
+
+**Examples:**
+
+[OpenEverest TextInput “Number type” Story](https://openeverest.io/openeverest/?path=/story/textinput--number-type)
+
+**Basic Number Field**
 
 ```json
-"cpu": {
+"replicas": {
   "uiType": "number",
-  "path": "spec.resources.cpu",
+  "path": "spec.replicas",
   "fieldParams": {
-    "label": "CPU",
-    "badge": "cores",
-    "defaultValue": 1
+    "label": "Number of Replicas",
+    "defaultValue": 3,
+    "step": 1,
+    "autoFocus": true
   },
   "validation": {
-    "min": 0.6,
-    "max": 16
+    "min": 1,
+    "max": 16,
+    "int": true
   }
 }
 ```
+
+**Exclusive Bounds**
+
+```json
+  "validation": {
+    "gt": 0,
+    "lt": 32,
+    "multipleOf": 0.5
+  }
+```
+
+**Note:** Fields are optional by default. Validation rules (min/max/etc.) only apply when a value is entered. To make a field required, set `required: true` in `fieldParams`.
 
 ### SelectField
 
@@ -255,9 +323,7 @@ If you need to use the default value in the form that the user cannot change, us
 
 Groups allow you to organize multiple fields together with different layout options.
 
-### Group Types
-
-#### Line Group
+### Line Group
 
 //TODO will be renamed, documentation should be checked before merging
 Displays components in a horizontal line (flex layout).
@@ -278,7 +344,7 @@ Displays components in a horizontal line (flex layout).
 
 //TODO visual example
 
-#### Accordion Group
+### Accordion Group
 
 Displays components in a collapsible accordion panel.
 
@@ -310,25 +376,86 @@ Each field type has built-in validation based on its type:
 
 Custom validation rules can be defined in the `validation` property. These have higher priority than default validation and will override defaults if the same properties are specified.
 
-**Available validation rules:**
+### Common Validation Rules
 
-- `min`: Minimum value (for numbers)
-- `max`: Maximum value (for numbers)
-- Additional validation rules can be extended based on field type
-  //TODO add more properties based on Zod
+The following validation rules are supported for **all field types**:
+
+**Required Field Validation**
+
+Control whether a field must have a value using the `required` parameter in `fieldParams`:
+
+```json
+"fieldParams": {
+  "required": true  // Makes the field required (default is false)
+}
+```
+
+**Regex Validation**
+
+Apply regular expression validation to any field using the `regex` property in the `validation` object:
+
+| Property  | Type              | Description                                           |
+| --------- | ----------------- | ----------------------------------------------------- |
+| `pattern` | string            | Regular expression pattern (without delimiters)       |
+| `message` | string (optional) | Custom error message to display on validation failure |
+
+**Number field with regex:**
+
+```json
+"portNumber": {
+  "uiType": "number",
+  "path": "spec.port",
+  "fieldParams": {
+    "label": "Port Number"
+  },
+  "validation": {
+    "regex": {
+      "pattern": "^[1-9][0-9]{3,4}$",
+      "message": "Port must be between 1000-99999"
+    }
+  }
+}
+```
+
+### CEL Expression Validation
+
+CEL (Common Expression Language) validation allows you to define cross-field validation rules using CEL expressions. These expressions can reference multiple fields and return `true` when validation passes or `false` when it fails.
+
+**Important:** CEL expressions should return `true` for valid data and `false` for invalid data.
+
+**Properties:**
+
+| Property  | Type   | Description                                    |
+| --------- | ------ | ---------------------------------------------- |
+| `celExpr` | string | CEL expression that returns boolean            |
+| `message` | string | Error message to display when validation fails |
 
 **Example:**
 
 ```json
-"numberOfnodes": {
-  "uiType": "number",
-  "path": "spec.replica.nodes",
-  "validation": {
-    "min": 1,
-    "max": 7
+{
+  "numberOfConfigServers": {
+    "uiType": "number",
+    "path": "spec.sharding.configServer.replicas",
+    "fieldParams": {
+      "label": "Number of configuration servers",
+      "defaultValue": 3
+    },
+    "validation": {
+      "celExpressions": [
+        {
+          "celExpr": "!(spec.replica.nodes > 1 && spec.sharding.configServer.replicas == 1)",
+          "message": "The number of configuration servers cannot be 1 if the number of database nodes is greater than 1"
+        }
+      ]
+    }
   }
 }
 ```
+
+In this example, the validation fails (returns false) when there are more than 1 database nodes AND the number of config servers is 1. The `!` operator negates the condition so it returns `false` when the invalid condition is true.
+
+**Note:** All validation rules only apply when a value is entered. Empty fields will pass validation by default since fields are optional unless explicitly marked as `required: true`.
 
 ## Advanced Properties
 
@@ -368,38 +495,7 @@ The next is also valid:
   "sectionsOrder": ["resources", "advanced"]
 ```
 
-### CELL Validation
-
-CELL (Common Expression Language) validation allows you to define cross-field validation rules using CEL expressions. These expressions can reference multiple fields and return `true` when validation passes or `false` when it fails.
-
-**Important:** CEL expressions should return `true` for valid data and `false` for invalid data.
-
-Example:
-
-```json
-{
-  "numberOfConfigServers": {
-    "uiType": "number",
-    "path": "spec.sharding.configServer.replicas",
-    "fieldParams": {
-      "label": "Number of configuration servers",
-      "defaultValue": 3
-    },
-    "validation": {
-      "celExpressions": [
-        {
-          "celExpr": "!(spec.replica.nodes > 1 && spec.sharding.configServer.replicas == 1)",
-          "message": "The number of configuration servers cannot be 1 if the number of database nodes is greater than 1"
-        }
-      ]
-    }
-  }
-}
-```
-
-In this example, the validation fails (returns false) when there are more than 1 database nodes AND the number of config servers is 1. The `!` operator negates the condition so it returns `false` when the invalid condition is true.
-
-### CELL Condition rendering
+### CEL Condition Rendering
 
 //TODO
 
