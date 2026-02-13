@@ -8,7 +8,7 @@ export type CelValidationResult = {
 
 export const validateCelExpression = (
   celExpression: CelExpression,
-  formData: Record<string, any>
+  formData: Record<string, unknown>
 ): CelValidationResult => {
   try {
     const result = evaluate(celExpression.celExpr, formData);
@@ -25,7 +25,6 @@ export const validateCelExpression = (
 
     return { isValid: true };
   } catch (error) {
-    console.error('CEL expression evaluation error:', error);
     return {
       isValid: false,
       message: `CEL expression error: ${celExpression.celExpr}`,

@@ -9,13 +9,14 @@ import { componentGroupMap } from '../constants';
 export type UIGroupProps = {
   children: React.ReactNode;
   groupType?: GroupType;
-  groupParams?: Record<string, any>;
+  groupParams?: Record<string, unknown>;
   item?: ComponentGroup;
 };
 
 const UIGroup = ({
   groupType,
   children,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   groupParams: _groupParams,
   item,
 }: UIGroupProps) => {

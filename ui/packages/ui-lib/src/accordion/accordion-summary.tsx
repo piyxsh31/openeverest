@@ -13,7 +13,7 @@ const CustomAccordionSummary = ({
   hasError?: boolean;
   title?: string;
 }) => {
-  const text = Number.isNaN(nr) || nr < 1 ? '' : ` (${nr})`;
+  const text = Number.isNaN(nr ?? NaN) || (nr ?? 0) < 1 ? '' : ` (${nr})`;
 
   return (
     <AccordionSummary

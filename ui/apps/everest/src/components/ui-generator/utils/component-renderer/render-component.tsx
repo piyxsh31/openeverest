@@ -10,14 +10,12 @@ import { generateFieldId } from './generate-field-id';
 import { orderComponents } from './order-components';
 
 export type RenderComponentProps = {
-  key: string;
   item: Component | ComponentGroup;
   name: string;
 };
 
 // Recursively renders UI components and groups.
 export const renderComponent = ({
-  key: _key,
   item,
   name,
 }: RenderComponentProps): ReactNode => {
@@ -31,7 +29,6 @@ export const renderComponent = ({
     ).map(([childKey, childItem]) => {
       const childFieldName = `${fieldName}.${childKey}`;
       return renderComponent({
-        key: childFieldName,
         item: childItem,
         name: childFieldName,
       });

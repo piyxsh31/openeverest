@@ -52,6 +52,25 @@ export const getZodRulesForFieldType = (
   return zodRuleMapByType[fieldType] || {};
 };
 
+/*
+ Universal helper encapsulates type assertions in one place, making it easy to support
+ any field type (number, string, date, etc.) without code duplication.
+ */
+export const applyZodValidation = (
+  schema: z.ZodTypeAny,
+  methodName: string,
+  value?: unknown
+): z.ZodTypeAny => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const method = (schema as any)[methodName];
+  
+  if (typeof method !== 'function') {
+    return schema;
+  }
+
+  return value !== undefined ? method.call(schema, value) : method.call(schema);
+};
+
 export const ZOD_SCHEMA_MAP: Record<FieldType, z.ZodTypeAny> = {
   [FieldType.Number]: z
     .union([z.string(), z.number()])

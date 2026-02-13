@@ -30,7 +30,7 @@ const applyCommonValidations = (
     'regex' in component.validation &&
     component.validation.regex
   ) {
-    const regexValidation = component.validation.regex as any;
+    const regexValidation: { pattern: string; message?: string } = component.validation.regex;
     const pattern = new RegExp(regexValidation.pattern);
     const message = regexValidation.message || 'Invalid format';
 

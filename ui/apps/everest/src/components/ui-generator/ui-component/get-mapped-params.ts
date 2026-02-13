@@ -1,5 +1,5 @@
 import { TextFieldProps } from '@mui/material';
-import { NumberFieldParams, FieldParamsMap } from '../ui-generator.types';
+import { NumberFieldParams, FieldParamsMap, ValidationMap, FieldType } from '../ui-generator.types';
 
 // Helper to filter out undefined values from an object
 const filterDefined = <T extends Record<string, unknown>>(
@@ -13,7 +13,7 @@ const filterDefined = <T extends Record<string, unknown>>(
 export const getMappedParams = <K extends keyof FieldParamsMap>(
   fieldType: K,
   fieldParams: FieldParamsMap[K],
-  validation?: any
+  validation?: ValidationMap[K]
 ) => {
   switch (fieldType) {
     case 'number':
@@ -26,7 +26,7 @@ export const getMappedParams = <K extends keyof FieldParamsMap>(
 
 const mapNumberFieldParams = (
   fieldParams: NumberFieldParams,
-  validation?: any
+  validation?: ValidationMap[FieldType.Number]
 ) => {
   const {
     step,

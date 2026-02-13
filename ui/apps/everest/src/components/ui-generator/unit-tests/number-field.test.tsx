@@ -2,7 +2,7 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { TestWrapper } from 'utils/test';
 import { UIGenerator } from '../ui-generator';
-import { TopologyUISchemas } from '../ui-generator.types';
+import { Component, FieldType, TopologyUISchemas } from '../ui-generator.types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { buildZodSchema } from '../utils/schema-builder';
 import { getDefaultValues } from '../utils/default-values';
@@ -19,11 +19,11 @@ vi.mock('../utils/schema-builder/cel-validation', () => ({
 }));
 
 const createTestSchema = (
-  fieldParams: any = {},
-  validation?: any
-): Partial<TopologyUISchemas> => {
-  const testNumber: any = {
-    uiType: 'number',
+  fieldParams: Record<string, unknown> = {},
+  validation?: Record<string, unknown>
+): TopologyUISchemas => {
+  const testNumber: Extract<Component, { uiType: FieldType.Number }> = {
+    uiType: FieldType.Number,
     path: 'spec.testNumber',
     fieldParams: {
       label: 'Test Number Field',
@@ -52,16 +52,13 @@ const createTestSchema = (
 
 interface FormWrapperProps {
   children: React.ReactNode;
-  schema: Partial<TopologyUISchemas>;
-  onSubmit: (data: any) => void;
+  schema: TopologyUISchemas;
+  onSubmit: (data: Record<string, unknown>) => void;
 }
 
 const FormWrapper = ({ children, schema, onSubmit }: FormWrapperProps) => {
   const { schema: zodSchema } = buildZodSchema(schema, 'testTopology');
-  const defaultValues = getDefaultValues(
-    schema.testTopology?.sections || {},
-    'testTopology'
-  );
+  const defaultValues = getDefaultValues(schema, 'testTopology');
 
   const methods = useForm({
     resolver: zodResolver(zodSchema),
@@ -96,7 +93,7 @@ describe('UIGenerator - Number Field Required Validation', () => {
         <FormWrapper schema={schema} onSubmit={mockSubmit}>
           <UIGenerator
             activeStep={0}
-            sections={schema.testTopology.sections}
+            sections={schema.testTopology!.sections}
             stepLabels={['basicInfo']}
           />
         </FormWrapper>
@@ -124,7 +121,7 @@ describe('UIGenerator - Number Field Required Validation', () => {
         <FormWrapper schema={schema} onSubmit={mockSubmit}>
           <UIGenerator
             activeStep={0}
-            sections={schema.testTopology.sections}
+            sections={schema.testTopology!.sections}
             stepLabels={['basicInfo']}
           />
         </FormWrapper>
@@ -151,7 +148,7 @@ describe('UIGenerator - Number Field Required Validation', () => {
         <FormWrapper schema={schema} onSubmit={mockSubmit}>
           <UIGenerator
             activeStep={0}
-            sections={schema.testTopology.sections}
+            sections={schema.testTopology!.sections}
             stepLabels={['basicInfo']}
           />
         </FormWrapper>
@@ -177,7 +174,7 @@ describe('UIGenerator - Number Field Required Validation', () => {
         <FormWrapper schema={schema} onSubmit={mockSubmit}>
           <UIGenerator
             activeStep={0}
-            sections={schema.testTopology.sections}
+            sections={schema.testTopology!.sections}
             stepLabels={['basicInfo']}
           />
         </FormWrapper>
@@ -205,7 +202,7 @@ describe('UIGenerator - Number Field Required Validation', () => {
         <FormWrapper schema={schema} onSubmit={mockSubmit}>
           <UIGenerator
             activeStep={0}
-            sections={schema.testTopology.sections}
+            sections={schema.testTopology!.sections}
             stepLabels={['basicInfo']}
           />
         </FormWrapper>
@@ -233,7 +230,7 @@ describe('UIGenerator - Number Field Required Validation', () => {
         <FormWrapper schema={schema} onSubmit={mockSubmit}>
           <UIGenerator
             activeStep={0}
-            sections={schema.testTopology.sections}
+            sections={schema.testTopology!.sections}
             stepLabels={['basicInfo']}
           />
         </FormWrapper>
@@ -264,7 +261,7 @@ describe('UIGenerator - Number Field Label and Helper Text', () => {
         <FormWrapper schema={schema} onSubmit={mockSubmit}>
           <UIGenerator
             activeStep={0}
-            sections={schema.testTopology.sections}
+            sections={schema.testTopology!.sections}
             stepLabels={['basicInfo']}
           />
         </FormWrapper>
@@ -290,7 +287,7 @@ describe('UIGenerator - Number Field Disabled State', () => {
         <FormWrapper schema={schema} onSubmit={mockSubmit}>
           <UIGenerator
             activeStep={0}
-            sections={schema.testTopology.sections}
+            sections={schema.testTopology!.sections}
             stepLabels={['basicInfo']}
           />
         </FormWrapper>
@@ -318,7 +315,7 @@ describe('UIGenerator - Number Field Min/Max Validation', () => {
         <FormWrapper schema={schema} onSubmit={mockSubmit}>
           <UIGenerator
             activeStep={0}
-            sections={schema.testTopology.sections}
+            sections={schema.testTopology!.sections}
             stepLabels={['basicInfo']}
           />
         </FormWrapper>
@@ -352,7 +349,7 @@ describe('UIGenerator - Number Field Min/Max Validation', () => {
         <FormWrapper schema={schema} onSubmit={mockSubmit}>
           <UIGenerator
             activeStep={0}
-            sections={schema.testTopology.sections}
+            sections={schema.testTopology!.sections}
             stepLabels={['basicInfo']}
           />
         </FormWrapper>
@@ -386,7 +383,7 @@ describe('UIGenerator - Number Field Min/Max Validation', () => {
         <FormWrapper schema={schema} onSubmit={mockSubmit}>
           <UIGenerator
             activeStep={0}
-            sections={schema.testTopology.sections}
+            sections={schema.testTopology!.sections}
             stepLabels={['basicInfo']}
           />
         </FormWrapper>
@@ -421,7 +418,7 @@ describe('UIGenerator - Number Field Input Attributes from Validation', () => {
         <FormWrapper schema={schema} onSubmit={mockSubmit}>
           <UIGenerator
             activeStep={0}
-            sections={schema.testTopology.sections}
+            sections={schema.testTopology!.sections}
             stepLabels={['basicInfo']}
           />
         </FormWrapper>
@@ -451,7 +448,7 @@ describe('UIGenerator - Number Field Input Attributes from Validation', () => {
         <FormWrapper schema={schema} onSubmit={mockSubmit}>
           <UIGenerator
             activeStep={0}
-            sections={schema.testTopology.sections}
+            sections={schema.testTopology!.sections}
             stepLabels={['basicInfo']}
           />
         </FormWrapper>
@@ -481,7 +478,7 @@ describe('UIGenerator - Number Field Input Attributes from Validation', () => {
         <FormWrapper schema={schema} onSubmit={mockSubmit}>
           <UIGenerator
             activeStep={0}
-            sections={schema.testTopology.sections}
+            sections={schema.testTopology!.sections}
             stepLabels={['basicInfo']}
           />
         </FormWrapper>
@@ -513,7 +510,7 @@ describe('UIGenerator - Number Field Input Attributes from Validation', () => {
         <FormWrapper schema={schema} onSubmit={mockSubmit}>
           <UIGenerator
             activeStep={0}
-            sections={schema.testTopology.sections}
+            sections={schema.testTopology!.sections}
             stepLabels={['basicInfo']}
           />
         </FormWrapper>
@@ -547,7 +544,7 @@ describe('UIGenerator - Number Field Input Attributes from Validation', () => {
         <FormWrapper schema={schema} onSubmit={mockSubmit}>
           <UIGenerator
             activeStep={0}
-            sections={schema.testTopology.sections}
+            sections={schema.testTopology!.sections}
             stepLabels={['basicInfo']}
           />
         </FormWrapper>
@@ -578,7 +575,7 @@ describe('UIGenerator - Number Field Input Attributes from Validation', () => {
         <FormWrapper schema={schema} onSubmit={mockSubmit}>
           <UIGenerator
             activeStep={0}
-            sections={schema.testTopology.sections}
+            sections={schema.testTopology!.sections}
             stepLabels={['basicInfo']}
           />
         </FormWrapper>
@@ -637,7 +634,7 @@ describe('UIGenerator - Number Field Default Value', () => {
         <FormWithDefaults schema={schema} onSubmit={mockSubmit}>
           <UIGenerator
             activeStep={0}
-            sections={schema.testTopology.sections}
+            sections={schema.testTopology!.sections}
             stepLabels={['basicInfo']}
           />
         </FormWithDefaults>
@@ -664,7 +661,7 @@ describe('UIGenerator - Number Field Step Param', () => {
         <FormWrapper schema={schema} onSubmit={mockSubmit}>
           <UIGenerator
             activeStep={0}
-            sections={schema.testTopology.sections}
+            sections={schema.testTopology!.sections}
             stepLabels={['basicInfo']}
           />
         </FormWrapper>
@@ -691,7 +688,7 @@ describe('UIGenerator - Number Field Placeholder', () => {
         <FormWrapper schema={schema} onSubmit={mockSubmit}>
           <UIGenerator
             activeStep={0}
-            sections={schema.testTopology.sections}
+            sections={schema.testTopology!.sections}
             stepLabels={['basicInfo']}
           />
         </FormWrapper>
@@ -720,7 +717,7 @@ describe('UIGenerator - Number Field Advanced Validation', () => {
           <FormWrapper schema={schema} onSubmit={mockSubmit}>
             <UIGenerator
               activeStep={0}
-              sections={schema.testTopology.sections}
+              sections={schema.testTopology!.sections}
               stepLabels={['basicInfo']}
             />
           </FormWrapper>
@@ -753,7 +750,7 @@ describe('UIGenerator - Number Field Advanced Validation', () => {
           <FormWrapper schema={schema} onSubmit={mockSubmit}>
             <UIGenerator
               activeStep={0}
-              sections={schema.testTopology.sections}
+              sections={schema.testTopology!.sections}
               stepLabels={['basicInfo']}
             />
           </FormWrapper>
@@ -787,7 +784,7 @@ describe('UIGenerator - Number Field Advanced Validation', () => {
           <FormWrapper schema={schema} onSubmit={mockSubmit}>
             <UIGenerator
               activeStep={0}
-              sections={schema.testTopology.sections}
+              sections={schema.testTopology!.sections}
               stepLabels={['basicInfo']}
             />
           </FormWrapper>
@@ -820,7 +817,7 @@ describe('UIGenerator - Number Field Advanced Validation', () => {
           <FormWrapper schema={schema} onSubmit={mockSubmit}>
             <UIGenerator
               activeStep={0}
-              sections={schema.testTopology.sections}
+              sections={schema.testTopology!.sections}
               stepLabels={['basicInfo']}
             />
           </FormWrapper>
@@ -855,7 +852,7 @@ describe('UIGenerator - Number Field Advanced Validation', () => {
           <FormWrapper schema={schema} onSubmit={mockSubmit}>
             <UIGenerator
               activeStep={0}
-              sections={schema.testTopology.sections}
+              sections={schema.testTopology!.sections}
               stepLabels={['basicInfo']}
             />
           </FormWrapper>
@@ -888,7 +885,7 @@ describe('UIGenerator - Number Field Advanced Validation', () => {
           <FormWrapper schema={schema} onSubmit={mockSubmit}>
             <UIGenerator
               activeStep={0}
-              sections={schema.testTopology.sections}
+              sections={schema.testTopology!.sections}
               stepLabels={['basicInfo']}
             />
           </FormWrapper>
@@ -926,7 +923,7 @@ describe('UIGenerator - Optional Field with Validation', () => {
         <FormWrapper schema={schema} onSubmit={mockSubmit}>
           <UIGenerator
             activeStep={0}
-            sections={schema.testTopology.sections}
+            sections={schema.testTopology!.sections}
             stepLabels={['basicInfo']}
           />
         </FormWrapper>
@@ -978,7 +975,7 @@ describe('UIGenerator - Optional Field with Validation', () => {
         <FormWrapper schema={schema} onSubmit={mockSubmit}>
           <UIGenerator
             activeStep={0}
-            sections={schema.testTopology.sections}
+            sections={schema.testTopology!.sections}
             stepLabels={['basicInfo']}
           />
         </FormWrapper>
@@ -1037,7 +1034,7 @@ describe('UIGenerator - Optional Field with Validation', () => {
         <FormWrapper schema={schema} onSubmit={mockSubmit}>
           <UIGenerator
             activeStep={0}
-            sections={schema.testTopology.sections}
+            sections={schema.testTopology!.sections}
             stepLabels={['basicInfo']}
           />
         </FormWrapper>
@@ -1084,7 +1081,7 @@ describe('UIGenerator - Optional Field with Validation', () => {
         <FormWrapper schema={schema} onSubmit={mockSubmit}>
           <UIGenerator
             activeStep={0}
-            sections={schema.testTopology.sections}
+            sections={schema.testTopology!.sections}
             stepLabels={['basicInfo']}
           />
         </FormWrapper>
@@ -1145,7 +1142,7 @@ describe('UIGenerator - Optional Field with Validation', () => {
         <FormWrapper schema={schema} onSubmit={mockSubmit}>
           <UIGenerator
             activeStep={0}
-            sections={schema.testTopology.sections}
+            sections={schema.testTopology!.sections}
             stepLabels={['basicInfo']}
           />
         </FormWrapper>
@@ -1210,7 +1207,7 @@ describe('UIGenerator - Regex Validation for All Field Types', () => {
         <FormWrapper schema={schema} onSubmit={mockSubmit}>
           <UIGenerator
             activeStep={0}
-            sections={schema.testTopology.sections}
+            sections={schema.testTopology!.sections}
             stepLabels={['basicInfo']}
           />
         </FormWrapper>
@@ -1262,7 +1259,7 @@ describe('UIGenerator - Regex Validation for All Field Types', () => {
         <FormWrapper schema={schema} onSubmit={mockSubmit}>
           <UIGenerator
             activeStep={0}
-            sections={schema.testTopology.sections}
+            sections={schema.testTopology!.sections}
             stepLabels={['basicInfo']}
           />
         </FormWrapper>

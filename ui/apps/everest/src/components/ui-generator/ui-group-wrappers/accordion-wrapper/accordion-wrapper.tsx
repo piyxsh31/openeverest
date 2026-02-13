@@ -10,7 +10,6 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 // TODO can be customizable with props
 const AccordionWrapper = ({
-  fieldName: _fieldName,
   children,
   label,
 }: AccordionWrapperProps) => {

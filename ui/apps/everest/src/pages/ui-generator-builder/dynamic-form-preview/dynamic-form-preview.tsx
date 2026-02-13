@@ -46,13 +46,7 @@ export const DynamicForm = ({ schema }: DynamicFormProps) => {
 
   const methods = useForm<Record<string, unknown>>({
     mode: 'onChange',
-    resolver: async (data, context, options) => {
-      console.log('Form validation triggered with data:', data);
-      const customResolver = zodResolver(zodSchema);
-      const result = await customResolver(data, context, options);
-      console.log('Validation result:', result);
-      return result;
-    },
+    resolver: zodResolver(zodSchema),
     defaultValues,
   });
 

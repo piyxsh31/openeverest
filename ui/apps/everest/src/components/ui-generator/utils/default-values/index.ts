@@ -5,10 +5,7 @@ import {
 import { buildDefaultsFromComponents } from './build-defaults-from-components';
 import { convertToNestedObject } from './convert-to-nested-object';
 
-/**
- * Generates default form values for a selected topology.
- * Processes all sections and converts flat defaults to nested object structure.
- */
+// Processes all sections and converts flat defaults to nested object structure.
 export const getDefaultValues = (
   schema: TopologyUISchemas,
   selectedTopology: string
@@ -32,6 +29,5 @@ export const getDefaultValues = (
     }
   });
 
-  // Convert flat object with dot-notation keys to nested object
   return convertToNestedObject(flatDefaults);
 };

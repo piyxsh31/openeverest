@@ -1,17 +1,14 @@
-/*
-Converts a flat object with dot-notation keys to a nested object.
-This is needed for correct reading of Zod and CEL validation errors.
-Example: { "spec.replica.nodes": 3 } => { spec: { replica: { nodes: 3 } } }
-*/
+// This is needed for correct reading of Zod and CEL validation errors.
+// Example: { "spec.replica.nodes": 3 } => { spec: { replica: { nodes: 3 } } }
 
 export const convertToNestedObject = (
   flatObj: Record<string, unknown>
 ): Record<string, unknown> => {
-  const result: Record<string, any> = {};
+  const result: Record<string, unknown> = {};
 
   Object.entries(flatObj).forEach(([path, value]) => {
     const keys = path.split('.');
-    let current = result;
+    let current: Record<string, unknown> = result;
 
     keys.forEach((key, index) => {
       if (index === keys.length - 1) {
@@ -22,7 +19,7 @@ export const convertToNestedObject = (
         if (!current[key] || typeof current[key] !== 'object') {
           current[key] = {};
         }
-        current = current[key];
+        current = current[key] as Record<string, unknown>;
       }
     });
   });

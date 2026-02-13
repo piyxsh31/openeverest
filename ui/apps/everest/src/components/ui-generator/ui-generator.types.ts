@@ -88,7 +88,7 @@ export type ComponentGroup = {
   description?: string;
   groupType?: GroupType;
   //TODO check groupParams is work
-  groupParams?: any;
+  groupParams?: Record<string, unknown>;
   components: { [key: string]: Component | ComponentGroup };
   componentsOrder?: string[];
 };
@@ -112,4 +112,4 @@ export type TopologyUISchemas = {
   // we can put Sections on the same level as topology key, but lefted for now, for case
   // if we will want more properties for topology
   [K in string]: Topology;
-} & Record<string, any>;
+} & Record<string, unknown>;

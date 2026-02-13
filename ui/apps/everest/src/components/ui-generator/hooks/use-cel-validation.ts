@@ -5,7 +5,7 @@ import { Control, useWatch } from 'react-hook-form';
 export function useCelValidation(
   // array of dependency groups from buildZodSchema
   groups: string[][],
-  control: Control<any>,
+  control: Control<Record<string, unknown>>,
   trigger: (fields?: string | string[]) => void
 ) {
   const watchedNames = Array.from(new Set(groups.flat()));
