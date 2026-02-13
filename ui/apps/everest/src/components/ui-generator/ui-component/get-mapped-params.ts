@@ -1,5 +1,10 @@
 import { TextFieldProps } from '@mui/material';
-import { NumberFieldParams, FieldParamsMap, ValidationMap, FieldType } from '../ui-generator.types';
+import {
+  NumberFieldParams,
+  FieldParamsMap,
+  ValidationMap,
+  FieldType,
+} from '../ui-generator.types';
 
 // Helper to filter out undefined values from an object
 const filterDefined = <T extends Record<string, unknown>>(

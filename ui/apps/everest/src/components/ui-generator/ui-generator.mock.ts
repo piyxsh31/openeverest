@@ -1,5 +1,5 @@
 import { TopologyUISchemas, GroupType, FieldType } from './ui-generator.types';
-// Note: This file is using for development and testing purposes, it contains mock data for the UI generator component. 
+// Note: This file is using for development and testing purposes, it contains mock data for the UI generator component.
 // TODO It should be removed in production.
 export const topologyUiSchemas: TopologyUISchemas = {
   replica: {
@@ -95,5 +95,5 @@ export const topologyUiSchemas: TopologyUISchemas = {
     //backups
     //advanced
     sectionsOrder: ['basicInfo', 'resources'],
-  }
+  },
 } satisfies TopologyUISchemas;

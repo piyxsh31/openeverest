@@ -28,7 +28,9 @@ export const convertToNestedSchema = (
   return Object.fromEntries(
     Object.entries(nested).map(([key, value]) => [
       key,
-      typeof value === 'object' && value !== null && !(value instanceof z.ZodType)
+      typeof value === 'object' &&
+      value !== null &&
+      !(value instanceof z.ZodType)
         ? convertToZodRecursively(value)
         : value,
     ])
@@ -39,7 +41,7 @@ const convertToZodRecursively = (obj: unknown): z.ZodTypeAny => {
   if (!obj || typeof obj !== 'object' || Array.isArray(obj)) {
     throw new Error('Expected object for Zod schema conversion');
   }
-  
+
   const shape: Record<string, z.ZodTypeAny> = {};
 
   Object.entries(obj as Record<string, unknown>).forEach(([key, value]) => {

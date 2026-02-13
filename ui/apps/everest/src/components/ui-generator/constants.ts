@@ -63,7 +63,7 @@ export const applyZodValidation = (
 ): z.ZodTypeAny => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const method = (schema as any)[methodName];
-  
+
   if (typeof method !== 'function') {
     return schema;
   }

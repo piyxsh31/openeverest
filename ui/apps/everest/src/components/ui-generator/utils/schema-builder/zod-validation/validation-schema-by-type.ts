@@ -57,7 +57,9 @@ export const buildGenericValidationSchema = (
 
   if (component.validation) {
     // Get field-type-specific validation rules
-    const fieldTypeRules = getZodRulesForFieldType(component.uiType as FieldType);
+    const fieldTypeRules = getZodRulesForFieldType(
+      component.uiType as FieldType
+    );
 
     Object.entries(component.validation).forEach(([rule, ruleValue]) => {
       // Skip CEL and regex (handled separately)

@@ -9,10 +9,7 @@ import { AccordionWrapperProps } from './accordion-wrapper.types';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 // TODO can be customizable with props
-const AccordionWrapper = ({
-  children,
-  label,
-}: AccordionWrapperProps) => {
+const AccordionWrapper = ({ children, label }: AccordionWrapperProps) => {
   return (
     <Accordion defaultExpanded>
       {label && (
