@@ -77,7 +77,7 @@ export const buildSelectValidationSchema = (
 
   const enumSchema = z.enum(allowedValues as [string, ...string[]]);
 
-  // For select fields, we handle regex validation in the enum refinement 
+  // For select fields, we handle regex validation in the enum refinement
   // to ensure it applies to the selected value(s)
   const regexValidation = component.validation?.regex as
     | { pattern: string; message?: string }
