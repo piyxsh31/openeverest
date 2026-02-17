@@ -1,6 +1,7 @@
-import { TextFieldProps } from '@mui/material';
+import { SelectProps, TextFieldProps } from '@mui/material';
 import {
   NumberFieldParams,
+  SelectFieldParams,
   FieldParamsMap,
   ValidationMap,
   FieldType,
@@ -23,6 +24,8 @@ export const getMappedParams = <K extends keyof FieldParamsMap>(
   switch (fieldType) {
     case 'number':
       return mapNumberFieldParams(fieldParams as NumberFieldParams, validation);
+    case 'select':
+      return mapSelectFieldParams(fieldParams as SelectFieldParams);
     // Add more cases for other field types as needed
     default:
       return fieldParams;
@@ -35,7 +38,6 @@ const mapNumberFieldParams = (
 ) => {
   const {
     step,
-    required,
     disabled,
     helperText,
     // badge,
@@ -46,7 +48,6 @@ const mapNumberFieldParams = (
 
   const textFieldProps: Partial<TextFieldProps> = filterDefined({
     type: 'number' as const,
-    required,
     disabled,
     helperText,
     autoFocus,
@@ -105,5 +106,33 @@ const mapNumberFieldParams = (
         ...inputProps,
       },
     },
+  };
+};
+
+const mapSelectFieldParams = (fieldParams: SelectFieldParams) => {
+  const {
+    disabled,
+    helperText,
+    autoFocus,
+    multiple,
+    displayEmpty,
+    defaultOpen,
+    readOnly,
+    ...rest
+  } = fieldParams;
+
+  const selectFieldProps: Partial<SelectProps> = filterDefined({
+    disabled,
+    autoFocus,
+    multiple,
+    displayEmpty,
+    defaultOpen,
+    readOnly,
+  });
+
+  return {
+    ...rest,
+    selectFieldProps,
+    helperText,
   };
 };

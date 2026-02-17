@@ -1,12 +1,9 @@
-import { MenuItem } from '@mui/material';
-import {
-  Component,
-  FieldType,
-} from 'components/ui-generator/ui-generator.types';
+import { Component } from 'components/ui-generator/ui-generator.types';
 import React from 'react';
 import { useFormContext, get } from 'react-hook-form';
 import { muiComponentMap } from '../constants';
 import { getMappedParams } from './get-mapped-params';
+import { renderComponentChildren } from './utils/component-renderer';
 
 type ComponentByType<T extends Component['uiType']> = Extract<
   Component,
@@ -19,12 +16,6 @@ export type ComponentProps<
   item: ComponentByType<T>;
   name: string;
 };
-
-function isSelectComponent(
-  item: Component
-): item is ComponentByType<FieldType.Select> {
-  return item.uiType === FieldType.Select;
-}
 
 const UIComponent: React.FC<ComponentProps> = ({ item, name }) => {
   const { uiType, fieldParams, validation } = item;
@@ -41,13 +32,8 @@ const UIComponent: React.FC<ComponentProps> = ({ item, name }) => {
 
   const mappedProps = getMappedParams(uiType, fieldParams, validation);
 
-  const options = isSelectComponent(item)
-    ? item.fieldParams.options.map((option) => (
-        <MenuItem key={`${name}-${option.value}`} value={option.value}>
-          {option.label}
-        </MenuItem>
-      ))
-    : undefined;
+  // Render component-specific children (e.g., MenuItem options for Select)
+  const children = renderComponentChildren(item, name);
 
   return (
     <>
@@ -60,7 +46,7 @@ const UIComponent: React.FC<ComponentProps> = ({ item, name }) => {
           error: !!error,
           formControlProps: { sx: { minWidth: '450px', marginTop: '15px' } },
         },
-        options
+        children
       )}
     </>
   );

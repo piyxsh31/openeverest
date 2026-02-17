@@ -1,3 +1,4 @@
+import React from 'react';
 import { Stack, Typography } from '@mui/material';
 import { Section } from './ui-generator.types';
 import { orderComponents, renderComponent } from './utils/component-renderer';
@@ -33,10 +34,14 @@ export const UIGenerator = ({
     <Stack spacing={2}>
       {orderedComponents.map(([key, item]) => {
         const fieldName = basePath ? `${basePath}.${key}` : key;
-        return renderComponent({
-          item,
-          name: fieldName,
-        });
+        return (
+          <React.Fragment key={fieldName}>
+            {renderComponent({
+              item,
+              name: fieldName,
+            })}
+          </React.Fragment>
+        );
       })}
     </Stack>
   );

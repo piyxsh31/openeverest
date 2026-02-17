@@ -59,6 +59,11 @@ export const DynamicForm = ({ schema }: DynamicFormProps) => {
   const { trigger, control } = methods;
   useCelValidation(celDependencyGroups, control, trigger);
 
+  // Trigger validation when step changes to enable/disable submit button
+  useEffect(() => {
+    void methods.trigger();
+  }, [activeStep, methods]);
+
   return (
     <FormProvider {...methods} key={selectedTopology}>
       <Stepper
@@ -73,7 +78,7 @@ export const DynamicForm = ({ schema }: DynamicFormProps) => {
           </Step>
         ))}
       </Stepper>
-      <Stack spacing={2} sx={{ marginTop: 2 }}>
+      <Stack key="form-content" spacing={2} sx={{ marginTop: 2 }}>
         <StepHeader
           pageTitle={
             sections[stepLabels[activeStep]]?.label ??
@@ -102,10 +107,10 @@ export const DynamicForm = ({ schema }: DynamicFormProps) => {
         )}
       </Stack>
       <DatabaseFormStepControllers
+        key="form-controllers"
         disableBack={activeStep === 0}
         disableSubmit={
-          activeStep !== stepLabels.length - 1 ||
-          Object.keys(methods.formState.errors).length > 0
+          activeStep !== stepLabels.length - 1 || !methods.formState.isValid
         }
         showSubmit={activeStep === stepLabels.length - 1}
         onPreviousClick={() => setActiveStep((prev) => prev - 1)}

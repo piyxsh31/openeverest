@@ -19,20 +19,22 @@ vi.mock('../utils/schema-builder/cel-validation', () => ({
 }));
 
 const createTestSchema = (
-  fieldParams: Record<string, unknown> = {},
-  validation?: Record<string, unknown>
+  config: {
+    fieldParams?: Record<string, unknown>;
+    validation?: Record<string, unknown>;
+  } = {}
 ): TopologyUISchemas => {
   const testNumber: Extract<Component, { uiType: FieldType.Number }> = {
     uiType: FieldType.Number,
     path: 'spec.testNumber',
     fieldParams: {
       label: 'Test Number Field',
-      ...fieldParams,
+      ...config.fieldParams,
     },
   };
 
-  if (validation) {
-    testNumber.validation = validation;
+  if (config.validation) {
+    testNumber.validation = config.validation;
   }
 
   return {
@@ -113,7 +115,9 @@ describe('UIGenerator - Number Field Required Validation', () => {
   it('should disable submit button when required number field is empty', async () => {
     const mockSubmit = vi.fn();
     const schema = createTestSchema({
-      required: true,
+      validation: {
+        required: true,
+      },
     });
 
     render(
@@ -140,7 +144,9 @@ describe('UIGenerator - Number Field Required Validation', () => {
   it('should enable submit button when optional number field is empty', async () => {
     const mockSubmit = vi.fn();
     const schema = createTestSchema({
-      required: false,
+      validation: {
+        required: false,
+      },
     });
 
     render(
@@ -194,7 +200,9 @@ describe('UIGenerator - Number Field Required Validation', () => {
   it('should show "Field is required" error for explicitly required empty field', async () => {
     const mockSubmit = vi.fn();
     const schema = createTestSchema({
-      required: true,
+      validation: {
+        required: true,
+      },
     });
 
     render(
@@ -222,7 +230,9 @@ describe('UIGenerator - Number Field Required Validation', () => {
   it('should not show error for optional empty field', async () => {
     const mockSubmit = vi.fn();
     const schema = createTestSchema({
-      required: false,
+      validation: {
+        required: false,
+      },
     });
 
     render(
@@ -252,8 +262,10 @@ describe('UIGenerator - Number Field Label and Helper Text', () => {
   it('should render label and helper text when provided in schema', () => {
     const mockSubmit = vi.fn();
     const schema = createTestSchema({
-      label: 'Number Field',
-      helperText: 'This is a helpful description',
+      fieldParams: {
+        label: 'Number Field',
+        helperText: 'This is a helpful description',
+      },
     });
 
     render(
@@ -279,7 +291,9 @@ describe('UIGenerator - Number Field Disabled State', () => {
   it('should disable the field when disabled param is set in schema', () => {
     const mockSubmit = vi.fn();
     const schema = createTestSchema({
-      disabled: true,
+      fieldParams: {
+        disabled: true,
+      },
     });
 
     render(
@@ -302,13 +316,12 @@ describe('UIGenerator - Number Field Disabled State', () => {
 describe('UIGenerator - Number Field Min/Max Validation', () => {
   it('should show error when value is less than min', async () => {
     const mockSubmit = vi.fn();
-    const schema = createTestSchema(
-      {},
-      {
+    const schema = createTestSchema({
+      validation: {
         min: 5,
         max: 10,
-      }
-    );
+      },
+    });
 
     render(
       <TestWrapper>
@@ -336,13 +349,12 @@ describe('UIGenerator - Number Field Min/Max Validation', () => {
 
   it('should show error when value is greater than max', async () => {
     const mockSubmit = vi.fn();
-    const schema = createTestSchema(
-      {},
-      {
+    const schema = createTestSchema({
+      validation: {
         min: 5,
         max: 10,
-      }
-    );
+      },
+    });
 
     render(
       <TestWrapper>
@@ -370,13 +382,12 @@ describe('UIGenerator - Number Field Min/Max Validation', () => {
 
   it('should accept valid value within min/max range', async () => {
     const mockSubmit = vi.fn();
-    const schema = createTestSchema(
-      {},
-      {
+    const schema = createTestSchema({
+      validation: {
         min: 5,
         max: 10,
-      }
-    );
+      },
+    });
 
     render(
       <TestWrapper>
@@ -405,13 +416,12 @@ describe('UIGenerator - Number Field Min/Max Validation', () => {
 describe('UIGenerator - Number Field Input Attributes from Validation', () => {
   it('should apply min/max from validation to input attributes', () => {
     const mockSubmit = vi.fn();
-    const schema = createTestSchema(
-      {},
-      {
+    const schema = createTestSchema({
+      validation: {
         min: 5,
         max: 10,
-      }
-    );
+      },
+    });
 
     render(
       <TestWrapper>
@@ -435,13 +445,12 @@ describe('UIGenerator - Number Field Input Attributes from Validation', () => {
 
   it('should convert gt (greater than) to min attribute for integers', () => {
     const mockSubmit = vi.fn();
-    const schema = createTestSchema(
-      {},
-      {
+    const schema = createTestSchema({
+      validation: {
         gt: 5,
         int: true,
-      }
-    );
+      },
+    });
 
     render(
       <TestWrapper>
@@ -465,13 +474,12 @@ describe('UIGenerator - Number Field Input Attributes from Validation', () => {
 
   it('should convert lt (less than) to max attribute for integers', () => {
     const mockSubmit = vi.fn();
-    const schema = createTestSchema(
-      {},
-      {
+    const schema = createTestSchema({
+      validation: {
         lt: 10,
         int: true,
-      }
-    );
+      },
+    });
 
     render(
       <TestWrapper>
@@ -495,15 +503,15 @@ describe('UIGenerator - Number Field Input Attributes from Validation', () => {
 
   it('should convert gt/lt using step value for decimals', () => {
     const mockSubmit = vi.fn();
-    const schema = createTestSchema(
-      {
+    const schema = createTestSchema({
+      fieldParams: {
         step: 0.5,
       },
-      {
+      validation: {
         gt: 5,
         lt: 10,
-      }
-    );
+      },
+    });
 
     render(
       <TestWrapper>
@@ -529,15 +537,14 @@ describe('UIGenerator - Number Field Input Attributes from Validation', () => {
 
   it('should prioritize explicit min/max over gt/lt', () => {
     const mockSubmit = vi.fn();
-    const schema = createTestSchema(
-      {},
-      {
+    const schema = createTestSchema({
+      validation: {
         min: 3,
         max: 12,
         gt: 5,
         lt: 10,
-      }
-    );
+      },
+    });
 
     render(
       <TestWrapper>
@@ -562,13 +569,12 @@ describe('UIGenerator - Number Field Input Attributes from Validation', () => {
 
   it('should use small offset for gt/lt without int validation or step', () => {
     const mockSubmit = vi.fn();
-    const schema = createTestSchema(
-      {},
-      {
+    const schema = createTestSchema({
+      validation: {
         gt: 5,
         lt: 10,
-      }
-    );
+      },
+    });
 
     render(
       <TestWrapper>
@@ -596,7 +602,9 @@ describe('UIGenerator - Number Field Default Value', () => {
   it('should populate default value on initial render', () => {
     const mockSubmit = vi.fn();
     const schema = createTestSchema({
-      defaultValue: 42,
+      fieldParams: {
+        defaultValue: 42,
+      },
     });
 
     const FormWithDefaults = ({
@@ -653,7 +661,9 @@ describe('UIGenerator - Number Field Step Param', () => {
   it('should set step attribute when step param is provided', () => {
     const mockSubmit = vi.fn();
     const schema = createTestSchema({
-      step: 2,
+      fieldParams: {
+        step: 2,
+      },
     });
 
     render(
@@ -680,7 +690,9 @@ describe('UIGenerator - Number Field Placeholder', () => {
   it('should display placeholder when field is empty and placeholder is provided', () => {
     const mockSubmit = vi.fn();
     const schema = createTestSchema({
-      placeholder: 'Enter a number',
+      fieldParams: {
+        placeholder: 'Enter a number',
+      },
     });
 
     render(
@@ -705,12 +717,11 @@ describe('UIGenerator - Number Field Advanced Validation', () => {
   describe('Integer validation', () => {
     it('should reject decimal values when int validation is set', async () => {
       const mockSubmit = vi.fn();
-      const schema = createTestSchema(
-        {},
-        {
+      const schema = createTestSchema({
+        validation: {
           int: true,
-        }
-      );
+        },
+      });
 
       render(
         <TestWrapper>
@@ -738,12 +749,11 @@ describe('UIGenerator - Number Field Advanced Validation', () => {
 
     it('should accept integer values when int validation is set', async () => {
       const mockSubmit = vi.fn();
-      const schema = createTestSchema(
-        {},
-        {
+      const schema = createTestSchema({
+        validation: {
           int: true,
-        }
-      );
+        },
+      });
 
       render(
         <TestWrapper>
@@ -772,12 +782,11 @@ describe('UIGenerator - Number Field Advanced Validation', () => {
   describe('GT/LT validation (exclusive bounds)', () => {
     it('should enforce gt (greater than) validation', async () => {
       const mockSubmit = vi.fn();
-      const schema = createTestSchema(
-        {},
-        {
+      const schema = createTestSchema({
+        validation: {
           gt: 5,
-        }
-      );
+        },
+      });
 
       render(
         <TestWrapper>
@@ -805,12 +814,11 @@ describe('UIGenerator - Number Field Advanced Validation', () => {
 
     it('should enforce lt (less than) validation', async () => {
       const mockSubmit = vi.fn();
-      const schema = createTestSchema(
-        {},
-        {
+      const schema = createTestSchema({
+        validation: {
           lt: 10,
-        }
-      );
+        },
+      });
 
       render(
         <TestWrapper>
@@ -840,12 +848,11 @@ describe('UIGenerator - Number Field Advanced Validation', () => {
   describe('MultipleOf validation', () => {
     it('should reject values not multiple of specified number', async () => {
       const mockSubmit = vi.fn();
-      const schema = createTestSchema(
-        {},
-        {
+      const schema = createTestSchema({
+        validation: {
           multipleOf: 5,
-        }
-      );
+        },
+      });
 
       render(
         <TestWrapper>
@@ -873,12 +880,11 @@ describe('UIGenerator - Number Field Advanced Validation', () => {
 
     it('should accept values that are multiple of specified number', async () => {
       const mockSubmit = vi.fn();
-      const schema = createTestSchema(
-        {},
-        {
+      const schema = createTestSchema({
+        validation: {
           multipleOf: 5,
-        }
-      );
+        },
+      });
 
       render(
         <TestWrapper>
@@ -908,15 +914,13 @@ describe('UIGenerator - Number Field Advanced Validation', () => {
 describe('UIGenerator - Optional Field with Validation', () => {
   it('should not show validation error when optional field with min/max is empty', async () => {
     const mockSubmit = vi.fn();
-    const schema = createTestSchema(
-      {
+    const schema = createTestSchema({
+      validation: {
         required: false,
-      },
-      {
         min: 1,
         max: 10,
-      }
-    );
+      },
+    });
 
     render(
       <TestWrapper>
@@ -960,15 +964,13 @@ describe('UIGenerator - Optional Field with Validation', () => {
 
   it('should validate min/max when optional field has a value', async () => {
     const mockSubmit = vi.fn();
-    const schema = createTestSchema(
-      {
+    const schema = createTestSchema({
+      validation: {
         required: false,
-      },
-      {
         min: 5,
         max: 10,
-      }
-    );
+      },
+    });
 
     render(
       <TestWrapper>
@@ -1019,15 +1021,13 @@ describe('UIGenerator - Optional Field with Validation', () => {
 
   it('should allow clearing value in optional field with validation', async () => {
     const mockSubmit = vi.fn();
-    const schema = createTestSchema(
-      {
+    const schema = createTestSchema({
+      validation: {
         required: false,
-      },
-      {
         min: 1,
         max: 100,
-      }
-    );
+      },
+    });
 
     render(
       <TestWrapper>
@@ -1066,15 +1066,13 @@ describe('UIGenerator - Optional Field with Validation', () => {
 
   it('should work correctly with gt/lt validation on optional fields', async () => {
     const mockSubmit = vi.fn();
-    const schema = createTestSchema(
-      {
+    const schema = createTestSchema({
+      validation: {
         required: false,
-      },
-      {
         gt: 0,
         lt: 100,
-      }
-    );
+      },
+    });
 
     render(
       <TestWrapper>
@@ -1128,14 +1126,12 @@ describe('UIGenerator - Optional Field with Validation', () => {
 
   it('should enforce int validation on optional field only when value is provided', async () => {
     const mockSubmit = vi.fn();
-    const schema = createTestSchema(
-      {
+    const schema = createTestSchema({
+      validation: {
         required: false,
-      },
-      {
         int: true,
-      }
-    );
+      },
+    });
 
     render(
       <TestWrapper>
@@ -1192,15 +1188,14 @@ describe('UIGenerator - Optional Field with Validation', () => {
 describe('UIGenerator - Regex Validation for All Field Types', () => {
   it('should validate number field with regex pattern', async () => {
     const mockSubmit = vi.fn();
-    const schema = createTestSchema(
-      {},
-      {
+    const schema = createTestSchema({
+      validation: {
         regex: {
           pattern: '^[1-9][0-9]*$', // Positive integers only
           message: 'Must be a positive integer',
         },
-      }
-    );
+      },
+    });
 
     render(
       <TestWrapper>
@@ -1242,17 +1237,15 @@ describe('UIGenerator - Regex Validation for All Field Types', () => {
 
   it('should allow empty value on optional field with regex', async () => {
     const mockSubmit = vi.fn();
-    const schema = createTestSchema(
-      {
+    const schema = createTestSchema({
+      validation: {
         required: false,
-      },
-      {
         regex: {
           pattern: '^[1-9][0-9]{2,}$', // Numbers with 3+ digits, not starting with 0
           message: 'Must be at least 3 digits, not starting with 0',
         },
-      }
-    );
+      },
+    });
 
     render(
       <TestWrapper>

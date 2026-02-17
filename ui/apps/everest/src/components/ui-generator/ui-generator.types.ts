@@ -16,7 +16,6 @@ export enum GroupType {
 interface CommonFieldParams {
   label?: string;
   defaultValue?: unknown;
-  required?: boolean;
   disabled?: boolean;
   autoFocus?: boolean;
   helperText?: string;
@@ -28,9 +27,12 @@ export interface NumberFieldParams extends CommonFieldParams {
   // badge?: string; https://github.com/openeverest/openeverest/issues/1854
 }
 
-interface SelectFieldParams extends CommonFieldParams {
+export interface SelectFieldParams extends CommonFieldParams {
   options: { label: string; value: string }[];
-  multiple?: boolean; // Allow multi-select
+  multiple?: boolean;
+  displayEmpty?: boolean;
+  defaultOpen?: boolean;
+  readOnly?: boolean;
 }
 
 export type FieldParamsMap = {
@@ -51,8 +53,14 @@ export type RegexValidation = {
   message?: string;
 };
 
+export type CommonValidation = {
+  required?: boolean;
+  regex?: RegexValidation;
+  celExpressions?: CelExpression[];
+};
+
 export type ValidationMap = {
-  [FieldType.Number]: {
+  [FieldType.Number]: CommonValidation & {
     min?: number;
     max?: number;
     gt?: number;
@@ -60,17 +68,9 @@ export type ValidationMap = {
     int?: boolean;
     multipleOf?: number;
     safe?: boolean;
-    regex?: RegexValidation;
-    celExpressions?: CelExpression[];
   };
-  [FieldType.Select]: {
-    regex?: RegexValidation;
-    celExpressions?: CelExpression[];
-  };
-  [FieldType.Hidden]: {
-    regex?: RegexValidation;
-    celExpressions?: CelExpression[];
-  };
+  [FieldType.Select]: CommonValidation;
+  [FieldType.Hidden]: CommonValidation;
 };
 
 export type Component = {

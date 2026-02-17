@@ -30,57 +30,68 @@ const SelectInput = ({
       size={formControlProps?.size || 'small'}
       {...formControlProps}
     >
-      <InputLabel id={`${name}-input-label`}>{label}</InputLabel>
+      <InputLabel
+        id={`${name}-input-label`}
+        shrink={selectFieldProps?.displayEmpty || undefined}
+      >
+        {label}
+      </InputLabel>
       <Controller
         name={name}
         control={control ?? contextControl}
         render={({ field, fieldState: { error } }) => (
-          <Select
-            {...field}
-            label={label}
-            labelId="demo-simple-select-label"
-            variant="outlined"
-            error={error !== undefined}
-            data-testid={`select-${kebabize(name)}-button`}
-            inputProps={{
-              'data-testid': `select-input-${kebabize(name)}`,
-              ...selectFieldProps?.inputProps,
-            }}
-            IconComponent={
-              loading
-                ? () => (
-                    <CircularProgress
-                      color="inherit"
-                      size={20}
-                      sx={{ mr: 1 }}
-                    />
-                  )
-                : undefined
-            }
-            {...selectFieldProps}
-          >
-            {children}
-            {(!children || (Array.isArray(children) && !children.length)) && (
-              <MenuItem
-                disabled
-                key="noOptions"
-                value=""
-                data-testid="no-options-select"
-                sx={{
-                  fontWeight: '400',
-                  '&.Mui-disabled.Mui-selected': {
-                    backgroundColor: 'transparent',
-                  },
-                }}
-              >
-                {Messages.noOptions}
-              </MenuItem>
+          <>
+            <Select
+              {...field}
+              label={label}
+              labelId={`${name}-input-label`}
+              variant="outlined"
+              error={error !== undefined}
+              data-testid={`select-${kebabize(name)}-button`}
+              inputProps={{
+                'data-testid': `select-input-${kebabize(name)}`,
+                ...selectFieldProps?.inputProps,
+              }}
+              IconComponent={
+                loading
+                  ? () => (
+                      <CircularProgress
+                        color="inherit"
+                        size={20}
+                        sx={{ mr: 1 }}
+                      />
+                    )
+                  : undefined
+              }
+              {...selectFieldProps}
+            >
+              {children}
+              {(!children || (Array.isArray(children) && !children.length)) && (
+                <MenuItem
+                  disabled
+                  key="noOptions"
+                  value=""
+                  data-testid="no-options-select"
+                  sx={{
+                    fontWeight: '400',
+                    '&.Mui-disabled.Mui-selected': {
+                      backgroundColor: 'transparent',
+                    },
+                  }}
+                >
+                  {Messages.noOptions}
+                </MenuItem>
+              )}
+            </Select>
+            {(error || helperText) && (
+              <FormHelperText error={!!error}>
+                {error?.message || helperText}
+              </FormHelperText>
             )}
-          </Select>
+          </>
         )}
         {...controllerProps}
       />
-      {helperText && <FormHelperText>{helperText}</FormHelperText>}
     </FormControl>
   );
 };

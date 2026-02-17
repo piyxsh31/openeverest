@@ -14,7 +14,7 @@ export const applyCelValidation = (
     celExpValidations.forEach(({ path, celExpressions }) => {
       // Evaluate each CEL expression for this field
       celExpressions.forEach((celExpr) => {
-        const validationResult = validateCelExpression(celExpr, data);
+        const validationResult = validateCelExpression(celExpr, data, path);
 
         if (!validationResult.isValid) {
           ctx.addIssue({

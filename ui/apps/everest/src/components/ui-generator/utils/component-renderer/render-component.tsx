@@ -28,13 +28,17 @@ export const renderComponent = ({
       (item as ComponentGroup).componentsOrder
     ).map(([childKey, childItem]) => {
       const childFieldName = `${fieldName}.${childKey}`;
-      return renderComponent({
-        item: childItem,
-        name: childFieldName,
-      });
+      return (
+        <React.Fragment key={childFieldName}>
+          {renderComponent({
+            item: childItem,
+            name: childFieldName,
+          })}
+        </React.Fragment>
+      );
     })
   ) : (
-    <UIComponent item={item as Component} name={fieldName} />
+    <UIComponent key={fieldName} item={item as Component} name={fieldName} />
   );
 
   if (isGroup) {

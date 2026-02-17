@@ -15,9 +15,9 @@
   - [NumberField](#numberfield)
   - [SelectField](#selectfield)
   - [HiddenField](#hiddenfield)
-- [Groups](#groups)
-  - [Line Group](#line-group)
-  - [Accordion Group](#accordion-group)
+- [Groups](./Groups.md)
+  - [Line Group](./Groups.md#line-group)
+  - [Accordion Group](./Groups.md#accordion-group)
 - [Validation](#validation)
   - [Default Validation](#default-validation)
   - [Schema Custom Validation](#schema-custom-validation)
@@ -191,7 +191,7 @@ Example:
 
 ## Field Types
 
-### NumberField
+### Number Field
 
 A numeric input field for integer and decimal values.
 
@@ -203,12 +203,12 @@ A numeric input field for integer and decimal values.
   - `label`: Display label for the field
   - `placeholder`: Placeholder text shown when field is empty
   - `defaultValue`: Default numeric value
-  - `required`: Whether the field is required (default: `false`)
   - `disabled`: Whether the field is disabled (default: `false`)
   - `autoFocus`: Automatically focus this field on render
   - `helperText`: Help text displayed below the field
   - `step`: Increment/decrement step for arrow buttons (e.g., `0.1`, `5`, `10`)
 - `validation` (optional): Validation rules object with the following properties:
+  - `required`: Whether the field is required (default: `false`)
   - `min`: Minimum value (inclusive) - value must be >= specified number
   - `max`: Maximum value (inclusive) - value must be <= specified number
   - `gt`: Greater than (exclusive) - value must be > specified number
@@ -216,7 +216,8 @@ A numeric input field for integer and decimal values.
   - `int`: Must be an integer (boolean: `true`)
   - `multipleOf`: Value must be a multiple of specified number
   - `safe`: Must be a safe integer within JavaScript's safe integer range (boolean: `true`)
-  - `celExpressions`: Array of CEL validation expressions for cross-field validation
+  - `regex`: Regular expression validation (see [Regex Validation](./Readme.md#regex-validation))
+  - `celExpressions`: Array of CEL validation expressions for cross-field validation (see [CEL Expression Validation](./Readme.md#cel-expression-validation))
 
 **Native Validation:** Validates that input is numeric
 
@@ -251,6 +252,7 @@ When converting exclusive bounds (`gt`/`lt`) to HTML attributes:
     "autoFocus": true
   },
   "validation": {
+    "required": true,
     "min": 1,
     "max": 16,
     "int": true
@@ -268,100 +270,132 @@ When converting exclusive bounds (`gt`/`lt`) to HTML attributes:
   }
 ```
 
-**Note:** Fields are optional by default. Validation rules (min/max/etc.) only apply when a value is entered. To make a field required, set `required: true` in `fieldParams`.
+**Note:** Fields are optional by default. To make a field required, set `required: true` in the `validation` object. Validation rules (min/max/etc.) only apply when a value is entered.
 
 ### SelectField
 
-A dropdown selection field.
+A dropdown selection field that allows users to choose one option from a predefined list of values.
 
 **Properties:**
 
-- `uiType`: `"select"`
-- `fieldParams`:
-  - `label`: Display label
-  - `options`: Array of `{ label: string, value: string }` objects
-  - `defaultValue`: Default selected value
+- `uiType`: `"select"` (**Required**)
+- `path` OR `id`: Data path or unique identifier (**Required**)
+- `fieldParams`: Configuration object with the following properties:
+  - `label`: Display label for the field
+  - `options`: Array of objects with `{ label: string, value: string }` format (**Required**)
+  - `defaultValue`: Default selected value (must match one of the option values)
+  - `disabled`: Whether the field is disabled (default: `false`)
+  - `autoFocus`: Automatically focus this field on render
+  - `helperText`: Help text displayed below the field
+  - `multiple`: Allow multi-select (**Note:** While this prop is passed to MUI Select, full support requires array-type validation in the Zod schema builder, array default values handling, and array type definitions - planned for future implementation)
+  - `displayEmpty`: Show placeholder/empty option when no value is selected (default: `false`)
+  - `defaultOpen`: Open dropdown menu on component mount (default: `false`)
+  - `readOnly`: Make field read-only - value displayed but cannot be changed (default: `false`)
+- `validation` (optional): Validation rules object with the following properties:
+  - `required`: Whether the field is required (default: `false`)
+  - `regex`: Regular expression validation (see [Regex Validation](./Readme.md#regex-validation))
+  - `celExpressions`: Array of CEL validation expressions for cross-field validation (see [CEL Expression Validation](./Readme.md#cel-expression-validation))
 
-**Example:**
+**Native Validation:** Automatically validates that the selected value is one of the allowed options defined in the `options` array (enum validation).
+
+**Examples:**
+
+[OpenEverest Select “Select uiType" Story](https://openeverest.io/openeverest/?path=/story/select--basic)
+
+**Basic Select Field**
 
 ```json
-"version": {
+"databaseType": {
   "uiType": "select",
-  "path": "spec.engine.version",
+  "path": "spec.database.type",
   "fieldParams": {
-    "label": "Database Version",
+    "label": "Database Type",
     "options": [
-      {
-        "label": "MongoDB 6.0.19-16",
-        "value": "6.0.19-16"
-      },
-      {
-        "label": "MongoDB 7.0.18-11",
-        "value": "7.0.18-11"
-      }
-    ],
-    "defaultValue": "6.0.19-16"
+      { "label": "MySQL", "value": "mysql" },
+      { "label": "PostgreSQL", "value": "postgresql" },
+      { "label": "MongoDB", "value": "mongodb" }
+    ]
   }
 }
 ```
 
-**Native Validation:** Validate that selected value is in the options list
-
-### HiddenField
-
-`uiType`: `"hidden"`
-
-Fields hidden in the schema are not displayed on the UI and do not participate in generating data for the API request.
-
-//TODO example of hidden field
-
-If you need to use the default value in the form that the user cannot change, use the disabled parameter.
-
-//TODO example of disabled field
-
-## Groups
-
-Groups allow you to organize multiple fields together with different layout options.
-
-### Line Group
-
-//TODO will be renamed, documentation should be checked before merging
-Displays components in a horizontal line (flex layout).
+**Select with Default Value**
 
 ```json
-"resourceGroup": {
-  "uiType": "group",
-  "groupType": "line",
-  "label": "Resources",
-  "components": {
-    "cpu": { ... },
-    "memory": { ... },
-    "disk": { ... }
+"region": {
+  "uiType": "select",
+  "path": "spec.region",
+  "fieldParams": {
+    "label": "Region",
+    "defaultValue": "us-east-1",
+    "options": [
+      { "label": "US East", "value": "us-east-1" },
+      { "label": "US West", "value": "us-west-1" },
+      { "label": "EU Central", "value": "eu-central-1" }
+    ]
+  }
+}
+```
+
+**Select with displayEmpty (Placeholder)**
+
+```json
+"tier": {
+  "uiType": "select",
+  "path": "spec.tier",
+  "fieldParams": {
+    "label": "Service Tier",
+    "displayEmpty": true,
+    "options": [
+      { "label": "Free", "value": "free" },
+      { "label": "Pro", "value": "pro" },
+      { "label": "Enterprise", "value": "enterprise" }
+    ]
   },
-  "componentsOrder": ["cpu", "memory", "disk"]
-}
-```
-
-//TODO visual example
-
-### Accordion Group
-
-Displays components in a collapsible accordion panel.
-
-```json
-"advancedSettings": {
-  "uiType": "group",
-  "groupType": "accordion",
-  "label": "Advanced Settings",
-  "description": "Optional advanced configuration",
-  "components": {
-    "setting1": { ... },
-    "setting2": { ... }
+  "validation": {
+    "required": false
   }
 }
 ```
 
-//TODO visual example
+This example demonstrates an optional select field with `displayEmpty: true`. An empty option (value: `""`, label: "None") will be automatically added, allowing users to clear their selection.
+
+**Required Select with displayEmpty**
+
+```json
+"environment": {
+  "uiType": "select",
+  "path": "spec.environment",
+  "fieldParams": {
+    "label": "Environment",
+    "displayEmpty": true,
+    "options": [
+      { "label": "Development", "value": "dev" },
+      { "label": "Staging", "value": "staging" },
+      { "label": "Production", "value": "prod" }
+    ]
+  },
+  "validation": {
+    "required": true
+  }
+}
+```
+
+For required fields, even with `displayEmpty: true`, no empty option is auto-injected since the field must have a value.
+
+When `displayEmpty` is `true` and the field is **optional** (`validation.required` is not `true`), an empty option with value `""` and label "None" is automatically injected at the beginning of the options list. This allows users to clear their selection after choosing a value. If you've already included an empty option in your schema, no duplicate will be added.
+
+**Important:** For **required** fields with `displayEmpty: true`, no empty option is injected since the field must have a value.
+
+**Behavior:**
+
+- **Optional fields** (default): Default value is empty string (`''`). Form is valid even when no selection is made. When combined with `displayEmpty: true`, a "None" option is automatically added to allow clearing the selection.
+- **Required fields**: User must select a value from the options. Empty string is not allowed. Form validation fails until a value is selected with error message "Field is required".
+- **Default values**: If no `defaultValue` is specified, the field starts with an empty selection. The `defaultValue` must match one of the option values; invalid default values will cause form validation to fail.
+- **Empty options**: If the `options` array is empty, the select displays a "No options" message and validates as optional string.
+- **Auto-injected empty option**: When a field is optional AND `displayEmpty: true`, an empty option (value: `""`, label: "None") is automatically added to the beginning of the options list, unless you've already provided one.
+
+**Note:** For cross-field validation or regex patterns on select values, see the [Validation](./Readme.md#validation) section in the main README.
 
 ## Validation
 
@@ -378,19 +412,19 @@ Custom validation rules can be defined in the `validation` property. These have 
 
 ### Common Validation Rules
 
-The following validation rules are supported for **all field types**:
+The following validation rules are supported for **all field types**.
 
-**Required Field Validation**
+**Required**
 
-Control whether a field must have a value using the `required` parameter in `fieldParams`:
+Control whether a field must have a value using the `required` parameter in the `validation` object:
 
 ```json
-"fieldParams": {
-  "required": true  // Makes the field required (default is false)
+"validation": {
+  "required": true  // (default is false)
 }
 ```
 
-**Regex Validation**
+**Regex**
 
 Apply regular expression validation to any field using the `regex` property in the `validation` object:
 
@@ -412,6 +446,29 @@ Apply regular expression validation to any field using the `regex` property in t
     "regex": {
       "pattern": "^[1-9][0-9]{3,4}$",
       "message": "Port must be between 1000-99999"
+    }
+  }
+}
+```
+
+**Select field with regex:**
+
+```json
+"version": {
+  "uiType": "select",
+  "path": "spec.version",
+  "fieldParams": {
+    "label": "Version",
+    "options": [
+      { "label": "v1.0", "value": "v1.0" },
+      { "label": "v2.0", "value": "v2.0" },
+      { "label": "v3.0-rc1", "value": "v3.0-rc1" }
+    ]
+  },
+  "validation": {
+    "regex": {
+      "pattern": "^v[0-9]+\\.[0-9]+$",
+      "message": "Only stable versions allowed (format vX.Y)"
     }
   }
 }
@@ -454,6 +511,35 @@ CEL (Common Expression Language) validation allows you to define cross-field val
 ```
 
 In this example, the validation fails (returns false) when there are more than 1 database nodes AND the number of config servers is 1. The `!` operator negates the condition so it returns `false` when the invalid condition is true.
+
+**Select field with CEL validation:**
+
+```json
+{
+  "tier": {
+    "uiType": "select",
+    "path": "spec.tier",
+    "fieldParams": {
+      "label": "Service Tier",
+      "options": [
+        { "label": "Free", "value": "free" },
+        { "label": "Pro", "value": "pro" },
+        { "label": "Enterprise", "value": "enterprise" }
+      ]
+    },
+    "validation": {
+      "celExpressions": [
+        {
+          "celExpr": "self == 'pro' || self == 'enterprise' || spec.users < 10",
+          "message": "Free tier is limited to 10 users"
+        }
+      ]
+    }
+  }
+}
+```
+
+In this example, the `self` keyword refers to the current field's value. The validation passes when the tier is 'pro' or 'enterprise', or when the number of users is less than 10.
 
 **Note:** All validation rules only apply when a value is entered. Empty fields will pass validation by default since fields are optional unless explicitly marked as `required: true`.
 
