@@ -16,4 +16,5 @@
 // Package api contains the API server implementation.
 package api
 
+//go:generate go tool oapi-codegen --config=crds.cfg.yml  ../docs/spec/crds.openapi.gen.yml
 //go:generate go tool oapi-codegen --config=server.cfg.yml  ../docs/spec/openapi.yml
