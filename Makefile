@@ -20,7 +20,8 @@ help: ## Display this help.
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
 ## Location to install binaries to
-LOCALBIN := $(shell pwd)/bin
+CWD = $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
+LOCALBIN := $(CWD)/bin
 $(LOCALBIN):
 	mkdir -p $(LOCALBIN)
 
@@ -119,6 +120,12 @@ build-cli-debug: CLI_BUILD_TAGS = -tags debug
 build-cli-debug: CLI_GC_FLAGS = -gcflags=all="-N -l"
 build-cli-debug: build-cli-helper	## Build Everest CLI binary with debug symbols and development OLM channel.
 
+UI_DIR = $(CWD)/ui
+.PHONY: build-ui
+build-ui: ## Build Everest UI and embed it into the Everest API server binary.
+	$(info Building Everest UI)
+	cd $(UI_DIR) && $(MAKE) init build EVEREST_OUT_DIR=$(CWD)/public/dist
+
 .PHONY: release-cli
 release-cli: CLI_LD_FLAGS += -s -w
 release-cli: ## Build Everest CLI release versions for different OS and ARCH. (Use for building release only!).
@@ -127,12 +134,6 @@ release-cli: ## Build Everest CLI release versions for different OS and ARCH. (U
 	GOOS=darwin GOARCH=amd64 go build -v -ldflags "$(CLI_LD_FLAGS)" -o ./dist/everestctl-darwin-amd64 ./cmd/cli
 	GOOS=darwin GOARCH=arm64 go build -v -ldflags "$(CLI_LD_FLAGS)" -o ./dist/everestctl-darwin-arm64 ./cmd/cli
 	GOOS=windows GOARCH=amd64 go build -v -ldflags "$(CLI_LD_FLAGS)" -o ./dist/everestctl.exe ./cmd/cli
-
-.PHONY: build-ui
-build-ui:
-	$(info Building Everest UI)
-	$(MAKE) -C ${TEST_ROOT}/ui init
-	$(MAKE) -C ${TEST_ROOT}/ui build EVEREST_OUT_DIR=${TEST_ROOT}/public/dist
 
 .PHONY: docker-build
 docker-build: ## Build docker image with Everest API server.
@@ -161,7 +162,7 @@ test-cover:             ## Run unit tests and collect per-package coverage infor
 test-crosscover:        ## Run unit tests and collect cross-package coverage information.
 	CGO_ENABLED=1 go test -race -timeout=20m -count=1 -coverprofile=crosscover.out -covermode=atomic -p=1 -coverpkg=./... ./...
 
-##@ Deployment
+##@ Deployment management
 
 # This target builds the docker image for Everest operator from the commit referenced in go.mod.
 # Docker image will be tagged with the same tag as Everest API server image (IMAGE_TAG).
@@ -178,6 +179,7 @@ docker-build-operator:
 	make build docker-build IMG=$(EVEREST_OPERATOR_IMG) ;\
 	}
 
+DB_NAMESPACES = everest
 .PHONY: deploy
 deploy:  ## Deploy Everest to K8S cluster using Everest CLI.
 	$(info Deploying Everest ($(IMG)) into K8S cluster using everestctl)
@@ -189,9 +191,10 @@ deploy:  ## Deploy Everest to K8S cluster using Everest CLI.
 	--operator.postgresql=true \
 	--operator.mysql=true \
 	--skip-wizard \
-	--namespaces everest \
+	--namespaces $(DB_NAMESPACES) \
 	--helm.set server.image=$(IMAGE_PREFIX)/$(EVEREST_SERVER_DEV_IMAGE_NAME) \
-	--helm.set server.apiRequestsRateLimit=200 \
+	--helm.set server.apiRequestsRateLimit=500 \
+	--helm.set server.sessionRequestsRateLimit=200 \
 	--helm.set versionMetadataURL=https://check-dev.percona.com \
 	--helm.set server.initialAdminPassword=admin \
 	--helm.set operator.init=false
@@ -199,14 +202,41 @@ deploy:  ## Deploy Everest to K8S cluster using Everest CLI.
 
 DEPLOY_ALL_DEPS := build-ui build-debug docker-build k3d-upload-server-image
 DEPLOY_ALL_DEPS += docker-build-operator k3d-upload-operator-image
-DEPLOY_ALL_DEPS += build-cli-debug deploy
+DEPLOY_ALL_DEPS += k3d-upload-server-image deploy
 .PHONY: deploy-all
-deploy-all: $(DEPLOY_ALL_DEPS) ## Build and deploy Everest and its dependencies to K3D test cluster.
+deploy-all: $(DEPLOY_ALL_DEPS) ## Helper to build Everest and its dependencies and deploy to K3D test cluster.
 
 .PHONY: undeploy-cli
 undeploy: build-cli-debug ## Undeploy Everest from K8S cluster using Everest CLI.
 	$(info Uninstalling Everest from K8S cluster using everestctl)
 	$(LOCALBIN)/everestctl uninstall -y -f -v
+
+.PHONY: add-pg-namespaces
+add-pg-namespaces: ## Add PostgreSQL namespace to Everest using Everest CLI(usage: DB_NAMESPACES=ns-1,ns-2 make add-pg-namespaces).
+	$(info Adding PostgreSQL namespaces=${DB_NAMESPACE} to Everest using everestctl)
+	$(LOCALBIN)/everestctl namespaces add $(DB_NAMESPACES) -v \
+	--operator.mongodb=false \
+	--operator.postgresql=true \
+	--operator.mysql=false \
+	--skip-wizard
+
+.PHONY: add-psmdb-namespaces
+add-psmdb-namespaces: ## Add PSMDB namespace to Everest using Everest CLI(usage: DB_NAMESPACES=ns-1,ns-2 make add-psmdb-namespaces).
+	$(info Adding PSMDB namespaces=${DB_NAMESPACE} to Everest using everestctl)
+	$(LOCALBIN)/everestctl namespaces add $(DB_NAMESPACES) -v \
+	--operator.mongodb=true \
+	--operator.postgresql=false \
+	--operator.mysql=false \
+	--skip-wizard
+
+.PHONY: add-pxc-namespaces
+add-pxc-namespaces: ## Add PXC namespace to Everest using Everest CLI(usage: DB_NAMESPACES=ns-1,ns-2 make add-pxc-namespaces).
+	$(info Adding PXC namespaces=${DB_NAMESPACE} to Everest using everestctl)
+	$(LOCALBIN)/everestctl namespaces add $(DB_NAMESPACES) -v \
+	--operator.mongodb=false \
+	--operator.postgresql=false \
+	--operator.mysql=true \
+	--skip-wizard
 
 .PHONY: expose
 expose:
@@ -229,12 +259,12 @@ k3d-cluster-reset: k3d-cluster-down k3d-cluster-up ## Reset the K8S cluster for 
 .PHONY: k3d-upload-server-image
 k3d-upload-server-image: ## Upload the Everest API server image to the testing k3d cluster.
 	$(info Uploading Everest API server image=$(IMG) to K3D testing cluster)
-	k3d image import -c everest-server-test -m direct $(IMG)
+	k3d image import -c everest-server-test $(IMG)
 
 .PHONY: k3d-upload-operator-image
 k3d-upload-operator-image: ## Upload the Everest operator image to the testing k3d cluster.
 	$(info Uploading Everest operator image=$(EVEREST_OPERATOR_IMG) to K3D testing cluster)
-	k3d image import -c everest-server-test -m direct $(EVEREST_OPERATOR_IMG)
+	k3d image import -c everest-server-test $(EVEREST_OPERATOR_IMG)
 
 .PHONY: cert
 cert:                   ## Create dev TLS certificates.
