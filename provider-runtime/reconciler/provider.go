@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
@@ -124,6 +125,11 @@ func newReconciler(ctx context.Context, p providerAdapter, opts ...ReconcilerOpt
 		opt(options)
 	}
 	scheme := runtime.NewScheme()
+
+	// Register core Kubernetes types
+	if err := corev1.AddToScheme(scheme); err != nil {
+		return nil, fmt.Errorf("failed to add corev1 scheme: %w", err)
+	}
 
 	// Register core types
 	if err := v1alpha1.AddToScheme(scheme); err != nil {
