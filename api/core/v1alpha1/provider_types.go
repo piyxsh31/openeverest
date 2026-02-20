@@ -64,10 +64,13 @@ type ProviderStatus struct {
 
 // Provider is the Schema for the providers API
 type Provider struct {
-	metav1.TypeMeta   `json:",inline"`
+	metav1.TypeMeta `json:",inline"`
+	// +optional
 	metav1.ObjectMeta `json:"metadata,omitzero"`
 
-	Spec   ProviderSpec   `json:"spec"`
+	// +required
+	Spec ProviderSpec `json:"spec"`
+	// +optional
 	Status ProviderStatus `json:"status,omitzero"`
 }
 

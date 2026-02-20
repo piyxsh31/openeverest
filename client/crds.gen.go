@@ -51,8 +51,8 @@ type Backup struct {
 	// Cannot be updated.
 	// In CamelCase.
 	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-	Kind     *string                `json:"kind,omitempty"`
-	Metadata map[string]interface{} `json:"metadata"`
+	Kind     *string                 `json:"kind,omitempty"`
+	Metadata *map[string]interface{} `json:"metadata,omitempty"`
 
 	// Spec BackupSpec defines the desired state of Backup
 	Spec struct {
@@ -113,7 +113,7 @@ type Backup struct {
 	} `json:"spec"`
 
 	// Status BackupStatus defines the observed state of Backup.
-	Status struct {
+	Status *struct {
 		// CompletedAt CompletedAt is the time when the backup job completed successfully.
 		CompletedAt *time.Time `json:"completedAt,omitempty"`
 		Conditions  *[]struct {
@@ -158,7 +158,7 @@ type Backup struct {
 
 		// State State is the current state of the backup job.
 		State *string `json:"state,omitempty"`
-	} `json:"status"`
+	} `json:"status,omitempty"`
 }
 
 // BackupStatusConditionsStatus status of the condition, one of True, False, Unknown.
@@ -177,8 +177,8 @@ type BackupClass struct {
 	// Cannot be updated.
 	// In CamelCase.
 	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-	Kind     *string                `json:"kind,omitempty"`
-	Metadata map[string]interface{} `json:"metadata"`
+	Kind     *string                 `json:"kind,omitempty"`
+	Metadata *map[string]interface{} `json:"metadata,omitempty"`
 
 	// Spec BackupClassSpec defines the desired state of BackupClass
 	Spec struct {
@@ -272,7 +272,7 @@ type BackupClass struct {
 	} `json:"spec"`
 
 	// Status BackupClassStatus defines the observed state of BackupClass.
-	Status struct {
+	Status *struct {
 		Conditions *[]struct {
 			// LastTransitionTime lastTransitionTime is the last time the condition transitioned from one status to another.
 			// This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
@@ -300,7 +300,7 @@ type BackupClass struct {
 			// Type type of condition in CamelCase or in foo.example.com/CamelCase.
 			Type string `json:"type"`
 		} `json:"conditions,omitempty"`
-	} `json:"status"`
+	} `json:"status,omitempty"`
 }
 
 // BackupClassStatusConditionsStatus status of the condition, one of True, False, Unknown.
@@ -341,8 +341,8 @@ type Instance struct {
 	// Cannot be updated.
 	// In CamelCase.
 	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-	Kind     *string                `json:"kind,omitempty"`
-	Metadata map[string]interface{} `json:"metadata"`
+	Kind     *string                 `json:"kind,omitempty"`
+	Metadata *map[string]interface{} `json:"metadata,omitempty"`
 
 	// Spec InstanceSpec defines the desired state of Instance
 	Spec struct {
@@ -459,7 +459,7 @@ type Instance struct {
 	} `json:"spec"`
 
 	// Status InstanceStatus defines the observed state of Instance.
-	Status struct {
+	Status *struct {
 		// Components Components is the status of the components in the database cluster.
 		Components *[]struct {
 			Pods *[]struct {
@@ -518,7 +518,7 @@ type Instance struct {
 
 		// Phase Phase of the database cluster.
 		Phase *string `json:"phase,omitempty"`
-	} `json:"status"`
+	} `json:"status,omitempty"`
 }
 
 // InstanceSpecComponentsResourcesLimits0 defines model for .
@@ -581,8 +581,8 @@ type Provider struct {
 	// Cannot be updated.
 	// In CamelCase.
 	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-	Kind     *string                `json:"kind,omitempty"`
-	Metadata map[string]interface{} `json:"metadata"`
+	Kind     *string                 `json:"kind,omitempty"`
+	Metadata *map[string]interface{} `json:"metadata,omitempty"`
 
 	// Spec ProviderSpec defines the desired state of Provider
 	Spec struct {
@@ -604,7 +604,7 @@ type Provider struct {
 	} `json:"spec"`
 
 	// Status ProviderStatus defines the observed state of Provider.
-	Status struct {
+	Status *struct {
 		Conditions *[]struct {
 			// LastTransitionTime lastTransitionTime is the last time the condition transitioned from one status to another.
 			// This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
@@ -632,7 +632,7 @@ type Provider struct {
 			// Type type of condition in CamelCase or in foo.example.com/CamelCase.
 			Type string `json:"type"`
 		} `json:"conditions,omitempty"`
-	} `json:"status"`
+	} `json:"status,omitempty"`
 }
 
 // ProviderStatusConditionsStatus status of the condition, one of True, False, Unknown.

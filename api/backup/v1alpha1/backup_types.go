@@ -144,10 +144,13 @@ const (
 
 // Backup is the Schema for the backups API
 type Backup struct {
-	metav1.TypeMeta   `json:",inline"`
+	metav1.TypeMeta `json:",inline"`
+	// +optional
 	metav1.ObjectMeta `json:"metadata,omitzero"`
 
-	Spec   BackupSpec   `json:"spec"`
+	// +required
+	Spec BackupSpec `json:"spec"`
+	// +optional
 	Status BackupStatus `json:"status,omitzero"`
 }
 

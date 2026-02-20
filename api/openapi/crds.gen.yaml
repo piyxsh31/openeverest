@@ -192,9 +192,7 @@ components:
               type: string
           type: object
       required:
-      - metadata
       - spec
-      - status
       type: object
     BackupClass:
       description: BackupClass is the Schema for the backupclasses API
@@ -450,9 +448,7 @@ components:
               x-kubernetes-list-type: map
           type: object
       required:
-      - metadata
       - spec
-      - status
       type: object
     BackupClassList:
       description: BackupClassList is an object that contains the list of the existing
@@ -812,9 +808,7 @@ components:
               type: string
           type: object
       required:
-      - metadata
       - spec
-      - status
       type: object
     InstanceList:
       description: InstanceList is an object that contains the list of the existing
@@ -960,9 +954,7 @@ components:
               x-kubernetes-list-type: map
           type: object
       required:
-      - metadata
       - spec
-      - status
       type: object
     ProviderList:
       description: ProviderList is an object that contains the list of the existing

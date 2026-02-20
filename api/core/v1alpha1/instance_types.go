@@ -174,10 +174,13 @@ type ComponentStatus struct {
 
 // Instance is the Schema for the instances API
 type Instance struct {
-	metav1.TypeMeta   `json:",inline"`
+	metav1.TypeMeta `json:",inline"`
+	// +optional
 	metav1.ObjectMeta `json:"metadata,omitzero"`
 
-	Spec   InstanceSpec   `json:"spec"`
+	// +required
+	Spec InstanceSpec `json:"spec"`
+	// +optional
 	Status InstanceStatus `json:"status,omitzero"`
 }
 

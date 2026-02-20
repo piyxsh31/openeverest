@@ -161,10 +161,13 @@ type BackupClassStatus struct {
 
 // BackupClass is the Schema for the backupclasses API
 type BackupClass struct {
-	metav1.TypeMeta   `json:",inline"`
+	metav1.TypeMeta `json:",inline"`
+	// +optional
 	metav1.ObjectMeta `json:"metadata,omitzero"`
 
-	Spec   BackupClassSpec   `json:"spec"`
+	// +required
+	Spec BackupClassSpec `json:"spec"`
+	// +optional
 	Status BackupClassStatus `json:"status,omitzero"`
 }
 

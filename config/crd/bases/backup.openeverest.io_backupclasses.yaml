@@ -270,9 +270,7 @@ spec:
                 x-kubernetes-list-type: map
             type: object
         required:
-        - metadata
         - spec
-        - status
         type: object
     served: true
     storage: true
