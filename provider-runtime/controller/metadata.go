@@ -89,7 +89,7 @@ type TopologyComponentMeta struct {
 func (m *ProviderMetadata) ToProviderCR(name, namespace string) *v1alpha1.Provider {
 	provider := &v1alpha1.Provider{
 		TypeMeta: metav1.TypeMeta{
-			APIVersion: "everest.percona.com/v1alpha1",
+			APIVersion: "core.openeverest.io/v1alpha1",
 			Kind:       "Provider",
 		},
 		ObjectMeta: metav1.ObjectMeta{
