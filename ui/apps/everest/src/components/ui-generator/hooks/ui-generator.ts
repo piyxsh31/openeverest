@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { z } from 'zod';
 import { Section, TopologyUISchemas } from '../ui-generator.types';
 import { getSteps } from '../utils/component-renderer';
@@ -10,12 +11,21 @@ export const useUiGenerator = (
   sections: { [key: string]: Section };
   zodSchema: { schema: z.ZodTypeAny; celDependencyGroups: string[][] };
 } => {
-  const sections = getSteps(selectedTopology, schema);
+  const sections = useMemo(
+    () => getSteps(selectedTopology, schema),
+    [selectedTopology, schema]
+  );
 
-  const zodSchema = buildZodSchema(schema, selectedTopology);
+  const zodSchema = useMemo(
+    () => buildZodSchema(schema, selectedTopology),
+    [schema, selectedTopology]
+  );
 
-  return {
-    sections,
-    zodSchema,
-  };
+  return useMemo(
+    () => ({
+      sections,
+      zodSchema,
+    }),
+    [sections, zodSchema]
+  );
 };

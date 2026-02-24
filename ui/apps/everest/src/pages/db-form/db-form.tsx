@@ -10,8 +10,13 @@ import {
 import { useDatabasePageMode } from 'pages/database-form/useDatabasePageMode';
 import { useEffect, useRef, useState } from 'react';
 import { useBlocker, useLocation, useNavigate } from 'react-router-dom';
-import DatabaseFormSideDrawer from 'pages/database-form/database-form-side-drawer';
-import { FormProvider, SubmitHandler, useForm, useWatch } from 'react-hook-form';
+import DbFormSideDrawer from './db-form-side-drawer';
+import {
+  FormProvider,
+  SubmitHandler,
+  useForm,
+  useWatch,
+} from 'react-hook-form';
 import { Stack, Step, StepLabel } from '@mui/material';
 import DatabaseFormCancelDialog from 'pages/database-form/database-form-cancel-dialog';
 import { Stepper } from '@percona/ui-lib';
@@ -37,7 +42,7 @@ export const DatabasePageGenerated = () => {
 
   // Get schema and topology info from API hook
   const { schema, topologies } = useSchema();
-  
+
   // Get default topology from schema
   const defaultTopology = topologies[0] || '';
 
@@ -113,12 +118,23 @@ export const DatabasePageGenerated = () => {
     zodSchema
   ) as unknown as ZodType<any>;
 
+  // Reset form when topology or default values change
+  useEffect(() => {
+    if (!isDirty) {
+      reset(defaultValues);
+    }
+  }, [defaultValues, selectedTopology, isDirty, reset]);
+
   // Update resolver dynamically when validation schema changes
   useEffect(() => {
     const customResolver = zodResolver(validationSchema);
-    
+
     // Override the resolver
-    (methods as any)._resolver = async (data: any, context: any, options: any) => {
+    (methods as any)._resolver = async (
+      data: any,
+      context: any,
+      options: any
+    ) => {
       const result = await customResolver(data, context, options);
       if (Object.keys(result.errors).length > 0) {
         setStepsWithErrors((prev) => {
@@ -134,7 +150,7 @@ export const DatabasePageGenerated = () => {
       }
       return result;
     };
-    
+
     methods.clearErrors();
   }, [validationSchema, activeStep, methods]);
 
@@ -158,7 +174,6 @@ export const DatabasePageGenerated = () => {
     if (activeStep < steps.length - 1) {
       setActiveStep((prevActiveStep) => {
         const newStep = prevActiveStep + 1;
-
         if (newStep > longestAchievedStep) {
           setLongestAchievedStep(newStep);
         }
@@ -251,8 +266,7 @@ export const DatabasePageGenerated = () => {
             handleNextStep={handleNext}
             handlePreviousStep={handleBack}
           />
-          <DatabaseFormSideDrawer
-            //TODO change when api is ready
+          <DbFormSideDrawer
             disabled={false}
             activeStep={activeStep}
             longestAchievedStep={longestAchievedStep}

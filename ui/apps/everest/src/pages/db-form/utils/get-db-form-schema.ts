@@ -41,10 +41,22 @@ export const getDBWizardSchema = (
   hasImportStep: boolean,
   openApiValidationSchema?: z.ZodTypeAny
 ) => {
-  const baseSchema = [
-    basicInfoSchema(dbClusters),
-    ...(hasImportStep ? [importStepSchema] : []),
-    ...(openApiValidationSchema ? [openApiValidationSchema] : []),
-  ];
-  return baseSchema[activeStep];
+  const baseStepCount = hasImportStep ? 2 : 1;
+
+  // Base steps use specific schemas, generated steps use the OpenAPI schema
+  if (activeStep === 0) {
+    return basicInfoSchema(dbClusters);
+  }
+
+  if (hasImportStep && activeStep === 1) {
+    return importStepSchema;
+  }
+
+  // For all generated UI steps, use the OpenAPI validation schema
+  if (activeStep >= baseStepCount && openApiValidationSchema) {
+    return openApiValidationSchema;
+  }
+
+  // Fallback for any other case
+  return z.object({}).passthrough();
 };

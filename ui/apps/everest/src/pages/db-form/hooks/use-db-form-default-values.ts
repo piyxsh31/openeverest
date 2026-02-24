@@ -1,7 +1,7 @@
 import { dbEngineToDbType } from '@percona/utils';
 import { useDefaultValues } from 'components/ui-generator/hooks/use-default-values';
 import { Topology } from 'components/ui-generator/ui-generator.types';
-import { useState } from 'react';
+import { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { WizardMode } from 'shared-types/wizard.types';
 import { getDbWizardDefaultValues } from '../utils/get-default-values';
@@ -30,34 +30,27 @@ export const useDBFormDefaultValues = (
   //   } = useDbCluster(state?.selectedDbCluster, namespace, {
   //     enabled: shouldRetrieveDbClusterData,
   //   });
-  //   const defaultValues: Record<string, unknown> = useMemo(() => {
 
-  //       return hasMultipleTopologies
-  //         ? { topology: { type: selectedTopology }, ...values }
-  //         : { topology: { type: defaultTopology }, ...values };
-  //   }, [schema, selectedTopology, hasMultipleTopologies, defaultTopology]);
   const defaultSchemaValues = useDefaultValues(schema, selectedTopology);
 
-  const [defaultValues, setDefaultValues] = useState<Record<string, unknown>>(
-    () => {
-      const dbType = dbEngineToDbType(state?.selectedDbEngine);
-      if (mode === WizardMode.New) {
-        const dbWizardDefaultValues = getDbWizardDefaultValues(dbType);
-        // Add topology to default values
-        return {
-          ...defaultSchemaValues,
-          ...dbWizardDefaultValues,
-          topology: selectedTopology,
-        };
-      } else {
-        // TODO edit,restore,templates mode
-        return { ...defaultSchemaValues, topology: selectedTopology };
-        //   return dbClusterRequestStatus === 'success'
-        //     ? DbClusterPayloadToFormValues(dbCluster, mode, namespace)
-        //     : defaults;
-      }
+  const defaultValues = useMemo(() => {
+    const dbType = dbEngineToDbType(state?.selectedDbEngine);
+    if (mode === WizardMode.New) {
+      const dbWizardDefaultValues = getDbWizardDefaultValues(dbType);
+      // Add topology to default values
+      return {
+        ...defaultSchemaValues,
+        ...dbWizardDefaultValues,
+        topology: selectedTopology,
+      };
+    } else {
+      // TODO edit,restore,templates mode
+      return { ...defaultSchemaValues, topology: selectedTopology };
+      //   return dbClusterRequestStatus === 'success'
+      //     ? DbClusterPayloadToFormValues(dbCluster, mode, namespace)
+      //     : defaults;
     }
-  );
+  }, [defaultSchemaValues, selectedTopology, mode, state?.selectedDbEngine]);
 
   // TODO edit,restore,templates mode
   //   useEffect(() => {

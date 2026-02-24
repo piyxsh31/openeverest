@@ -14,6 +14,7 @@
 // limitations under the License.
 
 import { useQuery } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import { TopologyUISchemas } from 'components/ui-generator/ui-generator.types';
 import { topologyUiSchemas } from 'components/ui-generator/ui-generator.mock';
 import { PerconaQueryOptions } from 'shared-types/query.types';
@@ -22,7 +23,7 @@ export const SCHEMA_QUERY_KEY = 'schema';
 
 // TODO: Replace with actual API call when backend is ready
 const fetchSchema = async (): Promise<TopologyUISchemas> => {
-  // Simulate API call
+  // Simulate API call - return the same reference to prevent render loops
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(topologyUiSchemas);
@@ -59,14 +60,21 @@ export const useSchema = (
     ...options,
   });
 
-  const topologies = Object.keys(schema);
-  const hasMultipleTopologies = topologies.length > 1;
+  // Memoize derived values to prevent unnecessary re-renders
+  const topologies = useMemo(() => Object.keys(schema), [schema]);
+  const hasMultipleTopologies = useMemo(
+    () => topologies.length > 1,
+    [topologies.length]
+  );
 
-  return {
-    schema,
-    topologies,
-    hasMultipleTopologies,
-    isLoading,
-    error,
-  };
+  return useMemo(
+    () => ({
+      schema,
+      topologies,
+      hasMultipleTopologies,
+      isLoading,
+      error,
+    }),
+    [schema, topologies, hasMultipleTopologies, isLoading, error]
+  );
 };

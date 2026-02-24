@@ -13,6 +13,7 @@ export const topologyUiSchemas: TopologyUISchemas = {
             path: 'spec.engine.version',
             fieldParams: {
               label: 'Database Version',
+              defaultValue: '7.0.18-11',
               // TODO CHECK WITH THE TEAM: in case of dbVersions we are assume that we get availableVersions values already
               // or we need to think about an extra logic an it will be special component like:
               // VersionSelect or DbVersionSelect
@@ -237,6 +238,11 @@ export const topologyUiSchemas: TopologyUISchemas = {
           },
         },
         componentsOrder: ['shards', 'numberOfnodes', 'numberOfConfigServers'],
+      },
+      advancedConfiguration: {
+        label: 'Advanced Configuration',
+        description: 'Some description about advanced configuration',
+        components: {},
       },
     },
     sectionsOrder: ['basicInfo', 'resources', 'resources2'],
