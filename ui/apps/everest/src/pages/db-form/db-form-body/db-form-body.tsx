@@ -66,9 +66,7 @@ const DBFormBody = ({
         onPreviousClick={handlePreviousStep}
         onNextClick={handleNextStep}
         onCancel={onCancel}
-        onSubmit={() =>
-          onSubmit && onSubmit({} as React.FormEvent<HTMLFormElement>)
-        }
+        onSubmit={onSubmit}
       />
     </form>
   );

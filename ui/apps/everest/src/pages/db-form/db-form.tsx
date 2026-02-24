@@ -11,12 +11,7 @@ import { useDatabasePageMode } from 'pages/database-form/useDatabasePageMode';
 import { useEffect, useRef, useState } from 'react';
 import { useBlocker, useLocation, useNavigate } from 'react-router-dom';
 import DatabaseFormSideDrawer from 'pages/database-form/database-form-side-drawer';
-import {
-  FormProvider,
-  SubmitHandler,
-  useForm,
-  useWatch,
-} from 'react-hook-form';
+import { FormProvider, SubmitHandler, useForm, useWatch } from 'react-hook-form';
 import { Stack, Step, StepLabel } from '@mui/material';
 import DatabaseFormCancelDialog from 'pages/database-form/database-form-cancel-dialog';
 import { Stepper } from '@percona/ui-lib';
@@ -42,7 +37,7 @@ export const DatabasePageGenerated = () => {
 
   // Get schema and topology info from API hook
   const { schema, topologies } = useSchema();
-
+  
   // Get default topology from schema
   const defaultTopology = topologies[0] || '';
 
@@ -77,34 +72,9 @@ export const DatabasePageGenerated = () => {
 
   const hasImportStep = location.state?.showImport;
 
-  // Initial validation schema (will be updated later with zodSchema)
-  let validationSchemaRef = useRef<ZodType<any>>();
-
+  // Initialize form without resolver first
   const methods = useForm<any>({
     mode: 'onChange',
-    resolver: async (data, context, options) => {
-      // Use the latest validation schema
-      if (!validationSchemaRef.current) {
-        return { values: data, errors: {} };
-      }
-
-      const customResolver = zodResolver(validationSchemaRef.current);
-      const result = await customResolver(data, context, options);
-
-      if (Object.keys(result.errors).length > 0) {
-        setStepsWithErrors((prev) => {
-          if (!prev.includes(activeStep)) {
-            return [...prev, activeStep];
-          }
-          return prev;
-        });
-      } else {
-        setStepsWithErrors((prev) =>
-          prev.filter((step) => step !== activeStep)
-        );
-      }
-      return result;
-    },
     // @ts-ignore
     defaultValues,
   });
@@ -133,6 +103,7 @@ export const DatabasePageGenerated = () => {
 
   const steps = useSteps(sections);
 
+  // Now create validation schema with zodSchema
   const validationSchema = useDbValidationSchema(
     activeStep,
     defaultValues,
@@ -142,10 +113,30 @@ export const DatabasePageGenerated = () => {
     zodSchema
   ) as unknown as ZodType<any>;
 
-  // Update validation schema ref when it changes
+  // Update resolver dynamically when validation schema changes
   useEffect(() => {
-    validationSchemaRef.current = validationSchema;
-  }, [validationSchema]);
+    const customResolver = zodResolver(validationSchema);
+    
+    // Override the resolver
+    (methods as any)._resolver = async (data: any, context: any, options: any) => {
+      const result = await customResolver(data, context, options);
+      if (Object.keys(result.errors).length > 0) {
+        setStepsWithErrors((prev) => {
+          if (!prev.includes(activeStep)) {
+            return [...prev, activeStep];
+          }
+          return prev;
+        });
+      } else {
+        setStepsWithErrors((prev) =>
+          prev.filter((step) => step !== activeStep)
+        );
+      }
+      return result;
+    };
+    
+    methods.clearErrors();
+  }, [validationSchema, activeStep, methods]);
 
   const blocker = useBlocker(
     ({ currentLocation, nextLocation }) =>
