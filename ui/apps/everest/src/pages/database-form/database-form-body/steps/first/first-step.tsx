@@ -56,11 +56,15 @@ export const FirstStep = ({ loadingDefaultsForEdition }: StepProps) => {
   const [dbEnginesFoDbEngineTypes, dbEnginesFoDbEngineTypesFetching] =
     useDBEnginesForDbEngineTypes(dbTypeToDbEngine(dbType));
 
+  console.log('dbEnginesFoDbEngineTypes', dbEnginesFoDbEngineTypes);
+
   const dbEnginesDataWithNamespaces = useMemo(() => {
     return !dbEnginesFoDbEngineTypesFetching
       ? dbEnginesFoDbEngineTypes.map((item) => item?.dbEngines).flat(1)
       : [];
   }, [dbEnginesFoDbEngineTypesFetching, dbEnginesFoDbEngineTypes]);
+
+  console.log('dbEnginesDataWithNamespaces', dbEnginesDataWithNamespaces);
 
   const dbEngineData = useMemo(() => {
     const dbEnginesArray = dbEnginesDataWithNamespaces
@@ -101,6 +105,7 @@ export const FirstStep = ({ loadingDefaultsForEdition }: StepProps) => {
     )
   );
 
+  console.log('filteredNamespaces', filteredNamespaces);
   // setting the dbnamespace default value
   useEffect(() => {
     const { isTouched: k8sNamespaceTouched } = getFieldState(

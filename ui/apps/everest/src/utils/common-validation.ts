@@ -6,6 +6,8 @@ const tooLongErrorMessage = (fieldName: string) =>
 
 export const errorMessages = {
   tooLong: (value: string) => tooLongErrorMessage(value),
+  duplicate: (value: string) =>
+    `You already have a ${value} with the same name.`,
   doesNotEndWithDash: "The name shouldn't end with a hyphen.",
   doesNotStartWithDash: "The name shouldn't start with a hyphen or a number.",
 };

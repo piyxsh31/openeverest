@@ -198,21 +198,31 @@ export const CreateDbButton = ({
                   {humanizeDbType(dbEngineToDbType(item.type))}
                 </MenuItem>
               ))}
-              {/* TODO shouldn't be duplicated with previous version of form */}
-              {/* <MenuItem
-                data-testid={`add-db-cluster-button-psmdb-generated`}
-                component={Link}
-                to="/databases/new-ui-generated"
-                sx={{
-                  display: 'flex',
-                  gap: 1,
-                  alignItems: 'center',
-                  px: 2,
-                  py: '10px',
-                }}
-              >
-                PSMDB generated
-              </MenuItem> */}
+              {/*TODO shouldn't be filter not by psmdb, should be filter by availability only */}
+              {availableDbTypes
+                .filter((db) => db.type === 'psmdb')
+                .map((item) => (
+                  <MenuItem
+                    data-testid={`${createFromImport ? 'import' : 'add'}-db-cluster-button-${item.type}-generated`}
+                    disabled={!item.available}
+                    key={item.type}
+                    component={Link}
+                    to="/databases/new-ui-generated"
+                    sx={{
+                      display: 'flex',
+                      gap: 1,
+                      alignItems: 'center',
+                      px: 2,
+                      py: '10px',
+                    }}
+                    state={{
+                      selectedDbEngine: item.type,
+                      showImport: createFromImport,
+                    }}
+                  >
+                    {humanizeDbType(dbEngineToDbType(item.type))} generated
+                  </MenuItem>
+                ))}
             </Box>
           }
         </Menu>

@@ -48,6 +48,12 @@ type CreateDbClusterArgType = {
   backupDataSource?: DataSource;
 };
 
+const formValuesToPayloadMappingNew = (
+  dbPayload: DbWizardType,
+  backupDataSource?: DataSource
+  //TODO describe types
+): any => {};
+
 const formValuesToPayloadMapping = (
   dbPayload: DbWizardType,
   backupDataSource?: DataSource
@@ -184,6 +190,23 @@ const formValuesToPayloadMapping = (
 };
 
 export const useCreateDbCluster = (
+  options?: UseMutationOptions<
+    DbCluster,
+    unknown,
+    CreateDbClusterArgType,
+    unknown
+  >
+) =>
+  useMutation({
+    mutationFn: ({ dbPayload, backupDataSource }: CreateDbClusterArgType) =>
+      createDbClusterFn(
+        formValuesToPayloadMapping(dbPayload, backupDataSource),
+        dbPayload.k8sNamespace || ''
+      ),
+    ...options,
+  });
+
+export const useCreateDbClusterNew = (
   options?: UseMutationOptions<
     DbCluster,
     unknown,

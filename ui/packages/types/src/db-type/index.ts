@@ -1,3 +1,4 @@
+// TODO how this should be described in v2?
 enum DbType {
   Postresql = "postgresql",
   Mongo = "mongodb",

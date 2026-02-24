@@ -92,8 +92,153 @@ export const topologyUiSchemas: TopologyUISchemas = {
         },
       },
     },
-    //backups
-    //advanced
+    // advanced
     sectionsOrder: ['basicInfo', 'resources'],
+  },
+  sharded: {
+    sections: {
+      basicInfo: {
+        label: 'Basic Information',
+        description: 'Provide the basic information for your new database.',
+        components: {
+          version: {
+            uiType: FieldType.Select, //it can be autocompleteselect?
+            path: 'spec.engine.version',
+            fieldParams: {
+              label: 'Database Version',
+              options: [
+                {
+                  label: 'percona/percona-server-mongodb:6.0.19-16-multi',
+                  value: '6.0.19-16',
+                },
+                {
+                  label: 'percona/percona-server-mongodb:6.0.21-18',
+                  value: '6.0.21-18',
+                },
+                {
+                  label: 'percona/percona-server-mongodb:7.0.18-11',
+                  value: '7.0.18-11',
+                },
+              ],
+            },
+          },
+        },
+      },
+      resources: {
+        label: 'Resources',
+        description: 'Some description about resources',
+        components: {
+          shards: {
+            uiType: FieldType.Number,
+            path: 'spec.sharding.shards',
+            fieldParams: {
+              label: 'Nº of shards',
+              defaultValue: 1,
+            },
+          },
+          numberOfnodes: {
+            path: 'spec.replica.nodes',
+            uiType: FieldType.Number, // RadioButtons/Number/even Select
+            fieldParams: {
+              label: 'Number of nodes',
+            },
+          },
+          nodesResources: {
+            uiType: 'group' as const,
+            groupType: GroupType.Line as const,
+            components: {
+              cpu: {
+                path: 'spec.engine.resources.cpu',
+                uiType: FieldType.Number as const,
+                fieldParams: {
+                  label: 'CPU',
+                },
+                validation: {
+                  min: 1,
+                  max: 10,
+                },
+              },
+              memory: {
+                path: 'spec.engine.resources.memory',
+                uiType: FieldType.Number as const,
+                fieldParams: {
+                  label: 'Memory',
+                },
+                validation: {
+                  min: 1,
+                  max: 10,
+                },
+              },
+              disk: {
+                path: 'spec.engine.resources.disk',
+                uiType: FieldType.Number as const,
+                fieldParams: {
+                  label: 'Disk',
+                },
+                validation: {
+                  min: 10,
+                  max: 100,
+                },
+              },
+            },
+          },
+          numberOfRouters: {
+            path: 'spec.replica.routers',
+            uiType: FieldType.Number, // RadioButtons/Number/even Select
+            fieldParams: {
+              label: 'Number of routers',
+            },
+          },
+          routersResources: {
+            uiType: 'group' as const,
+            groupType: GroupType.Line as const,
+            components: {
+              cpu: {
+                path: 'some.path1.need.to.be.checked',
+                uiType: FieldType.Number as const,
+                fieldParams: {
+                  label: 'CPU',
+                },
+                validation: {
+                  min: 1,
+                  max: 10,
+                },
+              },
+              memory: {
+                path: 'some.path2.need.to.be.checked',
+                uiType: FieldType.Number as const,
+                fieldParams: {
+                  label: 'Memory',
+                },
+                validation: {
+                  min: 1,
+                  max: 10,
+                },
+              },
+            },
+          },
+          numberOfConfigServers: {
+            uiType: FieldType.Number, //can be something like NumberTabs or custom type
+            path: 'spec.sharding.configServer.replicas',
+            fieldParams: {
+              label: 'Nº of configuration servers',
+              defaultValue: 3,
+            },
+            validation: {
+              celExpressions: [
+                {
+                  celExpr:
+                    '!(spec.replica.nodes > 1 && spec.sharding.configServer.replicas == 1)',
+                  message:
+                    'The number of configuration servers cannot be 1 if the number of database nodes is greater than 1',
+                },
+              ],
+            },
+          },
+        },
+        componentsOrder: ['shards', 'numberOfnodes', 'numberOfConfigServers'],
+      },
+    },
+    sectionsOrder: ['basicInfo', 'resources', 'resources2'],
   },
 } satisfies TopologyUISchemas;

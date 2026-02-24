@@ -95,6 +95,19 @@ export const DbWizardFormFields = {
   ...AdvancedConfigurationFields,
 };
 
+// Separate enum for new db-form flow with UI generator
+export enum DbWizardForm2 {
+  dbName = 'dbName',
+  dbType = 'dbType',
+  k8sNamespace = 'k8sNamespace',
+  topology = 'topology',
+}
+
+export const DbWizardFormFields2 = {
+  ...ImportFields,
+  ...DbWizardForm2,
+};
+
 export const EKS_DEFAULT_LOAD_BALANCER_CONFIG = 'eks-default';
 
 export const EMPTY_LOAD_BALANCER_CONFIGURATION = '- No configuration -';

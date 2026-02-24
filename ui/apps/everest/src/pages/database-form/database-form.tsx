@@ -74,6 +74,8 @@ export const DatabasePage = () => {
       namespace: db?.metadata.namespace!,
     }));
 
+  console.log(dbClustersResults, dbClustersNamesList);
+
   const hasImportStep = location.state?.showImport;
 
   const validationSchema = useDbValidationSchema(

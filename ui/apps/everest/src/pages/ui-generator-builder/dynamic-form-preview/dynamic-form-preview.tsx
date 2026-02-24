@@ -7,10 +7,10 @@ import { MenuItem, Stack, Step, StepLabel } from '@mui/material';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { StepHeader } from 'pages/database-form/database-form-body/steps/step-header/step-header';
 import DatabaseFormStepControllers from 'pages/database-form/database-form-body/DatabaseFormStepControllers';
-import { getSteps } from 'components/ui-generator/utils/component-renderer';
-import { getDefaultValues } from 'components/ui-generator/utils/default-values';
-import { buildZodSchema } from 'components/ui-generator/utils/schema-builder';
 import { useCelValidation } from 'components/ui-generator/hooks/use-cel-validation';
+import { useUiGenerator } from 'components/ui-generator/hooks/ui-generator';
+import { useTopology } from '../../../components/ui-generator/hooks/use-topology';
+import { useDefaultValues } from 'components/ui-generator/hooks/use-default-values';
 
 export type DynamicFormProps = {
   schema: TopologyUISchemas;
@@ -18,31 +18,24 @@ export type DynamicFormProps = {
 
 export const DynamicForm = ({ schema }: DynamicFormProps) => {
   const [activeStep, setActiveStep] = useState(0);
-  const topologies = Object.keys(schema);
-  const hasMultipleTopologies = topologies.length > 1;
-  const defaultTopology = topologies[0] || '';
-  const [selectedTopology, setSelectedTopology] =
-    useState<string>(defaultTopology);
-  const sections = getSteps(selectedTopology, schema);
+  const {
+    selectedTopology,
+    setSelectedTopology,
+    topologies,
+    hasMultipleTopologies,
+  } = useTopology(schema);
+  const defaultValues = useDefaultValues(schema, selectedTopology);
+  //TODO probably it's better to move default values under useUiGenerator
+  const {
+    sections,
+    zodSchema: { schema: zodSchema, celDependencyGroups },
+  } = useUiGenerator(schema, selectedTopology);
 
-  // Skip topology selection step if only one topology exists
   const stepLabels = hasMultipleTopologies
     ? ['Choose topology', ...Object.keys(sections)]
     : Object.keys(sections);
 
-  // Generate default values based on unique field IDs
-  const defaultValues: Record<string, unknown> = useMemo(() => {
-    const values = getDefaultValues(schema, selectedTopology);
-    return hasMultipleTopologies
-      ? { topology: { type: selectedTopology }, ...values }
-      : { topology: { type: defaultTopology }, ...values };
-  }, [schema, selectedTopology, hasMultipleTopologies, defaultTopology]);
-
   // Build Zod validation schema for the selected topology
-  const { schema: zodSchema, celDependencyGroups } = buildZodSchema(
-    schema,
-    selectedTopology
-  );
 
   const methods = useForm<Record<string, unknown>>({
     mode: 'onChange',
