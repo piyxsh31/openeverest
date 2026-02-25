@@ -36,6 +36,11 @@ gen-crds-openapi: ## Extract OpenAPI schemas from CRD manifests.
 .PHONY: gen
 gen: gen-crds-deepcopy gen-crds-manifests gen-crds-openapi ## Generate code.
 	go generate ./...
+	python3 hack/add_copyright.py \
+		internal/server/api/everest-server.gen.go \
+		internal/server/api/crds.gen.go \
+		client/everest-client.gen.go \
+		client/crds.gen.go || true
 	$(MAKE) format
 
 .PHONY: format
@@ -292,7 +297,7 @@ prepare-pr: gen ## Prepare code for pushing to GitHub PR (includes 'update-dev-c
 
 .PHONY: gen-crds-deepcopy
 gen-crds-deepcopy: controller-gen ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
-	$(CONTROLLER_GEN) object paths="./..."
+	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
 
 .PHONY: gen-crds-manifests
 gen-crds-manifests: controller-gen ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
