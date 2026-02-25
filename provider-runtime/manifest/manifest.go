@@ -92,8 +92,7 @@ type topologyConfig struct {
 }
 
 type topologyComponentConfig struct {
-	Optional bool                   `json:"optional,omitempty"`
-	Defaults map[string]interface{} `json:"defaults,omitempty"`
+	Optional bool `json:"optional,omitempty"`
 }
 
 // Generate reads a provider-config.yaml, resolves Go type references to OpenAPI schemas,
@@ -197,13 +196,6 @@ func buildProviderSpec(pc *providerConfig, types map[string]interface{}, rawSche
 		for compName, compCfg := range tc.Components {
 			topoComp := v1alpha1.TopologyComponent{
 				Optional: compCfg.Optional,
-			}
-			if len(compCfg.Defaults) > 0 {
-				defaultsJSON, err := json.Marshal(compCfg.Defaults)
-				if err != nil {
-					return nil, fmt.Errorf("topology %q component %q defaults: %w", name, compName, err)
-				}
-				topoComp.Defaults = &runtime.RawExtension{Raw: defaultsJSON}
 			}
 			topo.Components[compName] = topoComp
 		}
