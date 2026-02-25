@@ -1,5 +1,5 @@
 import { APIRequestContext, expect, Page } from '@playwright/test';
-import { getTokenFromLocalStorage } from './localStorage';
+import { getCITokenFromLocalStorage } from './localStorage';
 
 export const POD_SCHEDULING_POLICIES_URL =
   '/settings/policies/details/pod-scheduling';
@@ -19,7 +19,7 @@ export const createPodSchedulingPolicy = async (
       },
     },
     headers: {
-      Authorization: `Bearer ${await getTokenFromLocalStorage()}`,
+      Authorization: `Bearer ${await getCITokenFromLocalStorage()}`,
     },
   });
 
@@ -31,12 +31,12 @@ export const deletePodSchedulingPolicy = async (
   name: string
 ) => {
   const response = await request.delete(`/v1/pod-scheduling-policies/${name}`, {
-    headers: {
-      Authorization: `Bearer ${await getTokenFromLocalStorage()}`,
-    },
-  });
-
-  expect(response.ok()).toBeTruthy();
+      headers: {
+        Authorization: `Bearer ${await getCITokenFromLocalStorage()}`,
+      },
+    }),
+    code = response.status();
+  expect(code === 204 || code === 404).toBeTruthy();
 };
 
 export const getDefaultPodSchedulingPolicyNameForDbType = (

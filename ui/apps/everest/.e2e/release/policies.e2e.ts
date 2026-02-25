@@ -15,7 +15,7 @@
 
 import { expect, test } from '@playwright/test';
 import { deleteDbCluster } from '@e2e/utils/db-clusters-list';
-import { getTokenFromLocalStorage } from '@e2e/utils/localStorage';
+import { getCITokenFromLocalStorage } from '@e2e/utils/localStorage';
 import { getClusterDetailedInfo } from '@e2e/utils/storage-class';
 import {
   moveForward,
@@ -71,7 +71,7 @@ test.describe.configure({ retries: 0 });
       const monitoringName = 'e2e-endpoint-0';
 
       test.beforeAll(async ({ request }) => {
-        token = await getTokenFromLocalStorage();
+        token = await getCITokenFromLocalStorage();
 
         const { storageClassNames = [] } = await getClusterDetailedInfo(
           token,
@@ -211,7 +211,7 @@ test.describe.configure({ retries: 0 });
         const monitoringName = 'e2e-endpoint-0';
 
         test.beforeAll(async ({ request }) => {
-          token = await getTokenFromLocalStorage();
+          token = await getCITokenFromLocalStorage();
 
           const { storageClassNames = [] } = await getClusterDetailedInfo(
             token,
@@ -336,7 +336,7 @@ test.describe(
     test.describe.configure({ timeout: 1_200_000 });
 
     test.beforeAll(async ({ request }) => {
-      token = await getTokenFromLocalStorage();
+      token = await getCITokenFromLocalStorage();
 
       const { storageClassNames = [] } = await getClusterDetailedInfo(
         token,
@@ -538,7 +538,7 @@ test.describe(
       await test.step('Check restart status', async () => {
         await page.goto('/databases');
         await waitForStatus(page, secondClusterName, 'Initializing', 30000);
-        await deleteAllK8sPVCs('everest-ui');
+        await deleteAllK8sPVCs('everest');
         await waitForStatus(page, secondClusterName, 'Up', 660000);
       });
 

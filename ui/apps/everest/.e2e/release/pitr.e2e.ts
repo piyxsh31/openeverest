@@ -20,7 +20,7 @@ import {
   gotoDbClusterRestores,
   findDbAndClickActions,
 } from '@e2e/utils/db-clusters-list';
-import { getTokenFromLocalStorage } from '@e2e/utils/localStorage';
+import { getCITokenFromLocalStorage } from '@e2e/utils/localStorage';
 import { getClusterDetailedInfo } from '@e2e/utils/storage-class';
 import {
   moveForward,
@@ -107,9 +107,9 @@ const zephyrMap: Record<string, string> = {
 function getBackupStorage(): string {
   const bucketNamespacesMap = getBucketNamespacesMap();
 
-  // Check if map includes ["everest-testing","everest-ui"]
+  // Check if map includes ["everest-testing","everest"]
   const hasEverestTesting = bucketNamespacesMap.some(
-    ([bucket, ns]) => bucket === 'everest-testing' && ns === 'everest-ui'
+    ([bucket, ns]) => bucket === 'everest-testing' && ns === 'everest'
   );
 
   if (
@@ -119,12 +119,12 @@ function getBackupStorage(): string {
   ) {
     backupStorage = 'everest-testing';
     console.log(
-      `AWS credentials present and EVEREST_BUCKETS_NAMESPACES_MAP includes ["everest-testing","everest-ui"], so using bucket ${backupStorage}`
+      `AWS credentials present and EVEREST_BUCKETS_NAMESPACES_MAP includes ["everest-testing","everest"], so using bucket ${backupStorage}`
     );
   } else {
     backupStorage = 'bucket-1';
     console.log(
-      `AWS credentials missing or EVEREST_BUCKETS_NAMESPACES_MAP does not include ["everest-testing","everest-ui"], so using MinIO bucket ${backupStorage}`
+      `AWS credentials missing or EVEREST_BUCKETS_NAMESPACES_MAP does not include ["everest-testing","everest"], so using MinIO bucket ${backupStorage}`
     );
   }
 
@@ -154,7 +154,7 @@ function getBackupStorage(): string {
       const baseBackupName = `dembkp-${db}-${size}`;
 
       test.beforeAll(async ({ request }) => {
-        token = await getTokenFromLocalStorage();
+        token = await getCITokenFromLocalStorage();
 
         const { storageClassNames = [] } = await getClusterDetailedInfo(
           token,
