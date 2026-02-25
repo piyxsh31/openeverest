@@ -1,6 +1,10 @@
-import { Component } from 'components/ui-generator/ui-generator.types';
+import {
+  Component,
+  FieldType,
+} from 'components/ui-generator/ui-generator.types';
 import React from 'react';
 import { useFormContext, get } from 'react-hook-form';
+import { InputAdornment } from '@mui/material';
 import { muiComponentMap } from '../constants';
 import { getMappedParams } from './get-mapped-params';
 import { renderComponentChildren } from './utils/component-renderer';
@@ -32,6 +36,40 @@ const UIComponent: React.FC<ComponentProps> = ({ item, name }) => {
 
   const mappedProps = getMappedParams(uiType, fieldParams, validation);
 
+  // Extract badge from mappedProps if present
+  const { badge, textFieldProps, selectFieldProps, ...restMappedProps } =
+    mappedProps as any;
+
+  // Add badge as InputAdornment if present
+  let finalTextFieldProps = textFieldProps;
+  if (badge && uiType === FieldType.Number && textFieldProps) {
+    // For Number fields (TextField-based), add InputProps with endAdornment
+    finalTextFieldProps = {
+      ...textFieldProps,
+      InputProps: {
+        ...textFieldProps.InputProps,
+        endAdornment: <InputAdornment position="end">{badge}</InputAdornment>,
+      },
+    };
+  }
+
+  // For Select fields, badge handling different - needs to be in selectFieldProps
+  let finalSelectFieldProps = selectFieldProps;
+  if (badge && uiType === FieldType.Select && selectFieldProps) {
+    finalSelectFieldProps = {
+      ...selectFieldProps,
+      endAdornment: <InputAdornment position="end">{badge}</InputAdornment>,
+    };
+  }
+
+  const finalProps = {
+    ...restMappedProps,
+    ...(finalTextFieldProps ? { textFieldProps: finalTextFieldProps } : {}),
+    ...(finalSelectFieldProps
+      ? { selectFieldProps: finalSelectFieldProps }
+      : {}),
+  };
+
   // Render component-specific children (e.g., MenuItem options for Select)
   const children = renderComponentChildren(item, name);
 
@@ -40,10 +78,13 @@ const UIComponent: React.FC<ComponentProps> = ({ item, name }) => {
       {React.createElement(
         MuiComponent,
         {
-          ...mappedProps,
+          ...finalProps,
           name,
           label,
           error: !!error,
+          helperText: error,
+          // Don't pass isRequired to prevent HTML required attribute
+          // Validation is handled by Zod
           formControlProps: { sx: { minWidth: '450px', marginTop: '15px' } },
         },
         children

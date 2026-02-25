@@ -19,12 +19,13 @@ interface CommonFieldParams {
   disabled?: boolean;
   autoFocus?: boolean;
   helperText?: string;
+  badge?: string;
+  badgeToApi?: boolean;
 }
 
 export interface NumberFieldParams extends CommonFieldParams {
   step?: number;
   placeholder?: string;
-  // badge?: string; https://github.com/openeverest/openeverest/issues/1854
 }
 
 export interface SelectFieldParams extends CommonFieldParams {

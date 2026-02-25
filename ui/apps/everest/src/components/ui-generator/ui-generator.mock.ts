@@ -1,12 +1,15 @@
+import { a } from 'vitest/dist/chunks/suite.B2jumIFP.js';
 import { TopologyUISchemas, GroupType, FieldType } from './ui-generator.types';
+import { AdvancedConfiguration } from 'pages/db-cluster-details/cluster-overview/cards/db-details/advanced-configuration';
 // Note: This file is using for development and testing purposes, it contains mock data for the UI generator component.
 // TODO It should be removed in production.
 export const topologyUiSchemas: TopologyUISchemas = {
   replica: {
     sections: {
-      basicInfo: {
-        label: 'Basic Information',
-        description: 'Provide the basic information for your new database.',
+      databaseVersion: {
+        label: 'Database Version',
+        description:
+          'Provide the information about the database version you want to use.',
         components: {
           version: {
             uiType: FieldType.Select as const,
@@ -14,9 +17,6 @@ export const topologyUiSchemas: TopologyUISchemas = {
             fieldParams: {
               label: 'Database Version',
               defaultValue: '7.0.18-11',
-              // TODO CHECK WITH THE TEAM: in case of dbVersions we are assume that we get availableVersions values already
-              // or we need to think about an extra logic an it will be special component like:
-              // VersionSelect or DbVersionSelect
               options: [
                 {
                   label: 'percona/percona-server-mongodb:6.0.19-16-multi',
@@ -40,73 +40,118 @@ export const topologyUiSchemas: TopologyUISchemas = {
         description:
           'Configure the resources your new database will have access to.',
         components: {
-          numberOfnodes: {
-            path: 'spec.replica.nodes',
-            uiType: FieldType.Number as const, // RadioButtons/Number/even Select
-            fieldParams: {
-              label: 'Number of nodes',
-            },
-            validation: {
-              min: 1,
-              max: 7,
-            },
-          },
-          resources: {
-            uiType: 'group' as const,
-            groupType: GroupType.Line as const,
+          nodes: {
+            uiType: 'group',
+            // groupType: GroupType.Accordion, TODO fix accordion
             components: {
-              cpu: {
-                path: 'spec.engine.resources.cpu',
-                uiType: FieldType.Number as const,
+              numberOfnodes: {
+                path: 'spec.components.engine.replicas',
+                uiType: FieldType.Number as const, // RadioButtons/Number/even Select
                 fieldParams: {
-                  label: 'CPU',
+                  label: 'Number of nodes',
+                  defaultValue: 3,
                 },
                 validation: {
+                  required: true,
                   min: 1,
-                  max: 10,
+                  int: true,
+                  celExpressions: [
+                    {
+                      celExpr: 'spec.components.engine.replicas % 2 == 1',
+                      message: 'The number of nodes must be odd',
+                    },
+                  ],
                 },
               },
-              memory: {
-                path: 'spec.engine.resources.memory',
-                uiType: FieldType.Number as const,
-                fieldParams: {
-                  label: 'Memory',
-                },
-                validation: {
-                  min: 1,
-                  max: 10,
-                },
-              },
-              disk: {
-                path: 'spec.engine.resources.disk',
-                uiType: FieldType.Number as const,
-                fieldParams: {
-                  label: 'Disk',
-                },
-                validation: {
-                  min: 10,
-                  max: 100,
+              resources: {
+                uiType: 'group' as const,
+                groupType: GroupType.Line as const,
+                components: {
+                  cpu: {
+                    path: 'spec.components.engine.resources.limits.cpu',
+                    uiType: FieldType.Number as const,
+                    fieldParams: {
+                      label: 'CPU',
+                      defaultValue: 1,
+                      step: 0.1,
+                    },
+                    validation: {
+                      min: 0.6,
+                      required: true,
+                    },
+                  },
+                  memory: {
+                    path: 'spec.components.engine.resources.limits.memory',
+                    uiType: FieldType.Number as const,
+                    fieldParams: {
+                      label: 'Memory',
+                      defaultValue: 4,
+                      step: 0.001,
+                      badge: 'Gi',
+                      badgeToApi: true,
+                    },
+                    validation: {
+                      min: 0.512,
+                      required: true,
+                    },
+                  },
+                  disk: {
+                    path: 'spec.components.engine.storage.size',
+                    uiType: FieldType.Number as const,
+                    fieldParams: {
+                      label: 'Disk',
+                      defaultValue: 25,
+                      badge: 'Gi',
+                      badgeToApi: true,
+                    },
+                    validation: {
+                      min: 1,
+                      int: true,
+                      required: true,
+                    },
+                  },
                 },
               },
             },
           },
         },
       },
+      advancedConfigurations: {
+        label: 'Advanced Configurations',
+        components: {
+          storageClass: {            
+            uiType: FieldType.Select,
+            path: 'spec.components.engine.storage.storageClass',
+            fieldParams: {
+              label: 'Storage Class',
+              // TODO move into group
+              // description: 'Defines the type and performance of storage for your database. Select based on workload needs, such as high IOPS for fast access or cost-effective options for less frequent use.',
+              options: [
+                {label: 'local-path', value: 'local-path'},
+              ],
+            },
+            validation: {
+              required: true
+            }
+          }  
+        }
+      },
     },
-    // advanced
-    sectionsOrder: ['basicInfo', 'resources'],
+    sectionsOrder: ['databaseVersion', 'resources'],
   },
   sharded: {
     sections: {
-      basicInfo: {
-        label: 'Basic Information',
-        description: 'Provide the basic information for your new database.',
+      databaseVersion: {
+        label: 'Database Version',
+        description:
+          'Provide the information about the database version you want to use.',
         components: {
           version: {
-            uiType: FieldType.Select, //it can be autocompleteselect?
+            uiType: FieldType.Select as const,
             path: 'spec.engine.version',
             fieldParams: {
               label: 'Database Version',
+              defaultValue: '7.0.18-11',
               options: [
                 {
                   label: 'percona/percona-server-mongodb:6.0.19-16-multi',

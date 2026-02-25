@@ -8,7 +8,7 @@ import {
   useSchema,
 } from 'hooks';
 import { useDatabasePageMode } from 'pages/database-form/useDatabasePageMode';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useBlocker, useLocation, useNavigate } from 'react-router-dom';
 import DbFormSideDrawer from './db-form-side-drawer';
 import {
@@ -27,6 +27,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useSteps } from './hooks/use-steps';
 import DBFormBody from './db-form-body';
 import { WizardMode } from 'shared-types/wizard.types';
+import {
+  applyBadgesToFormData,
+  extractBadgeMappings,
+} from 'components/ui-generator/utils/badge-to-api';
 
 export const DatabasePageGenerated = () => {
   const latestDataRef = useRef<any | null>(null);
@@ -108,6 +112,12 @@ export const DatabasePageGenerated = () => {
 
   const steps = useSteps(sections);
 
+  // Extract badge mappings for badgeToApi functionality
+  const badgeMappings = useMemo(
+    () => extractBadgeMappings(schema, selectedTopology),
+    [schema, selectedTopology]
+  );
+
   // Now create validation schema with zodSchema
   const validationSchema = useDbValidationSchema(
     activeStep,
@@ -162,9 +172,12 @@ export const DatabasePageGenerated = () => {
   );
 
   const onSubmit: SubmitHandler<any> = (data: any) => {
-    latestDataRef.current = data;
+    // Apply badge suffixes to form data if badgeToApi is enabled
+    const processedData = applyBadgesToFormData(data, badgeMappings);
+
+    latestDataRef.current = processedData;
     if (mode === WizardMode.New || mode === WizardMode.Restore) {
-      console.log('submit', data);
+      console.log('submit', processedData);
       // TODO: Implement database creation logic
       setFormSubmitted(true);
     }
