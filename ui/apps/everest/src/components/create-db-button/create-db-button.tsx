@@ -31,12 +31,17 @@ import { useDBEnginesForDbEngineTypes } from 'hooks';
 import { useNamespacePermissionsForResource } from 'hooks/rbac';
 import { humanizeDbType } from 'utils/db';
 import { useDataImporters } from 'hooks/api/data-importers/useDataImporters';
+import { useProviders } from 'hooks/api/providers';
 
 export const CreateDbButton = ({
   createFromImport = false,
 }: {
   createFromImport?: boolean;
 }) => {
+
+  const {data: providers} = useProviders();
+  console.log('providers', providers);
+
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [showDropdownButton, setShowDropdownButton] = useState(false);
   const { canCreate } = useNamespacePermissionsForResource('database-clusters');
