@@ -40,7 +40,7 @@ const mapNumberFieldParams = (
     step,
     disabled,
     helperText,
-    badge,
+    // badge,
     autoFocus,
     placeholder,
     ...rest
@@ -54,58 +54,58 @@ const mapNumberFieldParams = (
     placeholder,
   });
 
-  // const getOffset = (): number => {
-  //   if (validation?.int) {
-  //     return 1;
-  //   }
-  //   if (step !== undefined) {
-  //     return step;
-  //   }
-  //   return 0.000001;
-  // };
+  const getOffset = (): number => {
+    if (validation?.int) {
+      return 1;
+    }
+    if (step !== undefined) {
+      return step;
+    }
+    return 0.000001;
+  };
 
-  // const offset = getOffset();
+  const offset = getOffset();
 
-  // // Priority: explicit min/max > converted gt/lt
-  // const minValue =
-  //   validation?.min !== undefined
-  //     ? validation.min
-  //     : validation?.gt !== undefined
-  //       ? validation.gt + offset
-  //       : undefined;
+  // Priority: explicit min/max > converted gt/lt
+  const minValue =
+    validation?.min !== undefined
+      ? validation.min
+      : validation?.gt !== undefined
+        ? validation.gt + offset
+        : undefined;
 
-  // const maxValue =
-  //   validation?.max !== undefined
-  //     ? validation.max
-  //     : validation?.lt !== undefined
-  //       ? validation.lt - offset
-  //       : undefined;
+  const maxValue =
+    validation?.max !== undefined
+      ? validation.max
+      : validation?.lt !== undefined
+        ? validation.lt - offset
+        : undefined;
 
-  // const inputProps = filterDefined({
-  //   min: minValue,
-  //   max: maxValue,
-  //   step,
-  // });
+  const inputProps = filterDefined({
+    min: minValue,
+    max: maxValue,
+    step,
+  });
 
-  // if (Object.keys(inputProps).length > 0) {
-  //   textFieldProps.inputProps = inputProps;
+  if (Object.keys(inputProps).length > 0) {
+    textFieldProps.inputProps = inputProps;
+  }
+
+  //TODO custom logic for badge will be added in https://github.com/openeverest/openeverest/issues/1854
+  // if (badge) {
+  //   textFieldProps.InputProps = {
+  //     endAdornment:(<InputAdornment position="end">{badge}</InputAdornment>)
+  //   };
   // }
-
-  //TODO custom logic for badge will be added via textFieldProps.InputProps in UIComponent
-  // Badge passed separately to UIComponent which will handle InputAdornment rendering
-  // We keep the badge in the return value so UIComponent can access it
-
 
   return {
     ...rest,
     textFieldProps: {
       ...textFieldProps,
-      // inputProps: {
-      //   ...inputProps,
-      // },
-      
+      inputProps: {
+        ...inputProps,
+      },
     },
-    badge,
   };
 };
 
@@ -118,7 +118,6 @@ const mapSelectFieldParams = (fieldParams: SelectFieldParams) => {
     displayEmpty,
     defaultOpen,
     readOnly,
-    badge,
     ...rest
   } = fieldParams;
 
@@ -133,7 +132,6 @@ const mapSelectFieldParams = (fieldParams: SelectFieldParams) => {
 
   return {
     ...rest,
-    badge,
     selectFieldProps,
     helperText,
   };
