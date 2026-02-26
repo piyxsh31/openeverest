@@ -16,12 +16,18 @@ import { defineConfig } from '@playwright/test';
 import path from 'path';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { STORAGE_STATE_FILE } from './constants';
+import { CI_USER_STORAGE_STATE_FILE } from './constants';
 import 'dotenv/config';
+import { dbClusterProject } from './pr/db-cluster/project.config';
+import { dbClusterDetailsProject } from './pr/db-cluster-details/project.config';
+import { dbRestoreProject } from './pr/db-restore/project.config';
+import { multinamespacesProject } from './pr/multinamespaces/project.config';
+import { noMatchProject } from './pr/no-match/project.config';
+import { settingsProject } from './pr/settings/project.config';
+import { rbacProject } from './pr/rbac/project.config';
 
-// Convert 'import.meta.url' to the equivalent __filename and __dirname
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// Convert 'import.meta.url' to the equivalent __dirname
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /**
  * Read environment variables from file.
@@ -43,7 +49,7 @@ export default defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
-  workers: 1,
+  workers: 4,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
     ['github'],
@@ -54,7 +60,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: process.env.EVEREST_URL || 'http://localhost:3000',
+    baseURL: process.env.EVEREST_URL || 'http://localhost:8080',
     headless: true,
     extraHTTPHeaders: {
       'Content-Type': 'application/json',
@@ -67,149 +73,201 @@ export default defineConfig({
 
   /* Configure projects for major browsers */
   projects: [
+    // ---------------------- global setup and teardown ----------------------
+    // global:auth
     {
-      name: 'session-setup',
-      testDir: './setup',
-      testMatch: /session-setup\.ts$/,
-    },
-    {
-      name: 'session',
-      testDir: './release/session',
-      dependencies: ['session-setup'],
-      use: {
-        storageState: path.join(__dirname, 'sessionUser.json'),
-      },
-    },
-    {
-      name: 'session-teardown',
-      testDir: './teardown',
-      testMatch: /session-teardown\.ts$/,
-      dependencies: ['session'],
-      use: {
-        storageState: path.join(__dirname, 'sessionUser.json'),
-      },
-    },
-    {
-      name: 'auth',
+      name: 'global:auth:ci:setup',
       testDir: './setup',
       testMatch: /auth.setup\.ts/,
-      dependencies:
-        process.env.IGNORE_SESSION_TESTS === 'true' ? [] : ['session-teardown'],
+      teardown: 'global:auth:ci:teardown',
     },
     {
-      name: 'setup',
-      testDir: './setup',
-      testMatch: /global.setup\.ts/,
-      teardown: 'teardown',
-      use: {
-        storageState: STORAGE_STATE_FILE,
-      },
-      dependencies: ['auth'],
-    },
-    {
-      name: 'teardown',
+      name: 'global:auth:ci:teardown',
       testDir: './teardown',
+      testMatch: /auth\.teardown\.ts/,
       use: {
-        storageState: STORAGE_STATE_FILE,
+        storageState: CI_USER_STORAGE_STATE_FILE,
       },
-      testMatch: /global\.teardown\.ts/,
     },
+    // global:backup-storage
     {
-      name: 'rbac-setup',
+      name: 'global:backup-storage:setup',
       testDir: './setup',
-      testMatch: /rbac.setup\.ts/,
-      use: {
-        storageState: STORAGE_STATE_FILE,
-      },
-      dependencies: ['setup'],
+      testMatch: /backup-storage.setup\.ts/,
+      teardown: 'global:backup-storage:teardown',
+      dependencies: ['global:auth:ci:setup'],
     },
     {
-      name: 'rbac',
-      use: {
-        browserName: 'chromium',
-        channel: 'chrome',
-        storageState: STORAGE_STATE_FILE,
-      },
-      testDir: './pr/rbac',
-      dependencies: ['setup', 'rbac-setup'],
-    },
-    {
-      name: 'rbac-teardown',
+      name: 'global:backup-storage:teardown',
       testDir: './teardown',
-      testMatch: /rbac\.teardown\.ts/,
-      use: {
-        storageState: STORAGE_STATE_FILE,
-      },
-      dependencies: ['rbac'],
+      testMatch: /backup-storage\.teardown\.ts/,
     },
+    // global:monitoring-instance:
+    {
+      name: 'global:monitoring-instance:setup',
+      testDir: './setup',
+      testMatch: /monitoring-instance.setup\.ts/,
+      teardown: 'global:monitoring-instance:teardown',
+      dependencies: ['global:auth:ci:setup'],
+    },
+    {
+      name: 'global:monitoring-instance:teardown',
+      testDir: './teardown',
+      testMatch: /monitoring-instance\.teardown\.ts/,
+    },
+    // global:session:
+    {
+      name: 'global:session:setup',
+      testDir: './setup',
+      testMatch: /session\.setup\.ts$/,
+      teardown: 'global:session:teardown',
+    },
+    {
+      name: 'global:session:teardown',
+      testDir: './teardown',
+      testMatch: /session\.teardown\.ts$/,
+    },
+
+    // ---------------------- PR TESTS ----------------------
     {
       name: 'pr',
-      use: {
-        storageState: STORAGE_STATE_FILE,
-      },
-      testDir: 'pr',
-      testIgnore: ['pr/rbac/**/*'],
+      testMatch: /.^/,
       dependencies: [
-        'setup',
+        'pr:db-cluster',
+        'pr:db-cluster-details',
+        'pr:multinamespaces',
+        'pr:no-match',
+        'pr:settings',
+        'pr:db-restore',
         ...(process.env.IGNORE_RBAC_TESTS &&
         process.env.IGNORE_RBAC_TESTS !== 'false'
           ? []
-          : ['rbac', 'rbac-teardown']),
+          : ['pr:rbac']),
       ],
     },
-    {
-      name: 'release-rbac-setup',
-      testDir: './setup',
-      testMatch: /rbac.setup\.ts/,
-      use: {
-        storageState: STORAGE_STATE_FILE,
-      },
-      dependencies: ['setup'],
-    },
-    {
-      name: 'release-rbac',
-      use: {
-        browserName: 'chromium',
-        channel: 'chrome',
-        storageState: STORAGE_STATE_FILE,
-      },
-      testDir: './release/rbac',
-      dependencies: ['setup', 'release-rbac-setup'],
-    },
-    {
-      name: 'release-rbac-teardown',
-      testDir: './teardown',
-      testMatch: /rbac\.teardown\.ts/,
-      use: {
-        storageState: STORAGE_STATE_FILE,
-      },
-      dependencies: ['release-rbac'],
-    },
+    ...dbClusterProject,
+    ...dbClusterDetailsProject,
+    ...dbRestoreProject,
+    ...multinamespacesProject,
+    ...noMatchProject,
+    ...settingsProject,
+    ...rbacProject,
+
+    // ---------------------- RELEASE TESTS ----------------------
+    // release project
     {
       name: 'release',
-      use: {
-        storageState: STORAGE_STATE_FILE,
-        actionTimeout: 10000,
-      },
-      testDir: 'release',
-      testIgnore: ['release/rbac/*', 'release/session/*'],
-      dependencies: [
-        'setup',
-        ...(process.env.IGNORE_RBAC_TESTS &&
-        process.env.IGNORE_RBAC_TESTS !== 'false'
-          ? []
-          : ['release-rbac', 'release-rbac-teardown']),
-      ],
+      dependencies: ['release:session'],
     },
+    // release:session:session project
     {
-      name: 'upgrade',
-      use: {
-        storageState: STORAGE_STATE_FILE,
-        video: 'retain-on-failure',
-        actionTimeout: 10000,
-      },
-      testDir: 'upgrade',
-      dependencies: ['setup'],
+      name: 'release:session',
+      testDir: './release/session',
+      dependencies: ['global:session:setup'],
     },
+
+    // -----------------------------------
+    // e2e:rbac project
+    // {
+    //   name: 'rbac-setup',
+    //   testDir: './setup',
+    //   testMatch: /rbac.setup\.ts/,
+    //   use: {
+    //     storageState: STORAGE_STATE_FILE,
+    //   },
+    //   dependencies: ['setup'],
+    // },
+    // {
+    //   name: 'rbac',
+    //   use: {
+    //     browserName: 'chromium',
+    //     channel: 'chrome',
+    //     storageState: STORAGE_STATE_FILE,
+    //   },
+    //   testDir: './pr/rbac',
+    //   dependencies: ['setup', 'rbac-setup'],
+    // },
+    // {
+    //   name: 'rbac-teardown',
+    //   testDir: './teardown',
+    //   testMatch: /rbac\.teardown\.ts/,
+    //   use: {
+    //     storageState: STORAGE_STATE_FILE,
+    //   },
+    //   dependencies: ['rbac'],
+    // },
+
+    // PR project
+    // {
+    //   name: 'pr',
+    //   use: {
+    //     storageState: STORAGE_STATE_FILE,
+    //   },
+    //   testDir: 'pr',
+    //   testIgnore: ['pr/rbac/**/*'],
+    //   dependencies: [
+    //     'setup',
+    //     ...(process.env.IGNORE_RBAC_TESTS &&
+    //     process.env.IGNORE_RBAC_TESTS !== 'false'
+    //       ? []
+    //       : ['rbac', 'rbac-teardown']),
+    //   ],
+    // },
+    // {
+    //   name: 'release-rbac-setup',
+    //   testDir: './setup',
+    //   testMatch: /rbac.setup\.ts/,
+    //   use: {
+    //     storageState: STORAGE_STATE_FILE,
+    //   },
+    //   dependencies: ['setup'],
+    // },
+    // {
+    //   name: 'release-rbac',
+    //   use: {
+    //     browserName: 'chromium',
+    //     channel: 'chrome',
+    //     storageState: STORAGE_STATE_FILE,
+    //   },
+    //   testDir: './release/rbac',
+    //   dependencies: ['setup', 'release-rbac-setup'],
+    // },
+    // {
+    //   name: 'release-rbac-teardown',
+    //   testDir: './teardown',
+    //   testMatch: /rbac\.teardown\.ts/,
+    //   use: {
+    //     storageState: STORAGE_STATE_FILE,
+    //   },
+    //   dependencies: ['release-rbac'],
+    // },
+    // {
+    //   name: 'release',
+    //   use: {
+    //     storageState: STORAGE_STATE_FILE,
+    //     actionTimeout: 10000,
+    //   },
+    //   testDir: 'release',
+    //   testIgnore: ['release/rbac/*', 'release/session/*'],
+    //   dependencies: [
+    //     'setup',
+    //     ...(process.env.IGNORE_RBAC_TESTS &&
+    //     process.env.IGNORE_RBAC_TESTS !== 'false'
+    //       ? []
+    //       : ['release-rbac', 'release-rbac-teardown']),
+    //   ],
+    // },
+
+    // Upgrade project
+    // {
+    //   name: 'upgrade',
+    //   use: {
+    //     storageState: STORAGE_STATE_FILE,
+    //     video: 'retain-on-failure',
+    //     actionTimeout: 10000,
+    //   },
+    //   testDir: 'upgrade',
+    //   dependencies: ['setup'],
+    // },
   ],
 });

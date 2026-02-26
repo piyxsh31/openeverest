@@ -142,9 +142,9 @@ func (cfg *NamespaceAddConfig) PopulateOperators(ctx context.Context) error {
 
 	// By default, all operators are selected.
 	defaultOpts := []tui.MultiSelectOption{
-		{common.MySQLProductName, true},
-		{common.MongoDBProductName, true},
-		{common.PostgreSQLProductName, true},
+		{Text: common.MySQLProductName, Selected: true},
+		{Text: common.MongoDBProductName, Selected: true},
+		{Text: common.PostgreSQLProductName, Selected: true},
 	}
 
 	var selectedOpts []tui.MultiSelectOption

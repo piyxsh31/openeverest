@@ -8,7 +8,7 @@ import {
 import { setRBACPermissionsK8S } from '@e2e/utils/rbac-cmd-line';
 import { expect, test } from '@playwright/test';
 import { getNamespacesFn } from '@e2e/utils/namespaces';
-import { getTokenFromLocalStorage } from '@e2e/utils/localStorage';
+import { getCITokenFromLocalStorage } from '@e2e/utils/localStorage';
 import {
   moveForward,
   populateBasicInformation,
@@ -16,14 +16,14 @@ import {
 } from '@e2e/utils/db-wizard';
 import { deleteDbCluster } from '@e2e/utils/db-clusters-list';
 import { waitForDelete, waitForStatus } from '@e2e/utils/table';
-import { STORAGE_STATE_FILE } from '@e2e/constants';
+import { CI_USER_STORAGE_STATE_FILE } from '@e2e/constants';
 
 const POD_SCHEDULING_POLICY_NAME = 'pod-scheduling-policy-rbac-test';
 test.describe('Pod scheduling policies RBAC', () => {
   let namespace = '';
   test.beforeAll(async ({ request, browser }) => {
     const context = await browser.newContext({
-      storageState: STORAGE_STATE_FILE,
+      storageState: CI_USER_STORAGE_STATE_FILE,
     });
     const page = await context.newPage();
     await setRBACPermissionsK8S([
@@ -32,7 +32,7 @@ test.describe('Pod scheduling policies RBAC', () => {
       ['database-engines', '*', '*/*'],
     ]);
     const namespaces = await getNamespacesFn(
-      await getTokenFromLocalStorage(),
+      await getCITokenFromLocalStorage(),
       request
     );
     namespace = namespaces[0];

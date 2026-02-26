@@ -52,8 +52,6 @@ func (h *rbacHandler) ListLoadBalancerConfigs(ctx context.Context) (*everestv1al
 		return h.enforce(ctx, rbac.ResourceLoadBalancerConfigs, rbac.ActionRead, rbac.ObjectName(lbc.GetName())) != nil
 	})
 	return lbcList, nil
-
-	return h.next.ListLoadBalancerConfigs(ctx)
 }
 
 // DeleteLoadBalancerConfig deletes a load balancer config.
