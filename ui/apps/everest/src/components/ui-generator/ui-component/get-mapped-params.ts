@@ -16,6 +16,7 @@ import { SelectProps, TextFieldProps } from '@mui/material';
 import {
   NumberFieldParams,
   SelectFieldParams,
+  TextFieldParams,
   FieldParamsMap,
   ValidationMap,
   FieldType,
@@ -38,6 +39,8 @@ export const getMappedParams = <K extends keyof FieldParamsMap>(
   switch (fieldType) {
     case 'number':
       return mapNumberFieldParams(fieldParams as NumberFieldParams, validation);
+    case 'text':
+      return mapTextFieldParams(fieldParams as TextFieldParams);
     case 'select':
       return mapSelectFieldParams(fieldParams as SelectFieldParams);
     // Add more cases for other field types as needed
@@ -124,29 +127,26 @@ const mapNumberFieldParams = (
 };
 
 const mapSelectFieldParams = (fieldParams: SelectFieldParams) => {
-  const {
-    disabled,
-    helperText,
-    autoFocus,
-    multiple,
-    displayEmpty,
-    defaultOpen,
-    readOnly,
-    ...rest
-  } = fieldParams;
+  const { label, defaultValue, options, helperText, ...selectProps } =
+    fieldParams;
 
-  const selectFieldProps: Partial<SelectProps> = filterDefined({
-    disabled,
-    autoFocus,
-    multiple,
-    displayEmpty,
-    defaultOpen,
-    readOnly,
-  });
+  const selectFieldProps: Partial<SelectProps> = filterDefined(
+    selectProps as Record<string, unknown>
+  ) as Partial<SelectProps>;
 
-  return {
-    ...rest,
-    selectFieldProps,
-    helperText,
-  };
+  return { label, defaultValue, options, helperText, selectFieldProps };
+};
+
+const mapTextFieldParams = (fieldParams: TextFieldParams) => {
+  const { label, defaultValue, readOnly, ...textProps } = fieldParams;
+
+  const textFieldProps: Partial<TextFieldProps> = filterDefined(
+    textProps as Record<string, unknown>
+  ) as Partial<TextFieldProps>;
+
+  if (readOnly !== undefined) {
+    textFieldProps.InputProps = { readOnly };
+  }
+
+  return { label, defaultValue, textFieldProps };
 };

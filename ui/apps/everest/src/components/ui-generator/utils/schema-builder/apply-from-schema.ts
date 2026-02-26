@@ -23,6 +23,7 @@ import {
   buildGenericValidationSchema,
   buildNumberValidationSchema,
   buildSelectValidationSchema,
+  buildTextValidationSchema,
 } from './zod-validation/validation-schema-by-type';
 
 export type CelValidationData = {
@@ -38,9 +39,11 @@ const applyCommonValidations = (
   let result = schema;
 
   // For select fields, regex is handled in buildSelectValidationSchema
+  // For text fields, regex is handled in buildTextValidationSchema
   // Skip regex here to avoid double-validation
   const shouldApplyRegex =
     component.uiType !== 'select' &&
+    component.uiType !== 'text' &&
     component.validation !== undefined &&
     'regex' in component.validation &&
     component.validation.regex !== undefined;
@@ -88,6 +91,10 @@ export const applyValidationFromSchema = (
 
     case 'select':
       fieldSchema = buildSelectValidationSchema(component);
+      break;
+
+    case 'text':
+      fieldSchema = buildTextValidationSchema(component);
       break;
 
     default:

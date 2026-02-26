@@ -139,6 +139,106 @@ export const buildSelectValidationSchema = (
   return baseSchema;
 };
 
+/**
+ * Builds a Zod schema for a Text field.
+ *
+ * Validation order matters because transforms (trim/toLowerCase/toUpperCase)
+ * return ZodEffects and can no longer chain ZodString methods afterwards.
+ * Order applied:
+ *   1. min / max / length  (length checks)
+ *   2. email / url / uuid  (format checks — still on ZodString)
+ *   3. trim / toLowerCase / toUpperCase  (transforms — return ZodEffects)
+ *   4. required / optional wrapper
+ */
+export const buildTextValidationSchema = (
+  component: Component
+): z.ZodTypeAny => {
+  const isRequired = !!component.validation?.required;
+  const validation = component.validation as
+    | import('components/ui-generator/ui-generator.types').TextValidation
+    | undefined;
+
+  // plain ZodString so we can chain all methods
+  let schema: z.ZodString = z.string();
+
+  // value-based length validators (still ZodString)
+  const minVal = validation?.min;
+  const maxVal = validation?.max;
+  const lengthVal = validation?.length;
+
+  if (minVal !== undefined) {
+    schema = schema.min(minVal);
+  }
+  if (maxVal !== undefined) {
+    schema = schema.max(maxVal);
+  }
+  if (lengthVal !== undefined) {
+    schema = schema.length(lengthVal);
+  }
+
+  // regex pattern (still ZodString, before format checkers)
+
+  const regexValidation = validation?.regex as
+    | { pattern: string; message?: string }
+    | undefined;
+  if (regexValidation) {
+    schema = schema.regex(new RegExp(regexValidation.pattern), {
+      message: regexValidation.message || 'Invalid format',
+    });
+  }
+
+  // boolean format validators (still ZodString)
+  if (validation?.email === true) {
+    schema = schema.email();
+  }
+  if (validation?.url === true) {
+    schema = schema.url();
+  }
+  if (validation?.uuid === true) {
+    schema = schema.uuid();
+  }
+
+  // transforms return ZodEffects so they must be last
+  let effectsSchema: z.ZodTypeAny = schema;
+
+  if (validation?.trim === true) {
+    effectsSchema = (effectsSchema as z.ZodString).trim();
+  }
+  if (validation?.toLowerCase === true) {
+    effectsSchema = (effectsSchema as z.ZodString).toLowerCase();
+  }
+  if (validation?.toUpperCase === true) {
+    effectsSchema = (effectsSchema as z.ZodString).toUpperCase();
+  }
+
+  // required / optional
+  if (isRequired) {
+    if (minVal === undefined && lengthVal === undefined) {
+      // We can only call .min() on ZodString, not on ZodEffects.
+      // If transforms were applied we refine instead.
+      if (effectsSchema instanceof z.ZodString) {
+        effectsSchema = effectsSchema.min(1, { message: 'Field is required' });
+      } else {
+        effectsSchema = effectsSchema.refine(
+          (val) => typeof val === 'string' && val.length > 0,
+          { message: 'Field is required' }
+        );
+      }
+    }
+    return effectsSchema;
+  }
+
+  // For optional text fields we treat an empty string the same as
+  // "no value" so that format validators (email, url, uuid, regex, …)
+  // do NOT complain when the user hasn't typed anything yet.
+  // z.preprocess runs before Zod validation, so '' → undefined and the
+  // .optional() wrapper then accepts undefined without further checks.
+  return z.preprocess(
+    (val) => (val === '' ? undefined : val),
+    effectsSchema.optional()
+  );
+};
+
 export const buildGenericValidationSchema = (
   component: Component,
   baseSchema: z.ZodTypeAny
