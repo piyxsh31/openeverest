@@ -33,8 +33,12 @@ CONTROLLER_GEN ?= $(LOCALBIN)/controller-gen
 gen-crds-openapi: ## Extract OpenAPI schemas from CRD manifests.
 	go run hack/gen-crds-openapi/main.go
 
+.PHONY: gen-openapi-ts-types
+gen-openapi-ts-types: ## Generate TypeScript types from all OpenAPI YAML files in api/openapi/.
+	$(MAKE) -C ui generate-openapi-types
+
 .PHONY: gen
-gen: gen-crds-deepcopy gen-crds-manifests gen-crds-openapi ## Generate code.
+gen: gen-crds-deepcopy gen-crds-manifests gen-crds-openapi gen-openapi-ts-types ## Generate code.
 	go generate ./...
 	python3 hack/add_copyright.py \
 		internal/server/api/everest-server.gen.go \

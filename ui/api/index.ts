@@ -12,18 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { useQuery } from '@tanstack/react-query';
-import { getProvidersFn } from 'api/providers';
-import { PerconaQueryOptions } from 'shared-types/query.types';
-import { ProviderList } from 'types/api';
+// AUTO-GENERATED — do not edit manually.
+// Re-run `make generate-openapi-types` in ui/ to update.
+//
+// Each file is exported under its own namespace to avoid collisions:
+//   CrdsGen → ./crds.gen.types
+//   HttpApi → ./http-api.types
 
-export const useProviders = (
-  options?: PerconaQueryOptions<ProviderList, unknown, ProviderList>
-) => {
-  return useQuery<ProviderList, unknown, ProviderList>({
-    queryKey: ['providers'],
-    queryFn: () => getProvidersFn(),
-    retry: 3,
-    ...options,
-  });
-};
+export * as CrdsGen from './crds.gen.types';
+export * as HttpApi from './http-api.types';

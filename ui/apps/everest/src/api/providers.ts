@@ -12,18 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { useQuery } from '@tanstack/react-query';
-import { getProvidersFn } from 'api/providers';
-import { PerconaQueryOptions } from 'shared-types/query.types';
+import { api } from './api';
 import { ProviderList } from 'types/api';
 
-export const useProviders = (
-  options?: PerconaQueryOptions<ProviderList, unknown, ProviderList>
-) => {
-  return useQuery<ProviderList, unknown, ProviderList>({
-    queryKey: ['providers'],
-    queryFn: () => getProvidersFn(),
-    retry: 3,
-    ...options,
-  });
+export const getProvidersFn = async () => {
+  const response = await api.get<ProviderList>(`/clusters/main/providers`);
+  return response.data;
 };
