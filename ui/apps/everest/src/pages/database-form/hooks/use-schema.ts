@@ -10,13 +10,15 @@ export const useSchema = (): {
 } => {
   const { state } = useLocation();
   const selectedDbProvider = state?.selectedDbProvider as Provider;
-  //TODO should we describe it more in the api?
-  const uiSchema = selectedDbProvider?.spec?.uiSchema as TopologyUISchemas;
+  selectedDbProvider?.spec?.uiSchema;
+
+  const uiSchema = selectedDbProvider?.spec?.uiSchema || {};
 
   const topologies = useMemo(
     () => (uiSchema ? Object.keys(uiSchema) : []),
     [uiSchema]
   );
+
   const hasMultipleTopologies = useMemo(
     () => topologies.length > 1,
     [topologies.length]

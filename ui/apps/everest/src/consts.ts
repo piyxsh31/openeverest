@@ -12,8 +12,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 
-import { AdvancedConfigurationFields } from 'components/cluster-form/advanced-configuration/advanced-configuration.types';
-import { DBVersionFields } from 'components/cluster-form/db-version/db-version.types';
 import { ImportFields } from 'components/cluster-form/import/import.types';
 import { BackupStatus } from 'shared-types/backups.types';
 

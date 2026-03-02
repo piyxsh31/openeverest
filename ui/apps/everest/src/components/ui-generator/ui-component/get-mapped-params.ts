@@ -34,7 +34,8 @@ export const getMappedParams = <K extends keyof FieldParamsMap>(
 
 const mapNumberFieldParams = (
   fieldParams: NumberFieldParams,
-  validation?: ValidationMap[FieldType.Number]
+  //TODO
+  // validation?: ValidationMap[FieldType.Number]
 ) => {
   const { step, disabled, helperText, badge, autoFocus, placeholder, ...rest } =
     fieldParams;

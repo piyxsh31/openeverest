@@ -15,7 +15,6 @@
 
 import { FormGroup, MenuItem } from '@mui/material';
 import { useEffect } from 'react';
-import { DbType } from '@percona/types';
 import { AutoCompleteInput, SelectInput, TextInput } from '@percona/ui-lib';
 import { useFormContext } from 'react-hook-form';
 import { StepProps } from '../../../database-form.types.js';
@@ -25,9 +24,8 @@ import { StepHeader } from '../../steps-old/step-header/step-header.js';
 import { Messages } from '../../steps-old/first/first-step.messages.js';
 import { useNamespacePermissionsForResource } from 'hooks/rbac';
 import { useNamespaces } from 'hooks/index.ts';
-import { getDbWizardDefaultValues } from 'pages/database-form/database-form.utils';
 import { WizardMode } from 'shared-types/wizard.types.ts';
-import { useSchema } from 'pages/database-form/hooks/use-schema.js';
+import { useDatabaseFormContext } from 'pages/database-form/database-form-context';
 
 export const BaseInfoStep = ({ loadingDefaultsForEdition }: StepProps) => {
   const mode = useDatabasePageMode();
@@ -35,12 +33,11 @@ export const BaseInfoStep = ({ loadingDefaultsForEdition }: StepProps) => {
   const { data: namespaces = [] } = useNamespaces({
     refetchInterval: 10 * 1000,
   });
-  const { topologies, hasMultipleTopologies } = useSchema();
-  const { watch, setValue, getFieldState, resetField, getValues } =
-    useFormContext();
+  const { topologies, hasMultipleTopologies } = useDatabaseFormContext();
+  const { watch, setValue, getFieldState } = useFormContext();
 
-  const dbType: DbType = watch(DbWizardFormFields.dbType);
-  const dbNamespace = watch(DbWizardFormFields.k8sNamespace);
+  // const dbType: DbType = watch(DbWizardFormFields.dbType);
+  // const dbNamespace = watch(DbWizardFormFields.k8sNamespace);
   const currentTopology = watch(DbWizardFormFields.topology);
 
   // const [dbEnginesFoDbEngineTypes, dbEnginesFoDbEngineTypesFetching] =
@@ -80,8 +77,7 @@ export const BaseInfoStep = ({ loadingDefaultsForEdition }: StepProps) => {
   //   !!valid(dbEngineData?.operatorVersion) &&
   //   lt(dbEngineData?.operatorVersion || '', '1.17.0');
 
-  const { canCreate, isLoading } =
-    useNamespacePermissionsForResource('database-clusters');
+  const { isLoading } = useNamespacePermissionsForResource('database-clusters');
 
   // const filteredNamespaces = canCreate.filter((namespace) =>
   //   dbEnginesDataWithNamespaces?.find(
@@ -126,23 +122,23 @@ export const BaseInfoStep = ({ loadingDefaultsForEdition }: StepProps) => {
   }, [mode, topologies.length, currentTopology]);
 
   // TODO remember the logic of recommended versions, ask team about it and implement
-  const onNamespaceChange = () => {
-    // TODO discuss with the team this case, should we keep the same
-    // logic or not? Reason of this logic was in the problem of
-    // availability of storage, monitoring of namespaces (RBAC issue)
-    const defaults = getDbWizardDefaultValues(dbType);
-    // setValue(
-    //   DbWizardFormFields.monitoringInstance,
-    //   defaults.monitoringInstance
-    // );
-    // setValue(DbWizardFormFields.monitoring, defaults.monitoring);
-    // setValue(
-    //   DbWizardFormFields.monitoringInstance,
-    //   defaults.monitoringInstance
-    // );
-    // setValue(DbWizardFormFields.schedules, []);
-    // setValue(DbWizardFormFields.pitrEnabled, false);
-  };
+  // const onNamespaceChange = () => {
+  // TODO discuss with the team this case, should we keep the same
+  // logic or not? Reason of this logic was in the problem of
+  // availability of storage, monitoring of namespaces (RBAC issue)
+  // const defaults = getDbWizardDefaultValues(dbType);
+  // setValue(
+  //   DbWizardFormFields.monitoringInstance,
+  //   defaults.monitoringInstance
+  // );
+  // setValue(DbWizardFormFields.monitoring, defaults.monitoring);
+  // setValue(
+  //   DbWizardFormFields.monitoringInstance,
+  //   defaults.monitoringInstance
+  // );
+  // setValue(DbWizardFormFields.schedules, []);
+  // setValue(DbWizardFormFields.pitrEnabled, false);
+  // };
 
   //TODO check and add test for dynimic part of the form, that if some field was added and then removed because of poor topology, so it shouldn't be a part of the api body
 
@@ -162,7 +158,7 @@ export const BaseInfoStep = ({ loadingDefaultsForEdition }: StepProps) => {
           loading={isLoading}
           options={namespaces}
           disabled={mode === WizardMode.Restore || loadingDefaultsForEdition}
-          onChange={onNamespaceChange}
+          // onChange={onNamespaceChange}
           autoCompleteProps={{
             disableClearable: true,
             isOptionEqualToValue: (option, value) => option === value,

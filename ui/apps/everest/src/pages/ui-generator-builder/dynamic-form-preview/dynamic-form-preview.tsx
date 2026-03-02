@@ -14,7 +14,7 @@
 
 import { FormProvider, useForm } from 'react-hook-form';
 import { UIGenerator } from 'components/ui-generator/ui-generator';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { SelectInput, Stepper } from '@percona/ui-lib';
 import { TopologyUISchemas } from 'components/ui-generator/ui-generator.types';
 import { MenuItem, Stack, Step, StepLabel } from '@mui/material';

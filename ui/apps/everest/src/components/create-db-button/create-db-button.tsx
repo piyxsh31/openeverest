@@ -29,6 +29,7 @@ import { dbEngineToDbType } from '@percona/utils';
 import { Link, useNavigate } from 'react-router-dom';
 import { humanizeDbType } from 'utils/db';
 import { useProviders } from 'hooks/api/providers';
+import { topologyUiSchemas } from 'components/ui-generator/ui-generator.mock';
 
 export const CreateDbButton = ({
   createFromImport = false,
@@ -78,13 +79,20 @@ export const CreateDbButton = ({
   const navigate = useNavigate();
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const mock = {
+      ...availableProviders[0],
+      spec: {
+        ...availableProviders[0].spec,
+        uiSchema: topologyUiSchemas,
+      },
+    };
     if (availableProviders.length > 1) {
       event.stopPropagation();
       setAnchorEl(event.currentTarget);
     } else {
       navigate('/databases/new', {
         state: {
-          selectedDbProvider: availableProviders[0],
+          selectedDbProvider: mock,
           showImport: createFromImport,
         },
       });

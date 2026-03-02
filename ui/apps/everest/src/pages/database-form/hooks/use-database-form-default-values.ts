@@ -1,36 +1,23 @@
 import { dbEngineToDbType } from '@percona/utils';
 import { useDefaultValues } from 'components/ui-generator/hooks/use-default-values';
+import { TopologyUISchemas } from 'components/ui-generator/ui-generator.types';
 import { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { WizardMode } from 'shared-types/wizard.types';
 import { getDbWizardDefaultValues } from '../utils/get-default-values';
-import { useSchema } from './use-schema';
 
 export const useDatabasePageDefaultValues = (
-  mode: WizardMode
+  mode: WizardMode,
+  uiSchema: TopologyUISchemas,
+  defaultSelectedTopology: string
 ): {
-  // TODO add types
+  // TODO add typescript types
   defaultValues: any;
   dbClusterData: any;
   dbClusterRequestStatus: 'error' | 'idle' | 'pending' | 'success';
   isFetching: boolean;
 } => {
   const { state } = useLocation();
-
-  const [uiSchema, topologies, hasMultipleTopologies] = useSchema();
-  const defaultSelectedTopology = topologies[0] || '';
-  //TODO more modes should be added when working on templates
-  //   const shouldRetrieveDbClusterData =
-  //     mode === WizardMode.Restore && !!state?.selectedDbCluster;
-  //   const namespace = shouldRetrieveDbClusterData ? state?.namespace : null;
-  // TODO for edit mode
-  //   const {
-  //     data: dbCluster,
-  //     status: dbClusterRequestStatus,
-  //     isFetching,
-  //   } = useDbCluster(state?.selectedDbCluster, namespace, {
-  //     enabled: shouldRetrieveDbClusterData,
-  //   });
 
   const defaultSchemaValues = useDefaultValues(
     uiSchema,

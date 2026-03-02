@@ -48,22 +48,11 @@ type CreateDbClusterArgType = {
   backupDataSource?: DataSource;
 };
 
-const formValuesToPayloadMappingNew = (
-  dbPayload: DbWizardType,
-  backupDataSource?: DataSource
-  //TODO describe types
-): any => {};
-
 const formValuesToPayloadMapping = (
   dbPayload: DbWizardType,
   backupDataSource?: DataSource
 ): DbCluster => {
-  const numberOfNodes = parseInt(
-    dbPayload.numberOfNodes === CUSTOM_NR_UNITS_INPUT_VALUE
-      ? dbPayload.customNrOfNodes || ''
-      : dbPayload.numberOfNodes,
-    10
-  );
+  const numberOfNodes = parseInt(dbPayload.numberOfNodes);
 
   const dbClusterPayload: DbCluster = {
     apiVersion: 'everest.percona.com/v1alpha1',

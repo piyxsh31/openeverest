@@ -21,9 +21,10 @@ import { DatabaseFormBodyProps } from './types';
 import DatabaseFormStepControllers from './DatabaseFormStepControllers';
 import { WizardMode } from 'shared-types/wizard.types';
 import { useSteps } from './steps';
+import { useDatabaseFormContext } from '../database-form-context';
+import { StepHeader } from './steps-old/step-header/step-header';
 
 const DatabaseFormBody = ({
-  sections,
   activeStep,
   longestAchievedStep,
   isSubmitting,
@@ -35,20 +36,37 @@ const DatabaseFormBody = ({
   handlePreviousStep,
 }: DatabaseFormBodyProps) => {
   const mode = useDatabasePageMode();
+  const { uiSchema, defaultTopology, sections } = useDatabaseFormContext();
   const steps = useSteps(sections);
 
   const { dbClusterRequestStatus, isFetching: loadingDefaultsForEdition } =
-    useDatabasePageDefaultValues(mode);
+    useDatabasePageDefaultValues(mode, uiSchema, defaultTopology);
 
   const isFirstStep = activeStep === 0;
 
+  const sectionKeys = Object.keys(sections);
+  const stepLabel = steps[activeStep].label;
+  const sectionKey = sectionKeys.find(
+    (key) => sections[key]?.label === stepLabel
+  );
+  const sectionInfo = sectionKey ? sections[sectionKey] : null;
+
+  //TODO
+  // const isLastStep = activeStep === steps.length - 1;
+
   return (
     <form style={{ flexGrow: 1 }} onSubmit={onSubmit}>
+      {activeStep > 0 && sectionInfo && (
+        <StepHeader
+          pageTitle={sectionInfo.label || stepLabel}
+          pageDescription={sectionInfo.description || ''}
+        />
+      )}
       <Box>
         {(mode === WizardMode.New ||
           (mode === WizardMode.Restore &&
             dbClusterRequestStatus === 'success')) &&
-          React.createElement(steps[activeStep], {
+          React.createElement(steps[activeStep].component, {
             loadingDefaultsForEdition,
             alreadyVisited:
               longestAchievedStep > activeStep ||

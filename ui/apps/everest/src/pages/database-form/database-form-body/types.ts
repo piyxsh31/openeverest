@@ -1,12 +1,9 @@
-import { Section } from 'components/ui-generator/ui-generator.types';
-
 export type StepInfo = {
   component: React.ComponentType<any>;
   label: string;
 };
 
 export type DatabaseFormBodyProps = {
-  sections: { [key: string]: Section };
   activeStep: number;
   longestAchievedStep: number;
   disableNext?: boolean;

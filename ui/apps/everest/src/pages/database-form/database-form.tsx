@@ -30,46 +30,63 @@ import {
 } from 'hooks/api/db-cluster/useCreateDbCluster';
 import { useActiveBreakpoint } from 'hooks/utils/useActiveBreakpoint';
 import { DbWizardType } from './database-form-schema';
-import { useDatabasePageMode } from './hooks/use-database-page-mode';
-import { useDbValidationSchema } from './hooks/use-db-validation-schema';
 import DatabaseFormCancelDialog from './database-form-cancel-dialog/index';
 import DatabaseFormBody from './database-form-body';
 import DatabaseFormSideDrawer from './database-form-side-drawer';
 import {
+  DB_CLUSTERS_QUERY_KEY,
   useDBClustersForNamespaces,
   useNamespaces,
-  DB_CLUSTERS_QUERY_KEY,
 } from 'hooks';
 import { WizardMode } from 'shared-types/wizard.types';
 import { ZodType } from 'zod';
+import { useDatabasePageDefaultValues } from './hooks/use-database-form-default-values';
+import { useDatabasePageMode } from './hooks/use-database-page-mode';
+import { DatabaseFormProvider } from './database-form-context';
 import { useSchema } from './hooks/use-schema';
 import { useUiGenerator } from 'components/ui-generator/hooks/ui-generator';
-import { useDatabasePageDefaultValues } from './hooks/use-database-form-default-values';
+import { useDbValidationSchema } from './hooks/use-db-validation-schema';
+import { ImportFields } from 'components/cluster-form/import/import.types';
+import { DbWizardFormFields } from 'consts';
+
+const flattenErrorPaths = (obj: Record<string, any>, prefix = ''): string[] => {
+  if (!obj || typeof obj !== 'object') return prefix ? [prefix] : [];
+  // A leaf RHF error node always has `message` or `type`
+  if (obj.message !== undefined || obj.type !== undefined)
+    return prefix ? [prefix] : [];
+  return Object.keys(obj).flatMap((key) =>
+    flattenErrorPaths(obj[key], prefix ? `${prefix}.${key}` : key)
+  );
+};
 
 export const DatabasePage = () => {
   const latestDataRef = useRef<DbWizardType | null>(null);
   const [activeStep, setActiveStep] = useState(0);
   const [longestAchievedStep, setLongestAchievedStep] = useState(0);
   const [formSubmitted, setFormSubmitted] = useState(false);
-  const [stepsWithErrors, setStepsWithErrors] = useState<number[]>([]);
 
-  // TODO: Implement database creation logic
   const { mutate: addDbCluster, isPending: isCreating } = useCreateDbCluster();
   const { mutate: addDbClusterSecret } = useCreateDbClusterSecret();
   const location = useLocation();
   const navigate = useNavigate();
+
   const { isDesktop } = useActiveBreakpoint();
   const mode = useDatabasePageMode();
   const queryClient = useQueryClient();
 
-  const { uiSchema, topologies } = useSchema();
+  const { uiSchema, topologies, hasMultipleTopologies } = useSchema();
   const defaultTopology = topologies[0] || '';
 
-  const { defaultValues } = useDatabasePageDefaultValues(mode);
+  const { defaultValues } = useDatabasePageDefaultValues(
+    mode,
+    uiSchema,
+    defaultTopology
+  );
 
-  // Loading state - true if schema or defaults are not yet ready
-  const loadingClusterValues = !uiSchema || !defaultValues;
+  // Loading state - true if defaults are not yet ready
+  const loadingClusterValues = !defaultValues;
 
+  //TODO change to providers logic?
   const { data: namespaces = [] } = useNamespaces({
     refetchInterval: 10 * 1000,
   });
@@ -78,13 +95,18 @@ export const DatabasePage = () => {
       namespace: ns,
     }))
   );
-  const dbClustersNamesList = Object.values(dbClustersResults)
-    .map((item) => item.queryResult.data)
-    .flat()
-    .map((db) => ({
-      name: db?.metadata?.name!,
-      namespace: db?.metadata.namespace!,
-    }));
+  const dbClustersNamesList = useMemo(
+    () =>
+      Object.values(dbClustersResults)
+        .map((item) => item.queryResult.data)
+        .flat()
+        .map((db) => ({
+          name: db?.metadata?.name!,
+          namespace: db?.metadata.namespace!,
+        })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [JSON.stringify(dbClustersResults)]
+  );
 
   const hasImportStep = location.state?.showImport;
 
@@ -115,14 +137,22 @@ export const DatabasePage = () => {
 
   const selectedTopology = useWatch({
     control,
-    name: 'topology' as const,
-    defaultValue: defaultTopology,
-  }) as string;
+    name: 'topology',
+  });
+
+  const importOffset = hasImportStep ? 1 : 0;
+  // dynamic sections start after step-0 (base) + optional import step
+  const dynamicStepsStartIndex = 1 + importOffset;
+
+  // Stable reference – avoids re-running useUiGenerator when uiSchema is falsy
+  // TODO recheck rerender
+  const stableUiSchema = useMemo(() => uiSchema || {}, [uiSchema]);
 
   const {
     sections,
     zodSchema: { schema: generatedZodSchema },
-  } = useUiGenerator(uiSchema || {}, selectedTopology);
+    sectionFieldStepMap,
+  } = useUiGenerator(stableUiSchema, selectedTopology, dynamicStepsStartIndex);
 
   //TODO probably it will be cleaner to use steps.length or to
   // use Callback func (but in first scenario may be a problem of
@@ -148,20 +178,47 @@ export const DatabasePage = () => {
     trigger();
   }, [validationSchema, trigger]);
 
-  // Track validation errors for steps
-  useEffect(() => {
-    const errorCount = Object.keys(errors).length;
-    if (errorCount > 0) {
-      setStepsWithErrors((prev) => {
-        if (!prev.includes(activeStep)) {
-          return [...prev, activeStep];
-        }
-        return prev;
+  //TODO refactor and move to separate hook
+  const fieldToStepMap = useMemo(() => {
+    const map: Record<string, number> = {
+      // Step 0 – base step (always present)
+      [DbWizardFormFields.dbName]: 0,
+      [DbWizardFormFields.dbType]: 0,
+      [DbWizardFormFields.k8sNamespace]: 0,
+      [DbWizardFormFields.topology]: 0,
+    };
+
+    // Step 1 (optional) – import step
+    if (hasImportStep) {
+      (Object.values(ImportFields) as string[]).forEach((f) => {
+        map[f] = 1;
       });
-    } else {
-      setStepsWithErrors((prev) => prev.filter((step) => step !== activeStep));
     }
-  }, [errors, activeStep]);
+
+    // Dynamic steps – comes pre-built from useUiGenerator
+    Object.assign(map, sectionFieldStepMap);
+
+    return map;
+  }, [hasImportStep, sectionFieldStepMap]);
+
+  const stepsWithErrors = useMemo(() => {
+    const errorPaths = flattenErrorPaths(errors as Record<string, any>);
+    const stepsSet = new Set<number>();
+
+    errorPaths.forEach((path) => {
+      // Try the full path first, then progressively shorter prefixes
+      const parts = path.split('.');
+      for (let i = parts.length; i > 0; i--) {
+        const prefix = parts.slice(0, i).join('.');
+        if (prefix in fieldToStepMap) {
+          stepsSet.add(fieldToStepMap[prefix]);
+          break;
+        }
+      }
+    });
+
+    return Array.from(stepsSet);
+  }, [errors, fieldToStepMap]);
 
   const blocker = useBlocker(
     ({ currentLocation, nextLocation }) =>
@@ -285,20 +342,25 @@ export const DatabasePage = () => {
     }
   }, [formSubmitted, navigate]);
 
+  if (!uiSchema) {
+    //TODO check with noSchema in the api
+    return;
+  }
+
+  //TODO move provider separately (clean code issue)
   return (
-    <>
-      {/*TODO: should be revomed after agreement with a team*/}
-      {/* <Stepper noConnector activeStep={activeStep} sx={{ marginBottom: 4 }}>
-        {steps.map((_, idx) => (
-          <Step key={`step-${idx + 1}`}>
-            <StepLabel />
-          </Step>
-        ))}
-      </Stepper> */}
+    <DatabaseFormProvider
+      value={{
+        uiSchema,
+        topologies,
+        hasMultipleTopologies,
+        defaultTopology,
+        sections,
+      }}
+    >
       <Stack direction={isDesktop ? 'row' : 'column'}>
         <FormProvider {...methods}>
           <DatabaseFormBody
-            sections={sections}
             activeStep={activeStep}
             longestAchievedStep={longestAchievedStep}
             isSubmitting={isCreating}
@@ -325,6 +387,6 @@ export const DatabasePage = () => {
         onClose={handleCloseCancellationModal}
         onConfirm={proceedNavigation}
       />
-    </>
+    </DatabaseFormProvider>
   );
 };
