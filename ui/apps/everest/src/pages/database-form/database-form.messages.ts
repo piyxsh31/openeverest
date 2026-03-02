@@ -34,7 +34,7 @@ export const Messages = {
     },
     dbName: {
       tooLong: errorMessages.tooLong('database'),
-      duplicate: 'You already have a database with the same name.',
+      duplicate: errorMessages.duplicate('database'),
     },
     monitoringEndpoint: {
       invalidOption:

@@ -3,7 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { DbEngineType, DbType } from '@percona/types';
 import { TestWrapper } from 'utils/test';
-import { FirstStep } from './first-step';
+import { FirstStep } from '../../steps/base-step/base-step';
 import { DbWizardFormFields } from 'consts';
 import {
   DbEngineStatus,

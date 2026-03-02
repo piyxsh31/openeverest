@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Section } from 'components/ui-generator/ui-generator.types';
-import { ImportStep } from 'pages/database-form/database-form-body/steps/import/import-step';
+import { ImportStep } from 'pages/database-form/database-form-body/steps-old/import/import-step';
 import { useLocation } from 'react-router-dom';
 import { BaseInfoStep } from '../db-form-body/steps/base-step/base-step';
 import { UIGenerator } from 'components/ui-generator/ui-generator';

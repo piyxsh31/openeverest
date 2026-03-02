@@ -23,8 +23,8 @@ import { DbWizardFormFields, PG_SLOTS_LIMIT } from 'consts.ts';
 import BackupsActionableAlert from 'components/actionable-alert/backups-actionable-alert';
 import { StepHeader } from '../step-header/step-header.tsx';
 import { Messages } from './backups.messages.ts';
-import Schedules from './schedules';
-import PITR from './pitr';
+import Schedules from './schedules/index.ts';
+import PITR from './pitr/index.ts';
 
 export const Backups = () => {
   const { watch } = useFormContext();

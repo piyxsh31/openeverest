@@ -15,14 +15,15 @@
 
 import React from 'react';
 import { Box } from '@mui/material';
-import { useDatabasePageMode } from '../useDatabasePageMode';
-import { useDatabasePageDefaultValues } from '../useDatabaseFormDefaultValues';
+import { useDatabasePageMode } from '../hooks/use-database-page-mode';
+import { useDatabasePageDefaultValues } from '../hooks/use-database-form-default-values';
 import { DatabaseFormBodyProps } from './types';
 import DatabaseFormStepControllers from './DatabaseFormStepControllers';
 import { WizardMode } from 'shared-types/wizard.types';
 import { useSteps } from './steps';
 
 const DatabaseFormBody = ({
+  sections,
   activeStep,
   longestAchievedStep,
   isSubmitting,
@@ -33,8 +34,9 @@ const DatabaseFormBody = ({
   handleNextStep,
   handlePreviousStep,
 }: DatabaseFormBodyProps) => {
-  const steps = useSteps();
   const mode = useDatabasePageMode();
+  const steps = useSteps(sections);
+
   const { dbClusterRequestStatus, isFetching: loadingDefaultsForEdition } =
     useDatabasePageDefaultValues(mode);
 

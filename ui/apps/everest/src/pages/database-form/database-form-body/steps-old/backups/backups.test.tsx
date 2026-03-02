@@ -5,7 +5,7 @@ import { TimeValue } from 'components/time-selection/time-selection.types';
 import { FormProvider, useForm } from 'react-hook-form';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TestWrapper } from 'utils/test';
-import { Backups } from './backups.tsx';
+import { Backups } from './backups.js';
 import { StorageType } from 'shared-types/backupStorages.types.ts';
 import { PG_SLOTS_LIMIT } from 'consts.ts';
 import { DbWizardType } from 'pages/database-form/database-form-schema.ts';

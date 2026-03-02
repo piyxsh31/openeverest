@@ -1,11 +1,11 @@
-import { DbClusterName } from 'pages/database-form/database-form.types';
-import { WizardMode } from 'shared-types/wizard.types';
-import { getDBWizardSchema } from '../utils/get-db-form-schema';
+import { WizardMode } from 'shared-types/wizard.types.ts';
+import { DbWizardType, getDBWizardSchema } from '../database-form-schema.js';
+import { DbClusterName } from '../database-form.types.js';
 import { ZodTypeAny } from 'zod';
 
 export const useDbValidationSchema = (
   activeStep: number,
-  defaultValues: any, //TODO add type
+  defaultValues: DbWizardType,
   dbClusters: DbClusterName[],
   mode: WizardMode,
   hasImportStep: boolean,

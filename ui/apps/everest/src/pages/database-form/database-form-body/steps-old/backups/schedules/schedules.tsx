@@ -31,9 +31,9 @@ import { ScheduleFormData } from 'components/schedule-form-dialog/schedule-form/
 import { dbTypeToDbEngine } from '@percona/utils';
 import { DbType } from '@percona/types';
 import { ActionableLabeledContent } from '@percona/ui-lib';
-import { useDatabasePageMode } from '../../../../useDatabasePageMode';
+import { useDatabasePageMode } from '../../../../hooks/use-database-page-mode';
 import { dbWizardToScheduleFormDialogMap } from 'components/schedule-form-dialog/schedule-form-dialog-context/schedule-form-dialog-context.types';
-import { useDatabasePageDefaultValues } from '../../../../useDatabaseFormDefaultValues';
+import { useDatabasePageDefaultValues } from '../../../../hooks/use-database-form-default-values';
 import { PG_SLOTS_LIMIT } from 'consts';
 import { useRBACPermissions } from 'hooks/rbac';
 import { transformSchedulesIntoManageableSchedules } from 'utils/db';

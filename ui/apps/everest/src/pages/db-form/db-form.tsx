@@ -7,7 +7,7 @@ import {
   useNamespaces,
   useSchema,
 } from 'hooks';
-import { useDatabasePageMode } from 'pages/database-form/useDatabasePageMode';
+import { useDatabasePageMode } from 'pages/database-form/hooks/use-database-page-mode';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useBlocker, useLocation, useNavigate } from 'react-router-dom';
 import DbFormSideDrawer from './db-form-side-drawer';

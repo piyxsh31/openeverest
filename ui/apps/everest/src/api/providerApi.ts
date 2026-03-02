@@ -19,4 +19,4 @@ export const getProvidersFn = async () => {
     '/clusters/main/providers'
   );
   return response.data.providers;
-}
+};

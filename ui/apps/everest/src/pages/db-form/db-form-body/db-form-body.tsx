@@ -15,12 +15,12 @@
 
 import React from 'react';
 import { Box, Stack } from '@mui/material';
-import { useDatabasePageMode } from 'pages/database-form/useDatabasePageMode';
-import { useDatabasePageDefaultValues } from 'pages/database-form/useDatabaseFormDefaultValues';
+import { useDatabasePageMode } from 'pages/database-form/hooks/use-database-page-mode';
+import { useDatabasePageDefaultValues } from 'pages/database-form/hooks/use-database-form-default-values';
 import { DBFormBodyProps } from './types';
 import DbFormStepControllers from './db-form-step-controllers';
 import { WizardMode } from 'shared-types/wizard.types';
-import { StepHeader } from 'pages/database-form/database-form-body/steps/step-header/step-header';
+import { StepHeader } from 'pages/database-form/database-form-body/steps-old/step-header/step-header';
 import { useSchema } from 'hooks';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { useUiGenerator } from 'components/ui-generator/hooks/ui-generator';

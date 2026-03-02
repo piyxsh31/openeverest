@@ -3,10 +3,10 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { DbType } from '@percona/types';
 import { TestWrapper } from 'utils/test';
-import { ResourcesStep } from './resources-step.tsx';
+import { ResourcesStep } from './resources-step.js';
 import { DbWizardFormFields } from 'consts.ts';
 import { Mock } from 'vitest';
-import { DbWizardType } from '../../../database-form-schema.ts';
+import { DbWizardType } from '../../../database-form-schema.js';
 import {
   NODES_DEFAULT_SIZES,
   ResourceSize,

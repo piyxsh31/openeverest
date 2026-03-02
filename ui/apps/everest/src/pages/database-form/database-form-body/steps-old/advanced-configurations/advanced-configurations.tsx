@@ -14,13 +14,13 @@
 // limitations under the License.
 
 import { useFormContext } from 'react-hook-form';
-import { Messages } from './advanced-configurations.messages.ts';
+import { Messages } from './advanced-configurations.messages.js';
 
 import { DbWizardFormFields } from 'consts.ts';
-import { StepHeader } from '../step-header/step-header.tsx';
+import { StepHeader } from '../step-header/step-header.js';
 import AdvancedConfigurationForm from 'components/cluster-form/advanced-configuration/advanced-configuration.tsx';
 import { StepProps } from 'pages/database-form/database-form.types.ts';
-import { useDatabasePageMode } from 'pages/database-form/useDatabasePageMode.ts';
+import { useDatabasePageMode } from 'pages/database-form/hooks/use-database-page-mode.js';
 import { WizardMode } from 'shared-types/wizard.types.ts';
 import { useMemo } from 'react';
 import { AllowedFieldsToInitiallyLoadDefaults } from 'components/cluster-form/advanced-configuration/advanced-configuration.types';

@@ -21,7 +21,7 @@ import { DbWizardFormFields } from 'consts.ts';
 import { useFormContext } from 'react-hook-form';
 import PitrStorage from './pitr-storage';
 import { useEffect } from 'react';
-import { useDatabasePageMode } from 'pages/database-form/useDatabasePageMode';
+import { useDatabasePageMode } from 'pages/database-form/hooks/use-database-page-mode';
 import { WizardMode } from 'shared-types/wizard.types';
 
 const PITR = () => {

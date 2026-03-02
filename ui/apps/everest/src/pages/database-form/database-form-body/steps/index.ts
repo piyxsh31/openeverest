@@ -13,23 +13,50 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { FirstStep } from './first/first-step.tsx';
-import { ResourcesStep } from './resources/resources-step.tsx';
-import { Backups } from './backups/backups.tsx';
-import { AdvancedConfigurations } from './advanced-configurations/advanced-configurations.tsx';
-import { Monitoring } from './monitoring/monitoring.tsx';
+import { BaseInfoStep } from './base-step/base-step.js';
 import { useLocation } from 'react-router-dom';
-import { ImportStep } from './import/import-step.tsx';
+import { ImportStep } from '../steps-old/import/import-step.js';
+import { Section } from 'components/ui-generator/ui-generator.types.js';
+import React, { useMemo } from 'react';
+import { UIGenerator } from 'components/ui-generator/ui-generator.js';
+import { StepInfo } from '../types.js';
 
-export const useSteps = () => {
+export const useSteps = (sections: { [key: string]: Section }) => {
   const location = useLocation();
   const showImportStep = location.state?.showImport;
-  return [
-    FirstStep,
-    ...(showImportStep ? [ImportStep] : []),
-    ResourcesStep,
-    Backups,
-    AdvancedConfigurations,
-    Monitoring,
-  ];
+
+  return useMemo(() => {
+    const steps: StepInfo[] = [
+      { component: BaseInfoStep, label: 'Basic Info' },
+      ...(showImportStep ? [{ component: ImportStep, label: 'Import' }] : []),
+    ];
+
+    const sectionKeys = Object.keys(sections);
+
+    // Generate steps from sections
+    sectionKeys.forEach((sectionKey, sectionIndex) => {
+      // Create a component that knows its actual step index in the wizard
+      const GeneratedStep = () =>
+        React.createElement(UIGenerator, {
+          activeStep: sectionIndex,
+          sections,
+          stepLabels: sectionKeys,
+        });
+
+      steps.push({
+        component: GeneratedStep,
+        label: sections[sectionKey]?.label || sectionKey,
+      });
+    });
+
+    return steps;
+  }, [sections, showImportStep]);
+  // return [
+  //   BaseInfoStep,
+  //   ...(showImportStep ? [ImportStep] : []),
+  //   ResourcesStep,
+  //   Backups,
+  //   AdvancedConfigurations,
+  //   Monitoring,
+  // ];
 };

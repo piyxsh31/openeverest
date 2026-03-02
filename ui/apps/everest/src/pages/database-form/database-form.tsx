@@ -13,22 +13,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useBlocker, useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Stack, Step, StepLabel } from '@mui/material';
+import { Stack } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
-import { Stepper } from '@percona/ui-lib';
-import { FormProvider, SubmitHandler, useForm } from 'react-hook-form';
+import {
+  FormProvider,
+  SubmitHandler,
+  useForm,
+  useWatch,
+} from 'react-hook-form';
 import {
   useCreateDbCluster,
   useCreateDbClusterSecret,
 } from 'hooks/api/db-cluster/useCreateDbCluster';
 import { useActiveBreakpoint } from 'hooks/utils/useActiveBreakpoint';
 import { DbWizardType } from './database-form-schema';
-import { useDatabasePageDefaultValues } from './useDatabaseFormDefaultValues';
-import { useDatabasePageMode } from './useDatabasePageMode';
-import { useDbValidationSchema } from './useDbValidationSchema';
+import { useDatabasePageMode } from './hooks/use-database-page-mode';
+import { useDbValidationSchema } from './hooks/use-db-validation-schema';
 import DatabaseFormCancelDialog from './database-form-cancel-dialog/index';
 import DatabaseFormBody from './database-form-body';
 import DatabaseFormSideDrawer from './database-form-side-drawer';
@@ -38,8 +41,10 @@ import {
   DB_CLUSTERS_QUERY_KEY,
 } from 'hooks';
 import { WizardMode } from 'shared-types/wizard.types';
-import { useSteps } from './database-form-body/steps';
 import { ZodType } from 'zod';
+import { useSchema } from './hooks/use-schema';
+import { useUiGenerator } from 'components/ui-generator/hooks/ui-generator';
+import { useDatabasePageDefaultValues } from './hooks/use-database-form-default-values';
 
 export const DatabasePage = () => {
   const latestDataRef = useRef<DbWizardType | null>(null);
@@ -47,17 +52,24 @@ export const DatabasePage = () => {
   const [longestAchievedStep, setLongestAchievedStep] = useState(0);
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [stepsWithErrors, setStepsWithErrors] = useState<number[]>([]);
+
+  // TODO: Implement database creation logic
   const { mutate: addDbCluster, isPending: isCreating } = useCreateDbCluster();
   const { mutate: addDbClusterSecret } = useCreateDbClusterSecret();
   const location = useLocation();
-  const steps = useSteps();
-
   const navigate = useNavigate();
   const { isDesktop } = useActiveBreakpoint();
   const mode = useDatabasePageMode();
   const queryClient = useQueryClient();
-  const { defaultValues, isFetching: loadingClusterValues } =
-    useDatabasePageDefaultValues(mode);
+
+  const { uiSchema, topologies } = useSchema();
+  const defaultTopology = topologies[0] || '';
+
+  const { defaultValues } = useDatabasePageDefaultValues(mode);
+
+  // Loading state - true if schema or defaults are not yet ready
+  const loadingClusterValues = !uiSchema || !defaultValues;
+
   const { data: namespaces = [] } = useNamespaces({
     refetchInterval: 10 * 1000,
   });
@@ -74,34 +86,18 @@ export const DatabasePage = () => {
       namespace: db?.metadata.namespace!,
     }));
 
-  console.log(dbClustersResults, dbClustersNamesList);
-
   const hasImportStep = location.state?.showImport;
 
-  const validationSchema = useDbValidationSchema(
-    activeStep,
-    defaultValues,
-    dbClustersNamesList,
-    mode,
-    hasImportStep
-  ) as unknown as ZodType<DbWizardType>;
+  const validationSchemaRef = useRef<ZodType<DbWizardType> | null>(null);
+
   const methods = useForm<DbWizardType>({
     mode: 'onChange',
     resolver: async (data, context, options) => {
-      const customResolver = zodResolver(validationSchema);
-      const result = await customResolver(data, context, options);
-      if (Object.keys(result.errors).length > 0) {
-        setStepsWithErrors((prev) => {
-          if (!prev.includes(activeStep)) {
-            return [...prev, activeStep];
-          }
-          return prev;
-        });
-      } else {
-        setStepsWithErrors((prev) =>
-          prev.filter((step) => step !== activeStep)
-        );
+      if (!validationSchemaRef.current) {
+        return { values: data, errors: {} };
       }
+      const customResolver = zodResolver(validationSchemaRef.current);
+      const result = await customResolver(data, context, options);
       return result;
     },
     // @ts-ignore
@@ -110,11 +106,62 @@ export const DatabasePage = () => {
 
   const {
     reset,
-    formState: { isDirty },
+    formState: { isDirty, errors },
     clearErrors,
     handleSubmit,
     trigger,
+    control,
   } = methods;
+
+  const selectedTopology = useWatch({
+    control,
+    name: 'topology' as const,
+    defaultValue: defaultTopology,
+  }) as string;
+
+  const {
+    sections,
+    zodSchema: { schema: generatedZodSchema },
+  } = useUiGenerator(uiSchema || {}, selectedTopology);
+
+  //TODO probably it will be cleaner to use steps.length or to
+  // use Callback func (but in first scenario may be a problem of
+  // last step cashing) and problem with submit/cancel
+  const totalSteps = useMemo(
+    () => 1 + (hasImportStep ? 1 : 0) + Object.keys(sections).length,
+    [hasImportStep, sections]
+  );
+
+  // Get the validation schema for the current step
+  const validationSchema = useDbValidationSchema(
+    activeStep,
+    defaultValues,
+    dbClustersNamesList,
+    mode,
+    hasImportStep,
+    generatedZodSchema
+  ) as unknown as ZodType<DbWizardType>;
+
+  useEffect(() => {
+    validationSchemaRef.current = validationSchema;
+    // Revalidate when schema changes
+    trigger();
+  }, [validationSchema, trigger]);
+
+  // Track validation errors for steps
+  useEffect(() => {
+    const errorCount = Object.keys(errors).length;
+    if (errorCount > 0) {
+      setStepsWithErrors((prev) => {
+        if (!prev.includes(activeStep)) {
+          return [...prev, activeStep];
+        }
+        return prev;
+      });
+    } else {
+      setStepsWithErrors((prev) => prev.filter((step) => step !== activeStep));
+    }
+  }, [errors, activeStep]);
 
   const blocker = useBlocker(
     ({ currentLocation, nextLocation }) =>
@@ -172,7 +219,7 @@ export const DatabasePage = () => {
   };
 
   const handleNext = async () => {
-    if (activeStep < steps.length - 1) {
+    if (activeStep < totalSteps - 1) {
       setActiveStep((prevActiveStep) => {
         const newStep = prevActiveStep + 1;
 
@@ -240,16 +287,18 @@ export const DatabasePage = () => {
 
   return (
     <>
-      <Stepper noConnector activeStep={activeStep} sx={{ marginBottom: 4 }}>
+      {/*TODO: should be revomed after agreement with a team*/}
+      {/* <Stepper noConnector activeStep={activeStep} sx={{ marginBottom: 4 }}>
         {steps.map((_, idx) => (
           <Step key={`step-${idx + 1}`}>
             <StepLabel />
           </Step>
         ))}
-      </Stepper>
+      </Stepper> */}
       <Stack direction={isDesktop ? 'row' : 'column'}>
         <FormProvider {...methods}>
           <DatabaseFormBody
+            sections={sections}
             activeStep={activeStep}
             longestAchievedStep={longestAchievedStep}
             isSubmitting={isCreating}

@@ -36,15 +36,8 @@ const mapNumberFieldParams = (
   fieldParams: NumberFieldParams,
   validation?: ValidationMap[FieldType.Number]
 ) => {
-  const {
-    step,
-    disabled,
-    helperText,
-    badge,
-    autoFocus,
-    placeholder,
-    ...rest
-  } = fieldParams;
+  const { step, disabled, helperText, badge, autoFocus, placeholder, ...rest } =
+    fieldParams;
 
   const textFieldProps: Partial<TextFieldProps> = filterDefined({
     type: 'number' as const,
@@ -95,7 +88,6 @@ const mapNumberFieldParams = (
   // Badge passed separately to UIComponent which will handle InputAdornment rendering
   // We keep the badge in the return value so UIComponent can access it
 
-
   return {
     ...rest,
     textFieldProps: {
@@ -103,7 +95,6 @@ const mapNumberFieldParams = (
       // inputProps: {
       //   ...inputProps,
       // },
-      
     },
     badge,
   };

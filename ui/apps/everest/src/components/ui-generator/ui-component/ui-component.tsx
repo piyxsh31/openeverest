@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Component, FieldType } from 'components/ui-generator/ui-generator.types';
+import {
+  Component,
+  FieldType,
+} from 'components/ui-generator/ui-generator.types';
 import React from 'react';
 import { useFormContext, get } from 'react-hook-form';
 import { InputAdornment } from '@mui/material';

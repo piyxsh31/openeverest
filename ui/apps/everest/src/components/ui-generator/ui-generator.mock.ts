@@ -1,6 +1,4 @@
-import { a } from 'vitest/dist/chunks/suite.B2jumIFP.js';
 import { TopologyUISchemas, GroupType, FieldType } from './ui-generator.types';
-import { AdvancedConfiguration } from 'pages/db-cluster-details/cluster-overview/cards/db-details/advanced-configuration';
 // Note: This file is using for development and testing purposes, it contains mock data for the UI generator component.
 // TODO It should be removed in production.
 export const topologyUiSchemas: TopologyUISchemas = {
@@ -119,22 +117,20 @@ export const topologyUiSchemas: TopologyUISchemas = {
       advancedConfigurations: {
         label: 'Advanced Configurations',
         components: {
-          storageClass: {            
+          storageClass: {
             uiType: FieldType.Select,
             path: 'spec.components.engine.storage.storageClass',
             fieldParams: {
               label: 'Storage Class',
               // TODO move into group
               // description: 'Defines the type and performance of storage for your database. Select based on workload needs, such as high IOPS for fast access or cost-effective options for less frequent use.',
-              options: [
-                {label: 'local-path', value: 'local-path'},
-              ],
+              options: [{ label: 'local-path', value: 'local-path' }],
             },
             validation: {
-              required: true
-            }
-          }  
-        }
+              required: true,
+            },
+          },
+        },
       },
     },
     sectionsOrder: ['databaseVersion', 'resources'],
