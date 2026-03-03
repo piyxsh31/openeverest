@@ -1,7 +1,22 @@
+// Copyright (C) 2026 The OpenEverest Contributors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import { SelectProps, TextFieldProps } from '@mui/material';
 import {
   NumberFieldParams,
   SelectFieldParams,
+  TextFieldParams,
   FieldParamsMap,
   ValidationMap,
   FieldType,
@@ -24,6 +39,8 @@ export const getMappedParams = <K extends keyof FieldParamsMap>(
   switch (fieldType) {
     case 'number':
       return mapNumberFieldParams(fieldParams as NumberFieldParams, validation);
+    case 'text':
+      return mapTextFieldParams(fieldParams as TextFieldParams);
     case 'select':
       return mapSelectFieldParams(fieldParams as SelectFieldParams);
     // Add more cases for other field types as needed
@@ -33,7 +50,7 @@ export const getMappedParams = <K extends keyof FieldParamsMap>(
 };
 
 const mapNumberFieldParams = (
-  fieldParams: NumberFieldParams,
+  fieldParams: NumberFieldParams
   //TODO
   // validation?: ValidationMap[FieldType.Number]
 ) => {
@@ -85,10 +102,6 @@ const mapNumberFieldParams = (
   //   textFieldProps.inputProps = inputProps;
   // }
 
-  //TODO custom logic for badge will be added via textFieldProps.InputProps in UIComponent
-  // Badge passed separately to UIComponent which will handle InputAdornment rendering
-  // We keep the badge in the return value so UIComponent can access it
-
   return {
     ...rest,
     textFieldProps: {
@@ -102,31 +115,26 @@ const mapNumberFieldParams = (
 };
 
 const mapSelectFieldParams = (fieldParams: SelectFieldParams) => {
-  const {
-    disabled,
-    helperText,
-    autoFocus,
-    multiple,
-    displayEmpty,
-    defaultOpen,
-    readOnly,
-    badge,
-    ...rest
-  } = fieldParams;
+  const { label, defaultValue, options, helperText, badge, ...selectProps } =
+    fieldParams;
 
-  const selectFieldProps: Partial<SelectProps> = filterDefined({
-    disabled,
-    autoFocus,
-    multiple,
-    displayEmpty,
-    defaultOpen,
-    readOnly,
-  });
+  const selectFieldProps: Partial<SelectProps> = filterDefined(
+    selectProps as Record<string, unknown>
+  ) as Partial<SelectProps>;
 
-  return {
-    ...rest,
-    badge,
-    selectFieldProps,
-    helperText,
-  };
+  return { label, defaultValue, options, helperText, selectFieldProps, badge };
+};
+
+const mapTextFieldParams = (fieldParams: TextFieldParams) => {
+  const { label, defaultValue, readOnly, badge, ...textProps } = fieldParams;
+
+  const textFieldProps: Partial<TextFieldProps> = filterDefined(
+    textProps as Record<string, unknown>
+  ) as Partial<TextFieldProps>;
+
+  if (readOnly !== undefined) {
+    textFieldProps.InputProps = { readOnly };
+  }
+
+  return { label, defaultValue, textFieldProps, badge };
 };

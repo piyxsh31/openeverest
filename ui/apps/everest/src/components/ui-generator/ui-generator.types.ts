@@ -19,6 +19,7 @@ export type OpenAPIObjectProperties = {
 export enum FieldType {
   Number = 'number',
   Select = 'select',
+  Text = 'text',
   Hidden = 'hidden',
 }
 
@@ -42,17 +43,47 @@ export interface NumberFieldParams extends CommonFieldParams {
   placeholder?: string;
 }
 
-export interface SelectFieldParams extends CommonFieldParams {
-  options: { label: string; value: string }[];
+type SelectOptionsItem = { label: string; value: string };
+
+type SelectFieldParamsBase = CommonFieldParams & {
   multiple?: boolean;
   displayEmpty?: boolean;
   defaultOpen?: boolean;
   readOnly?: boolean;
+};
+
+export type SelectFieldParams =
+  | (SelectFieldParamsBase & {
+      options: SelectOptionsItem[];
+      optionsPath?: never;
+      optionsPathConfig?: never;
+    })
+  | (SelectFieldParamsBase & {
+      optionsPath: string;
+      optionsPathConfig: { labelPath: string; valuePath: string };
+      options?: never;
+    });
+
+export interface TextFieldParams extends CommonFieldParams {
+  placeholder?: string;
+  multiline?: boolean;
+  rows?: number;
+  minRows?: number;
+  maxRows?: number;
+  type?: 'text' | 'password' | 'email' | 'search' | 'tel';
+  readOnly?: boolean;
+  variant?: 'outlined' | 'filled' | 'standard';
+  // TODO size?: 'small' | 'medium';
+  color?: 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning';
+  fullWidth?: boolean;
+  hiddenLabel?: boolean;
+  margin?: 'none' | 'dense' | 'normal';
 }
 
 export type FieldParamsMap = {
   [FieldType.Number]: NumberFieldParams;
   [FieldType.Select]: SelectFieldParams;
+  [FieldType.Text]: TextFieldParams;
   [FieldType.Hidden]: CommonFieldParams;
 };
 
@@ -74,6 +105,18 @@ export type CommonValidation = {
   celExpressions?: CelExpression[];
 };
 
+export type TextValidation = CommonValidation & {
+  min?: number;
+  max?: number;
+  length?: number;
+  email?: boolean;
+  url?: boolean;
+  uuid?: boolean;
+  trim?: boolean;
+  toLowerCase?: boolean;
+  toUpperCase?: boolean;
+};
+
 export type ValidationMap = {
   [FieldType.Number]: CommonValidation & {
     min?: number;
@@ -84,6 +127,7 @@ export type ValidationMap = {
     multipleOf?: number;
     safe?: boolean;
   };
+  [FieldType.Text]: TextValidation;
   [FieldType.Select]: CommonValidation;
   [FieldType.Hidden]: CommonValidation;
 };

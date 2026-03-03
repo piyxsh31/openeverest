@@ -14,49 +14,88 @@
 
 import { MenuItem } from '@mui/material';
 import React from 'react';
-import { FieldType, Component } from '../../ui-generator.types';
+import { FieldType, Component, SelectFieldParams } from '../../ui-generator.types';
 
 type SelectComponent = Extract<Component, { uiType: FieldType.Select }>;
+
+// Helper to get nested value from object using dot-separated path
+export const getValueByPath = (obj: any, path: string): any => {
+  if (!obj || !path) return undefined;
+  return path.split('.').reduce((acc, part) => acc?.[part], obj);
+};
 
 export const isSelectComponent = (item: Component): item is SelectComponent => {
   return item.uiType === FieldType.Select;
 };
 
-export const shouldInjectEmptyOption = (item: Component): boolean => {
+export const resolveSelectOptions = (
+  selectParams: SelectFieldParams,
+  providerObject?: Record<string, any>
+): { label: string; value: string }[] => {
+
+  if ('options' in selectParams && selectParams.options) {
+    return selectParams.options;
+  }
+
+  if (
+    'optionsPath' in selectParams &&
+    selectParams.optionsPath &&
+    selectParams.optionsPathConfig &&
+    providerObject
+  ) {
+    const { optionsPath, optionsPathConfig } = selectParams;
+    const rawData = getValueByPath(providerObject, optionsPath);
+
+    if (Array.isArray(rawData)) {
+      const { labelPath, valuePath } = optionsPathConfig;
+      return rawData.map((item) => ({
+        label: getValueByPath(item, labelPath) || '',
+        value: getValueByPath(item, valuePath) || '',
+      }));
+    }
+  }
+
+  return [];
+};
+
+export const shouldInjectEmptyOption = (
+  item: Component,
+  options: { label: string; value: string }[]
+): boolean => {
   if (!isSelectComponent(item)) return false;
 
   const isOptional = !item.validation?.required;
   const hasDisplayEmpty = !!item.fieldParams.displayEmpty;
-  const hasEmptyOption = item.fieldParams.options.some(
-    (opt) => opt.value === ''
-  );
+  const hasEmptyOption = options?.some((opt) => opt.value === '');
 
   return isOptional && hasDisplayEmpty && !hasEmptyOption;
 };
 
 export const renderSelectOptions = (
   item: Component,
-  name: string
+  name: string,
+  providerObject?: Record<string, any>
 ): React.ReactNode[] | undefined => {
   if (!isSelectComponent(item)) return undefined;
 
-  const options: React.ReactNode[] = [];
+  const options = resolveSelectOptions(item.fieldParams, providerObject);
+  const optionsNodes: React.ReactNode[] = [];
 
-  if (shouldInjectEmptyOption(item)) {
-    options.push(
+  if (shouldInjectEmptyOption(item, options)) {
+    optionsNodes.push(
       <MenuItem key={`${name}-empty`} value="">
         None
       </MenuItem>
     );
   }
 
-  item.fieldParams.options.forEach((option) => {
-    options.push(
+  options.forEach((option) => {
+    optionsNodes.push(
       <MenuItem key={`${name}-${option.value}`} value={option.value}>
         {option.label}
       </MenuItem>
     );
   });
 
-  return options;
+  return optionsNodes;
 };

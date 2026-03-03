@@ -1,1 +1,1 @@
-export { default } from './DatabaseFormBody';
+export { default } from './database-form-body';

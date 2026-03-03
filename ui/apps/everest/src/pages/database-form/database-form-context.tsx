@@ -3,6 +3,7 @@ import {
   Section,
   TopologyUISchemas,
 } from 'components/ui-generator/ui-generator.types';
+import { Provider } from 'types/api';
 
 type DatabaseFormContextType = {
   uiSchema: TopologyUISchemas;
@@ -10,6 +11,7 @@ type DatabaseFormContextType = {
   hasMultipleTopologies: boolean;
   defaultTopology: string;
   sections: { [key: string]: Section };
+  providerObject?: Provider;
 };
 
 const DatabaseFormContext = createContext<DatabaseFormContextType | null>(null);

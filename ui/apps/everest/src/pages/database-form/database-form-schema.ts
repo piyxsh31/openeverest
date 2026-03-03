@@ -4,9 +4,7 @@ import { MAX_DB_CLUSTER_NAME_LENGTH } from '../../consts.ts';
 import { Messages } from './database-form.messages.ts';
 import { DbWizardFormFields } from 'consts.ts';
 import { rfc_123_schema } from 'utils/common-validation.ts';
-import { dbVersionSchemaObject } from 'components/cluster-form/db-version/db-version-schema';
 import { DbClusterName } from './database-form.types.ts';
-import { WizardMode } from 'shared-types/wizard.types.ts';
 import { importStepSchema } from 'components/cluster-form/import/import-schema.tsx';
 
 const basicInfoSchema = (dbClusters: DbClusterName[]) =>
@@ -20,7 +18,6 @@ const basicInfoSchema = (dbClusters: DbClusterName[]) =>
         .nonempty(),
       [DbWizardFormFields.k8sNamespace]: z.string().nullable(),
       [DbWizardFormFields.topology]: z.string(),
-      ...dbVersionSchemaObject,
     })
     .passthrough()
     .superRefine(({ dbName, k8sNamespace }, ctx) => {
@@ -96,25 +93,23 @@ const basicInfoSchema = (dbClusters: DbClusterName[]) =>
 //       }
 //     });
 
-// Each position of the array is the validation schema for a given step
 export const getDBWizardSchema = (
-  activeStep: number,
-  defaultValues: DbWizardType,
   dbClusters: DbClusterName[],
-  mode: WizardMode,
   hasImportStep: boolean,
   openApiValidationSchema?: z.ZodTypeAny
 ) => {
-  const hardcodedSteps = [
-    basicInfoSchema(dbClusters),
-    ...(hasImportStep ? [importStepSchema] : []),
-  ];
 
-  if (activeStep < hardcodedSteps.length) {
-    return hardcodedSteps[activeStep];
+  let combinedSchema: z.ZodTypeAny = basicInfoSchema(dbClusters);
+
+  if (hasImportStep) {
+    combinedSchema = combinedSchema.and(importStepSchema);
   }
 
-  return openApiValidationSchema || z.object({}).passthrough();
+  if (openApiValidationSchema) {
+    combinedSchema = combinedSchema.and(openApiValidationSchema);
+  }
+
+  return combinedSchema;
 };
 
 export type ImportStepType = z.infer<typeof importStepSchema>;

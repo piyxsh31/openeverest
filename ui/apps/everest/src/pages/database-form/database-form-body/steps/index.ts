@@ -20,8 +20,13 @@ import { Section } from 'components/ui-generator/ui-generator.types.js';
 import React, { useMemo } from 'react';
 import { UIGenerator } from 'components/ui-generator/ui-generator.js';
 import { StepInfo } from '../types.js';
+import { Provider } from 'types/api.js';
 
-export const useSteps = (sections: { [key: string]: Section }) => {
+export const useSteps = (
+  sections: { [key: string]: Section },
+  providerObject?: Provider
+
+) => {
   const location = useLocation();
   const showImportStep = location.state?.showImport;
 
@@ -33,15 +38,18 @@ export const useSteps = (sections: { [key: string]: Section }) => {
 
     const sectionKeys = Object.keys(sections);
 
-    // Generate steps from sections
     sectionKeys.forEach((sectionKey, sectionIndex) => {
-      // Create a component that knows its actual step index in the wizard
-      const GeneratedStep = () =>
-        React.createElement(UIGenerator, {
+      const GeneratedStep = (props: Record<string, unknown>) => {
+
+      const { longestAchievedStep, ...rest } = props;
+      return React.createElement(UIGenerator, {
           activeStep: sectionIndex,
           sections,
           stepLabels: sectionKeys,
+          providerObject,
+          ...rest,
         });
+      }
 
       steps.push({
         component: GeneratedStep,
@@ -50,13 +58,5 @@ export const useSteps = (sections: { [key: string]: Section }) => {
     });
 
     return steps;
-  }, [sections, showImportStep]);
-  // return [
-  //   BaseInfoStep,
-  //   ...(showImportStep ? [ImportStep] : []),
-  //   ResourcesStep,
-  //   Backups,
-  //   AdvancedConfigurations,
-  //   Monitoring,
-  // ];
+  }, [sections, showImportStep, providerObject]);
 };

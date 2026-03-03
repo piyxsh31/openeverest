@@ -162,12 +162,8 @@ export const DatabasePage = () => {
     [hasImportStep, sections]
   );
 
-  // Get the validation schema for the current step
   const validationSchema = useDbValidationSchema(
-    activeStep,
-    defaultValues,
     dbClustersNamesList,
-    mode,
     hasImportStep,
     generatedZodSchema
   ) as unknown as ZodType<DbWizardType>;
@@ -177,6 +173,12 @@ export const DatabasePage = () => {
     // Revalidate when schema changes
     trigger();
   }, [validationSchema, trigger]);
+
+  useEffect(() => {
+    if (generatedZodSchema && !loadingClusterValues && defaultValues) {
+      trigger();
+    }
+  }, [generatedZodSchema, defaultValues, loadingClusterValues, trigger]);
 
   //TODO refactor and move to separate hook
   const fieldToStepMap = useMemo(() => {
@@ -356,6 +358,7 @@ export const DatabasePage = () => {
         hasMultipleTopologies,
         defaultTopology,
         sections,
+        providerObject: location.state?.selectedDbProvider,
       }}
     >
       <Stack direction={isDesktop ? 'row' : 'column'}>

@@ -36,8 +36,9 @@ const DatabaseFormBody = ({
   handlePreviousStep,
 }: DatabaseFormBodyProps) => {
   const mode = useDatabasePageMode();
-  const { uiSchema, defaultTopology, sections } = useDatabaseFormContext();
-  const steps = useSteps(sections);
+  const { uiSchema, defaultTopology, sections, providerObject } =
+    useDatabaseFormContext();
+  const steps = useSteps(sections, providerObject);
 
   const { dbClusterRequestStatus, isFetching: loadingDefaultsForEdition } =
     useDatabasePageDefaultValues(mode, uiSchema, defaultTopology);

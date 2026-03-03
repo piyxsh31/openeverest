@@ -191,3 +191,4 @@ export const BaseInfoStep = ({ loadingDefaultsForEdition }: StepProps) => {
     </>
   );
 };
+export default BaseInfoStep;

@@ -15,13 +15,16 @@
 import {
   Component,
   FieldType,
+  SelectFieldParams,
 } from 'components/ui-generator/ui-generator.types';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useFormContext, get } from 'react-hook-form';
 import { InputAdornment } from '@mui/material';
 import { muiComponentMap } from '../constants';
 import { getMappedParams } from './get-mapped-params';
 import { renderComponentChildren } from './utils/component-renderer';
+import { useUiGeneratorContext } from '../ui-generator-context';
+import { getValueByPath } from './utils/select-component-handler';
 
 type ComponentByType<T extends Component['uiType']> = Extract<
   Component,
@@ -39,6 +42,8 @@ const UIComponent: React.FC<ComponentProps> = ({ item, name }) => {
   const { uiType, fieldParams, validation } = item;
   const methods = useFormContext();
   const errors = methods?.formState?.errors || {};
+  const { providerObject } = useUiGeneratorContext();
+
   //get() is used to access nested error paths like "spec.replica.nodes"
   const errorObj = get(errors, name);
   const error = errorObj?.message as string | undefined;
@@ -48,7 +53,40 @@ const UIComponent: React.FC<ComponentProps> = ({ item, name }) => {
 
   const label = fieldParams?.label || '';
 
-  const mappedProps = getMappedParams(uiType, fieldParams, validation);
+  // For Select fields with optionsPath, resolve options from provider
+  const resolvedFieldParams = useMemo(() => {
+    if (uiType === FieldType.Select) {
+      const selectParams = fieldParams as SelectFieldParams;
+
+      if (
+        'optionsPath' in selectParams &&
+        selectParams.optionsPath &&
+        providerObject
+      ) {
+        const { optionsPath, optionsPathConfig } = selectParams;
+        const rawData = getValueByPath(providerObject, optionsPath);
+
+        if (Array.isArray(rawData) && optionsPathConfig) {
+          const { labelPath, valuePath } = optionsPathConfig;
+          const options = rawData.map((item) => ({
+            label: getValueByPath(item, labelPath) || '',
+            value: getValueByPath(item, valuePath) || '',
+          }));
+
+          // Return new params object with resolved options
+          return {
+            ...selectParams,
+            options,
+            optionsPath: undefined,
+            optionsPathConfig: undefined,
+          } as SelectFieldParams;
+        }
+      }
+    }
+    return fieldParams;
+  }, [uiType, fieldParams, providerObject]);
+
+  const mappedProps = getMappedParams(uiType, resolvedFieldParams, validation);
 
   // Extract badge from mappedProps if present
   const { badge, textFieldProps, selectFieldProps, ...restMappedProps } =
@@ -85,7 +123,7 @@ const UIComponent: React.FC<ComponentProps> = ({ item, name }) => {
   };
 
   // Render component-specific children (e.g., MenuItem options for Select)
-  const children = renderComponentChildren(item, name);
+  const children = renderComponentChildren(item, name, providerObject);
 
   return (
     <>
@@ -97,8 +135,6 @@ const UIComponent: React.FC<ComponentProps> = ({ item, name }) => {
           label,
           error: !!error,
           helperText: error,
-          // Don't pass isRequired to prevent HTML required attribute
-          // Validation is handled by Zod
           formControlProps: { sx: { minWidth: '450px', marginTop: '15px' } },
         },
         children

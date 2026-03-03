@@ -11,25 +11,19 @@ export const topologyUiSchemas: TopologyUISchemas = {
         components: {
           version: {
             uiType: FieldType.Select as const,
+            // TODO path: ['spec.components.engine.version', 'spec.components.proxy.version', 'spec.components.configServer.version'],
             path: 'spec.engine.version',
             fieldParams: {
               label: 'Database Version',
-              defaultValue: '7.0.18-11',
-              options: [
-                {
-                  label: 'percona/percona-server-mongodb:6.0.19-16-multi',
-                  value: '6.0.19-16',
-                },
-                {
-                  label: 'percona/percona-server-mongodb:6.0.21-18',
-                  value: '6.0.21-18',
-                },
-                {
-                  label: 'percona/percona-server-mongodb:7.0.18-11',
-                  value: '7.0.18-11',
-                },
-              ],
+              optionsPath: 'spec.componentTypes.mongod.versions',
+              optionsPathConfig: {
+                labelPath: 'version',
+                valuePath: 'version',
+              },
             },
+            validation: {
+              required: true,
+            }
           },
         },
       },
