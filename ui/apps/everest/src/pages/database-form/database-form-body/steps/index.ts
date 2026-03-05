@@ -26,7 +26,6 @@ export const useSteps = (
   sections: { [key: string]: Section },
   sectionsOrder: string[] | undefined,
   providerObject?: Provider
-
 ) => {
   const location = useLocation();
   const showImportStep = location.state?.showImport;
@@ -41,16 +40,15 @@ export const useSteps = (
 
     sectionKeys.forEach((sectionKey, sectionIndex) => {
       const GeneratedStep = (props: Record<string, unknown>) => {
-
-      const { longestAchievedStep, ...rest } = props;
-      return React.createElement(UIGenerator, {
+        const { longestAchievedStep, ...rest } = props;
+        return React.createElement(UIGenerator, {
           activeStep: sectionIndex,
           sections,
           stepLabels: sectionKeys,
           providerObject,
           ...rest,
         });
-      }
+      };
 
       steps.push({
         component: GeneratedStep,

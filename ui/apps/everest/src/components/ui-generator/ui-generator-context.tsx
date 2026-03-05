@@ -1,4 +1,4 @@
-import { createContext, useContext, ReactNode, } from 'react';
+import { createContext, useContext, ReactNode } from 'react';
 import { Provider } from 'types/api';
 
 type UiGeneratorContextValue = {

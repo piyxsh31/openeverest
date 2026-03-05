@@ -14,7 +14,11 @@
 
 import { MenuItem } from '@mui/material';
 import React from 'react';
-import { FieldType, Component, SelectFieldParams } from '../../ui-generator.types';
+import {
+  FieldType,
+  Component,
+  SelectFieldParams,
+} from '../../ui-generator.types';
 
 type SelectComponent = Extract<Component, { uiType: FieldType.Select }>;
 
@@ -32,7 +36,6 @@ export const resolveSelectOptions = (
   selectParams: SelectFieldParams,
   providerObject?: Record<string, any>
 ): { label: string; value: string }[] => {
-
   if ('options' in selectParams && selectParams.options) {
     return selectParams.options;
   }

@@ -8,7 +8,7 @@ export const createInstanceFn = async (
   namespace: string,
   data: CreateInstanceArgType['spec']
 ) => {
-    const payload: CreateInstanceArgType = {
+  const payload: CreateInstanceArgType = {
     apiVersion: 'core.openeverest.io/v1alpha1',
     kind: 'Instance',
     //TODO this TS error should gone after BE types updates

@@ -23,7 +23,7 @@ export const topologyUiSchemas: TopologyUISchemas = {
             },
             validation: {
               required: true,
-            }
+            },
           },
         },
       },

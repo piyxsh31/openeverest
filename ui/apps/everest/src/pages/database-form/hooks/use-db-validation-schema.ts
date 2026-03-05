@@ -14,11 +14,7 @@ export const useDbValidationSchema = (
       hasImportStep,
       openApiValidationSchema
     );
-  }, [
-    dbClusters,
-    hasImportStep,
-    openApiValidationSchema,
-  ]);
+  }, [dbClusters, hasImportStep, openApiValidationSchema]);
 
   return schema;
 };

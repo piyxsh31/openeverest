@@ -1,4 +1,4 @@
-import { PreviewContentText } from "../preview-section";
+import { PreviewContentText } from '../preview-section';
 import { orderComponents } from 'components/ui-generator/utils/component-renderer';
 
 const getValueByPath = (obj: any, path: string): any =>
@@ -25,8 +25,9 @@ export const renderComponent = (
     );
   }
 
-  const value = component.path ? getValueByPath(formValues, component.path) : undefined;
-
+  const value = component.path
+    ? getValueByPath(formValues, component.path)
+    : undefined;
 
   const label = component.fieldParams?.label || componentKey;
 
@@ -45,9 +46,6 @@ export const renderComponent = (
 
   const uniqueKey = `${parentPrefix || ''}:${component.path || componentKey}`;
   return (
-    <PreviewContentText
-      key={uniqueKey}
-      text={`${label}: ${displayValue}`}
-    />
+    <PreviewContentText key={uniqueKey} text={`${label}: ${displayValue}`} />
   );
 };

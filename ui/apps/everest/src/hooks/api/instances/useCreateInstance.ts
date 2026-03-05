@@ -15,19 +15,28 @@ export const useCreateInstance = (
   >
 ) =>
   useMutation({
-    mutationFn: ({ formValue: { provider, dbName, k8sNamespace, topology, ...rest } }: CreateInstanceHookArgType) => { 
-        debugger; 
+    mutationFn: ({
+      formValue: { provider, dbName, k8sNamespace, topology, ...rest },
+    }: CreateInstanceHookArgType) => {
+      debugger;
       //TODO check topology.config
       const spec = {
         topology: {
-          ...topology
+          ...topology,
 
-            //TODO?
-            // config?: formSpec?.topology?.config
+          //TODO?
+          // config?: formSpec?.topology?.config
         },
         ...rest,
-      }   
-      return createInstanceFn('main', dbName, provider, k8sNamespace || '', spec)},
+      };
+      return createInstanceFn(
+        'main',
+        dbName,
+        provider,
+        k8sNamespace || '',
+        spec
+      );
+    },
     ...options,
   });
 

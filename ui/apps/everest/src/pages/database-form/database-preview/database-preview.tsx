@@ -46,10 +46,7 @@ export const DatabasePreview = ({
     ...orderedSectionKeys.map((key) => ({
       title: sections[key]?.label || key,
       component: (v: any) => (
-        <DynamicSectionPreview
-          section={sections[key]}
-          formValues={v}
-        />
+        <DynamicSectionPreview section={sections[key]} formValues={v} />
       ),
     })),
   ];

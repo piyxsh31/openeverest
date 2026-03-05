@@ -198,7 +198,6 @@ export const useCreateDbCluster = (
     ...options,
   });
 
-
 export const useDbClusterCredentials = (
   dbClusterName: string,
   namespace: string,

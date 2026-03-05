@@ -29,10 +29,7 @@ import { DbWizardType } from './database-form-schema';
 import DatabaseFormCancelDialog from './database-form-cancel-dialog/index';
 import DatabaseFormBody from './database-form-body';
 import DatabaseFormSideDrawer from './database-form-side-drawer';
-import {
-  useDBClustersForNamespaces,
-  useNamespaces,
-} from 'hooks';
+import { useDBClustersForNamespaces, useNamespaces } from 'hooks';
 import { WizardMode } from 'shared-types/wizard.types';
 import { ZodType } from 'zod';
 import { useDatabasePageDefaultValues } from './hooks/use-database-form-default-values';
@@ -59,7 +56,6 @@ export const DatabasePage = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [longestAchievedStep, setLongestAchievedStep] = useState(0);
   const [formSubmitted, setFormSubmitted] = useState(false);
-
 
   const { mutate: createInstance, isPending: isCreating } = useCreateInstance();
   const location = useLocation();
@@ -246,7 +242,7 @@ export const DatabasePage = () => {
             },
           }
         );
-      addInstance(); 
+      addInstance();
       //TODO import flow
       // const credentials = latestDataRef.current?.credentials;
       // if (hasImportStep && credentials && Object.keys(credentials).length > 0) {

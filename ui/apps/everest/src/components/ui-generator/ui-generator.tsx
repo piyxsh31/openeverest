@@ -51,19 +51,19 @@ export const UIGenerator = ({
   return (
     <UiGeneratorProvider providerObject={providerObject}>
       <FormGroup sx={{ mt: 3 }}>
-      <Stack spacing={2}>
-        {orderedComponents.map(([key, item]) => {
-          const fieldName = basePath ? `${basePath}.${key}` : key;
-          return (
-            <React.Fragment key={fieldName}>
-              {renderComponent({
-                item,
-                name: fieldName,
-              })}
-            </React.Fragment>
-          );
-        })}
-      </Stack>
+        <Stack spacing={2}>
+          {orderedComponents.map(([key, item]) => {
+            const fieldName = basePath ? `${basePath}.${key}` : key;
+            return (
+              <React.Fragment key={fieldName}>
+                {renderComponent({
+                  item,
+                  name: fieldName,
+                })}
+              </React.Fragment>
+            );
+          })}
+        </Stack>
       </FormGroup>
     </UiGeneratorProvider>
   );

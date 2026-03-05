@@ -43,7 +43,11 @@ describe('DatabasePreview - Sections Order', () => {
     };
 
     // Define the order explicitly
-    const sectionsOrder = ['databaseVersion', 'resources', 'advancedConfigurations'];
+    const sectionsOrder = [
+      'databaseVersion',
+      'resources',
+      'advancedConfigurations',
+    ];
 
     render(
       <FormProviderWrapper>
@@ -105,7 +109,11 @@ describe('DatabasePreview - Sections Order', () => {
     };
 
     // Different order - resources first, then advancedConfigurations, then databaseVersion
-    const sectionsOrder = ['resources', 'advancedConfigurations', 'databaseVersion'];
+    const sectionsOrder = [
+      'resources',
+      'advancedConfigurations',
+      'databaseVersion',
+    ];
 
     render(
       <FormProviderWrapper>

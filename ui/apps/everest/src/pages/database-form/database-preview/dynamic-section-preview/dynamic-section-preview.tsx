@@ -1,5 +1,5 @@
-import { PreviewContentText } from "../preview-section";
-import { renderComponent } from "./utils";
+import { PreviewContentText } from '../preview-section';
+import { renderComponent } from './utils';
 import { orderComponents } from 'components/ui-generator/utils/component-renderer';
 
 export const DynamicSectionPreview = ({
@@ -19,7 +19,12 @@ export const DynamicSectionPreview = ({
     <>
       {orderComponents(sectionComponents, section?.componentsOrder).map(
         ([key, comp]) =>
-          renderComponent(key, comp, formValues, `${section?.label || ''}.${key}`)
+          renderComponent(
+            key,
+            comp,
+            formValues,
+            `${section?.label || ''}.${key}`
+          )
       )}
     </>
   );

@@ -98,7 +98,6 @@ export const getDBWizardSchema = (
   hasImportStep: boolean,
   openApiValidationSchema?: z.ZodTypeAny
 ) => {
-
   let combinedSchema: z.ZodTypeAny = basicInfoSchema(dbClusters);
 
   if (hasImportStep) {
@@ -116,7 +115,9 @@ export type ImportStepType = z.infer<typeof importStepSchema>;
 export type BasicInfoType = z.infer<ReturnType<typeof basicInfoSchema>>;
 
 // Base type includes hardcoded fields
-export type DbWizardTypeBase = BasicInfoType & Instance['spec'] & Instance['metadata'];
+export type DbWizardTypeBase = BasicInfoType &
+  Instance['spec'] &
+  Instance['metadata'];
 
 export type DbWizardTypeWithPrestep = ImportStepType & DbWizardTypeBase;
 
