@@ -1,4 +1,3 @@
-import { dbEngineToDbType } from '@percona/utils';
 import { useDefaultValues } from 'components/ui-generator/hooks/use-default-values';
 import { TopologyUISchemas } from 'components/ui-generator/ui-generator.types';
 import { useMemo } from 'react';
@@ -12,8 +11,8 @@ export const useDatabasePageDefaultValues = (
   defaultSelectedTopology: string
 ): {
   // TODO add typescript types
-  defaultValues: any;
-  dbClusterData: any;
+  defaultValues: Record<string, unknown>;
+  dbClusterData: Record<string, unknown>;
   dbClusterRequestStatus: 'error' | 'idle' | 'pending' | 'success';
   isFetching: boolean;
 } => {

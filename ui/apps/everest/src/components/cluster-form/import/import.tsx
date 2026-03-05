@@ -32,7 +32,8 @@ import { useDbEngine, useDbEngines } from 'hooks';
 export const ImportForm = () => {
   const { getValues, watch, setValue } = useFormContext();
 
-  const dbType = dbTypeToDbEngine(getValues(DbWizardFormFields.dbType));
+  // TODO change the logic of import
+  const dbType = dbTypeToDbEngine(getValues(DbWizardFormFields.provider));
   const namespace = getValues(DbWizardFormFields.k8sNamespace);
   const selectedImporter = watch(DbWizardFormFields.dataImporter);
 

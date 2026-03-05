@@ -21,6 +21,7 @@ import React, { useMemo } from 'react';
 import { UIGenerator } from 'components/ui-generator/ui-generator.js';
 import { StepInfo } from '../types.js';
 import { Provider } from 'types/api.js';
+import type { StepProps } from '../../database-form.types.js';
 
 export const useSteps = (
   sections: { [key: string]: Section },
@@ -39,14 +40,13 @@ export const useSteps = (
     const sectionKeys = sectionsOrder || Object.keys(sections);
 
     sectionKeys.forEach((sectionKey, sectionIndex) => {
-      const GeneratedStep = (props: Record<string, unknown>) => {
-        const { longestAchievedStep, ...rest } = props;
+      const GeneratedStep = ({ loadingDefaultsForEdition }: StepProps) => {
         return React.createElement(UIGenerator, {
           activeStep: sectionIndex,
           sections,
           stepLabels: sectionKeys,
           providerObject,
-          ...rest,
+          loadingDefaultsForEdition,
         });
       };
 

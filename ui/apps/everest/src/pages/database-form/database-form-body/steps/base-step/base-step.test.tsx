@@ -8,7 +8,10 @@ import { DbWizardFormFields } from 'consts';
 import { DatabaseFormProvider } from 'pages/database-form/database-form-context';
 import { BaseInfoStep } from './base-step';
 import { PreviewSectionOne } from 'pages/database-form/database-preview/sections/base-step';
-import { getDBWizardSchema } from 'pages/database-form/database-form-schema';
+import {
+  getDBWizardSchema,
+  DbWizardTypeBase,
+} from 'pages/database-form/database-form-schema';
 import { z } from 'zod';
 
 vi.mock('hooks/api/namespaces/useNamespaces', () => ({
@@ -179,9 +182,8 @@ describe('PreviewSectionOne (base-step preview)', () => {
     render(
       <TestWrapper>
         <PreviewSectionOne
-          {...(makeDefaultValues() as any)}
-          topology={(makeDefaultValues() as any)?.topology?.type}
-          {...overrides}
+          {...(makeDefaultValues() as unknown as DbWizardTypeBase)}
+          {...(overrides as unknown as DbWizardTypeBase)}
         />
       </TestWrapper>
     );
@@ -202,7 +204,7 @@ describe('PreviewSectionOne (base-step preview)', () => {
   });
 
   it('displays topology when provided', () => {
-    renderPreview({ topology: 'replica' });
+    renderPreview({ topology: { type: 'replica' } });
     expect(screen.getByText('Topology: replica')).toBeInTheDocument();
   });
 
@@ -216,7 +218,7 @@ describe('PreviewSectionOne (base-step preview)', () => {
       k8sNamespace: 'test-namespace',
       provider: 'psmdb',
       dbName: 'my-test-db',
-      topology: 'replica',
+      topology: { type: 'replica' },
     });
     expect(screen.getByText('Namespace: test-namespace')).toBeInTheDocument();
     expect(screen.getByText('Provider: psmdb')).toBeInTheDocument();

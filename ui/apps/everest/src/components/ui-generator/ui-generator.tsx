@@ -24,6 +24,7 @@ type UIGeneratorProps = {
   sections: { [key: string]: Section };
   stepLabels: string[];
   providerObject?: Provider;
+  loadingDefaultsForEdition?: boolean;
 };
 
 export const UIGenerator = ({
@@ -31,6 +32,7 @@ export const UIGenerator = ({
   sections,
   stepLabels,
   providerObject,
+  loadingDefaultsForEdition,
 }: UIGeneratorProps) => {
   const sectionKey = stepLabels[activeStep];
   const section = sections[sectionKey];
@@ -49,7 +51,10 @@ export const UIGenerator = ({
   const basePath = sectionKey || '';
 
   return (
-    <UiGeneratorProvider providerObject={providerObject}>
+    <UiGeneratorProvider
+      providerObject={providerObject}
+      loadingDefaultsForEdition={loadingDefaultsForEdition}
+    >
       <FormGroup sx={{ mt: 3 }}>
         <Stack spacing={2}>
           {orderedComponents.map(([key, item]) => {

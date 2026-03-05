@@ -13,6 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// @ts-nocheck
+// TODO remove this file after release of v2
+
 import { useState } from 'react';
 import { DatabaseIcon, OverviewCard } from '@percona/ui-lib';
 import { Button, Stack } from '@mui/material';
@@ -21,11 +24,7 @@ import { SubmitHandler } from 'react-hook-form';
 import { z } from 'zod';
 import {
   CUSTOM_NR_UNITS_INPUT_VALUE,
-  matchFieldsValueToResourceSize,
   NODES_DB_TYPE_MAP,
-  NODES_DEFAULT_SIZES,
-  PROXIES_DEFAULT_SIZES,
-  resourcesFormSchema,
 } from 'components/cluster-form';
 import OverviewSection from '../overview-section';
 import { ResourcesDetailsOverviewProps } from './card.types';
@@ -46,7 +45,6 @@ import {
   isProxy,
   getProxyUnitNamesFromDbType,
 } from 'utils/db';
-import { DbWizardFormFields } from 'consts';
 
 export const ResourcesDetails = ({
   dbCluster,
@@ -88,9 +86,7 @@ export const ResourcesDetails = ({
     ? proxies
     : CUSTOM_NR_UNITS_INPUT_VALUE;
 
-  const onSubmit: SubmitHandler<
-    z.infer<ReturnType<typeof resourcesFormSchema>>
-  > = ({
+  const onSubmit: SubmitHandler<z.ZodType<any>> = ({
     cpu,
     disk,
     diskUnit,
@@ -247,7 +243,7 @@ export const ResourcesDetails = ({
           onSubmit={onSubmit}
           defaultValues={{
             dbType,
-            [DbWizardFormFields.dbVersion]: dbCluster.spec.engine.version || '',
+            // [DbWizardFormFields.dbVersion]: dbCluster.spec.engine.version || '',
             cpu: cpuParser(cpu.toString() || '0'),
             disk: parsedDiskValues.value,
             diskUnit: parsedDiskValues.originalUnit,
@@ -263,16 +259,16 @@ export const ResourcesDetails = ({
             numberOfProxies: numberOfProxiesStr,
             customNrOfNodes: replicas,
             customNrOfProxies: proxies,
-            resourceSizePerNode: matchFieldsValueToResourceSize(
-              NODES_DEFAULT_SIZES(dbType, dbCluster.spec.engine.version),
-              dbCluster.spec.engine.resources
-            ),
-            resourceSizePerProxy: matchFieldsValueToResourceSize(
-              PROXIES_DEFAULT_SIZES[dbType],
-              isProxy(dbCluster.spec.proxy)
-                ? dbCluster.spec.proxy.resources
-                : undefined
-            ),
+            // resourceSizePerNode: matchFieldsValueToResourceSize(
+            //   NODES_DEFAULT_SIZES(dbType, dbCluster.spec.engine.version),
+            //   dbCluster.spec.engine.resources
+            // ),
+            // resourceSizePerProxy: matchFieldsValueToResourceSize(
+            //   PROXIES_DEFAULT_SIZES[dbType],
+            //   isProxy(dbCluster.spec.proxy)
+            //     ? dbCluster.spec.proxy.resources
+            //     : undefined
+            // ),
           }}
         />
       )}

@@ -18,9 +18,18 @@ import {
   SelectFieldParams,
   TextFieldParams,
   FieldParamsMap,
-  ValidationMap,
-  FieldType,
-} from '../ui-generator.types';
+} from '../../ui-generator.types';
+
+export type MappedFieldProps = {
+  badge?: string;
+  textFieldProps?: Partial<TextFieldProps>;
+  selectFieldProps?: Partial<SelectProps>;
+  label?: string;
+  defaultValue?: unknown;
+  options?: { label: string; value: string }[];
+  helperText?: string;
+  step?: number;
+} & Record<string, unknown>;
 
 // Helper to filter out undefined values from an object
 const filterDefined = <T extends Record<string, unknown>>(
@@ -33,12 +42,11 @@ const filterDefined = <T extends Record<string, unknown>>(
 
 export const getMappedParams = <K extends keyof FieldParamsMap>(
   fieldType: K,
-  fieldParams: FieldParamsMap[K],
-  validation?: ValidationMap[K]
+  fieldParams: FieldParamsMap[K]
 ) => {
   switch (fieldType) {
     case 'number':
-      return mapNumberFieldParams(fieldParams as NumberFieldParams, validation);
+      return mapNumberFieldParams(fieldParams as NumberFieldParams);
     case 'text':
       return mapTextFieldParams(fieldParams as TextFieldParams);
     case 'select':
@@ -49,12 +57,8 @@ export const getMappedParams = <K extends keyof FieldParamsMap>(
   }
 };
 
-const mapNumberFieldParams = (
-  fieldParams: NumberFieldParams
-  //TODO
-  // validation?: ValidationMap[FieldType.Number]
-) => {
-  const { step, disabled, helperText, badge, autoFocus, placeholder, ...rest } =
+const mapNumberFieldParams = (fieldParams: NumberFieldParams) => {
+  const { disabled, helperText, badge, autoFocus, placeholder, ...rest } =
     fieldParams;
 
   const textFieldProps: Partial<TextFieldProps> = filterDefined({

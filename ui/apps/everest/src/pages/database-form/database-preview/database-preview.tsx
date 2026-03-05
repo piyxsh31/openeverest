@@ -32,7 +32,7 @@ export const DatabasePreview = ({
 
   const previewSections: {
     title: string;
-    component: (v: any) => React.ReactNode;
+    component: React.ComponentType<DbWizardType>;
   }[] = [
     { title: 'Basic Information', component: PreviewSectionOne },
     ...(showImportStep
@@ -45,7 +45,7 @@ export const DatabasePreview = ({
       : []),
     ...orderedSectionKeys.map((key) => ({
       title: sections[key]?.label || key,
-      component: (v: any) => (
+      component: (v: DbWizardType) => (
         <DynamicSectionPreview section={sections[key]} formValues={v} />
       ),
     })),

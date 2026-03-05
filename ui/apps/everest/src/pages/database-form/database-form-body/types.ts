@@ -1,5 +1,7 @@
+import type { StepProps } from '../database-form.types.js';
+
 export type StepInfo = {
-  component: React.ComponentType<any>;
+  component: React.ComponentType<StepProps>;
   label: string;
 };
 
@@ -13,16 +15,4 @@ export type DatabaseFormBodyProps = {
   onSubmit: () => void;
   handleNextStep: () => void;
   handlePreviousStep: () => void;
-};
-
-export type DatabaseFormStepControllersProps = {
-  disableBack?: boolean;
-  disableNext?: boolean;
-  disableSubmit?: boolean;
-  disableCancel?: boolean;
-  showSubmit?: boolean;
-  onPreviousClick: () => void;
-  onNextClick: () => void;
-  onCancel: () => void;
-  onSubmit: () => void;
 };

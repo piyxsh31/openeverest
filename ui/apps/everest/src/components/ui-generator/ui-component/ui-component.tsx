@@ -15,16 +15,14 @@
 import {
   Component,
   FieldType,
-  SelectFieldParams,
 } from 'components/ui-generator/ui-generator.types';
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useFormContext, get } from 'react-hook-form';
 import { InputAdornment } from '@mui/material';
 import { muiComponentMap } from '../constants';
-import { getMappedParams } from './get-mapped-params';
 import { renderComponentChildren } from './utils/component-renderer';
 import { useUiGeneratorContext } from '../ui-generator-context';
-import { getValueByPath } from './utils/select-component-handler';
+import { getMappedParams, MappedFieldProps } from './utils/get-mapped-params';
 
 type ComponentByType<T extends Component['uiType']> = Extract<
   Component,
@@ -39,61 +37,32 @@ export type ComponentProps<
 };
 
 const UIComponent: React.FC<ComponentProps> = ({ item, name }) => {
-  const { uiType, fieldParams, validation } = item;
+  const { uiType, fieldParams } = item;
   const methods = useFormContext();
   const errors = methods?.formState?.errors || {};
-  const { providerObject } = useUiGeneratorContext();
+  const { providerObject, loadingDefaultsForEdition } = useUiGeneratorContext();
+  const isDisabled = !!loadingDefaultsForEdition;
 
   //get() is used to access nested error paths like "spec.replica.nodes"
   const errorObj = get(errors, name);
   const error = errorObj?.message as string | undefined;
 
   const MuiComponent = muiComponentMap[uiType];
-  if (!MuiComponent) return null;
 
   const label = fieldParams?.label || '';
 
-  // For Select fields with optionsPath, resolve options from provider
-  const resolvedFieldParams = useMemo(() => {
-    if (uiType === FieldType.Select) {
-      const selectParams = fieldParams as SelectFieldParams;
+  if (!MuiComponent) return null;
 
-      if (
-        'optionsPath' in selectParams &&
-        selectParams.optionsPath &&
-        providerObject
-      ) {
-        const { optionsPath, optionsPathConfig } = selectParams;
-        const rawData = getValueByPath(providerObject, optionsPath);
-
-        if (Array.isArray(rawData) && optionsPathConfig) {
-          const { labelPath, valuePath } = optionsPathConfig;
-          const options = rawData.map((item) => ({
-            label: getValueByPath(item, labelPath) || '',
-            value: getValueByPath(item, valuePath) || '',
-          }));
-
-          // Return new params object with resolved options
-          return {
-            ...selectParams,
-            options,
-            optionsPath: undefined,
-            optionsPathConfig: undefined,
-          } as SelectFieldParams;
-        }
-      }
-    }
-    return fieldParams;
-  }, [uiType, fieldParams, providerObject]);
-
-  const mappedProps = getMappedParams(uiType, resolvedFieldParams, validation);
+  const mappedProps = getMappedParams(uiType, fieldParams);
 
   // Extract badge from mappedProps if present
   const { badge, textFieldProps, selectFieldProps, ...restMappedProps } =
-    mappedProps as any;
+    mappedProps as MappedFieldProps;
 
   // Add badge as InputAdornment if present
-  let finalTextFieldProps = textFieldProps;
+  let finalTextFieldProps = textFieldProps
+    ? { ...textFieldProps, ...(isDisabled ? { disabled: true } : {}) }
+    : undefined;
   if (badge && uiType === FieldType.Number && textFieldProps) {
     // For Number fields (TextField-based), add InputProps with endAdornment
     finalTextFieldProps = {
@@ -106,7 +75,9 @@ const UIComponent: React.FC<ComponentProps> = ({ item, name }) => {
   }
 
   // For Select fields, badge handling different - needs to be in selectFieldProps
-  let finalSelectFieldProps = selectFieldProps;
+  let finalSelectFieldProps = selectFieldProps
+    ? { ...selectFieldProps, ...(isDisabled ? { disabled: true } : {}) }
+    : undefined;
   if (badge && uiType === FieldType.Select && selectFieldProps) {
     finalSelectFieldProps = {
       ...selectFieldProps,
@@ -115,6 +86,7 @@ const UIComponent: React.FC<ComponentProps> = ({ item, name }) => {
   }
 
   const finalProps = {
+    ...(isDisabled ? { disabled: true } : {}),
     ...restMappedProps,
     ...(finalTextFieldProps ? { textFieldProps: finalTextFieldProps } : {}),
     ...(finalSelectFieldProps

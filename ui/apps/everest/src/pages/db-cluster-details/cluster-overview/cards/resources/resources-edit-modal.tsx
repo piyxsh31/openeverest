@@ -1,7 +1,9 @@
+// @ts-nocheck
+// TODO remove this file after release of v2
 import { DbType } from '@percona/types';
 import { SubmitHandler } from 'react-hook-form';
 import { z } from 'zod';
-import { ResourcesForm, resourcesFormSchema } from 'components/cluster-form';
+import { ResourcesForm } from 'components/cluster-form';
 import { FormDialog } from 'components/form-dialog';
 import { useKubernetesClusterInfo } from 'hooks';
 

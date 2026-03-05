@@ -71,11 +71,14 @@ export const applyBadgesToFormData = (
   }
 
   // Deep clone to avoid mutating original data
-  const result = JSON.parse(JSON.stringify(formData));
+  const result = JSON.parse(JSON.stringify(formData)) as Record<
+    string,
+    unknown
+  >;
 
   badgeMappings.forEach(({ path, badge }) => {
     const pathParts = path.split('.');
-    let current: any = result;
+    let current: Record<string, unknown> = result;
 
     // Navigate to the parent object
     for (let i = 0; i < pathParts.length - 1; i++) {
@@ -83,7 +86,7 @@ export const applyBadgesToFormData = (
       if (!current[part]) {
         current[part] = {};
       }
-      current = current[part];
+      current = current[part] as Record<string, unknown>;
     }
 
     // Get the final key and apply badge

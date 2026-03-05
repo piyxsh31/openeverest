@@ -1,14 +1,14 @@
 import { PreviewContentText } from '../preview-section';
 import { renderComponent } from './utils';
 import { orderComponents } from 'components/ui-generator/utils/component-renderer';
+import { Section } from 'components/ui-generator/ui-generator.types';
 
 export const DynamicSectionPreview = ({
   section,
   formValues,
 }: {
-  // TODO add typescript types
-  section: any;
-  formValues: any;
+  section: Section;
+  formValues: Record<string, unknown>;
 }) => {
   const sectionComponents = section?.components;
   if (!sectionComponents || typeof sectionComponents !== 'object') {

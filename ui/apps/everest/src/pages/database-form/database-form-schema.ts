@@ -105,7 +105,17 @@ export const getDBWizardSchema = (
   }
 
   if (openApiValidationSchema) {
-    combinedSchema = combinedSchema.and(openApiValidationSchema);
+    // Using superRefine instead of .and() / ZodIntersection to avoid
+    // "Intersection results could not be merged" errors caused by transforms
+    // inside the openApiValidationSchema (e.g. z.coerce.number()) producing
+    // a different type than the passthrough base schema, which makes Zod's
+    // deep-merge step fail with invalid_intersection_types.
+    combinedSchema = combinedSchema.superRefine((data, ctx) => {
+      const result = openApiValidationSchema.safeParse(data);
+      if (!result.success) {
+        result.error.issues.forEach((issue) => ctx.addIssue(issue));
+      }
+    });
   }
 
   return combinedSchema;
@@ -114,11 +124,9 @@ export const getDBWizardSchema = (
 export type ImportStepType = z.infer<typeof importStepSchema>;
 export type BasicInfoType = z.infer<ReturnType<typeof basicInfoSchema>>;
 
-// Base type includes hardcoded fields
 export type DbWizardTypeBase = BasicInfoType &
-  Instance['spec'] &
-  Instance['metadata'];
+  Omit<NonNullable<Instance['spec']>, 'topology'>;
 
-export type DbWizardTypeWithPrestep = ImportStepType & DbWizardTypeBase;
+export type DbWizardTypeWithPrestep = DbWizardTypeBase & ImportStepType;
 
 export type DbWizardType = DbWizardTypeBase | DbWizardTypeWithPrestep;

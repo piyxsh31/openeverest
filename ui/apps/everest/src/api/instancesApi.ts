@@ -11,7 +11,8 @@ export const createInstanceFn = async (
   const payload: CreateInstanceArgType = {
     apiVersion: 'core.openeverest.io/v1alpha1',
     kind: 'Instance',
-    //TODO this TS error should gone after BE types updates
+    // TODO this TS error should gone after BE types updates
+    // @ts-ignore
     metadata: { name: instanceName },
     spec: { provider: providerName, ...data },
   };

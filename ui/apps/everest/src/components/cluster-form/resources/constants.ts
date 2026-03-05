@@ -1,7 +1,6 @@
 import { DbType } from '@percona/types';
 import { z } from 'zod';
 import { Resources } from 'shared-types/dbCluster.types';
-import { DbWizardFormFields } from 'consts';
 import { cpuParser, memoryParser } from 'utils/k8ResourceParser';
 import { Messages } from './messages';
 import { isVersion84x } from './utils';
@@ -63,55 +62,55 @@ export const NODES_DEFAULT_SIZES = (dbType: DbType, dbVersion: string = '') => {
     case DbType.Mysql:
       return {
         [ResourceSize.small]: {
-          [DbWizardFormFields.cpu]: 1,
-          [DbWizardFormFields.memory]: isVersion84x(dbVersion) ? 3 : 2,
-          [DbWizardFormFields.disk]: 25,
+          cpu: 1,
+          memory: isVersion84x(dbVersion) ? 3 : 2,
+          disk: 25,
         },
         [ResourceSize.medium]: {
-          [DbWizardFormFields.cpu]: 4,
-          [DbWizardFormFields.memory]: 8,
-          [DbWizardFormFields.disk]: 100,
+          cpu: 4,
+          memory: 8,
+          disk: 100,
         },
         [ResourceSize.large]: {
-          [DbWizardFormFields.cpu]: 8,
-          [DbWizardFormFields.memory]: 32,
-          [DbWizardFormFields.disk]: 200,
+          cpu: 8,
+          memory: 32,
+          disk: 200,
         },
       };
     case DbType.Mongo:
       return {
         [ResourceSize.small]: {
-          [DbWizardFormFields.cpu]: 1,
-          [DbWizardFormFields.memory]: 4,
-          [DbWizardFormFields.disk]: 25,
+          cpu: 1,
+          memory: 4,
+          disk: 25,
         },
         [ResourceSize.medium]: {
-          [DbWizardFormFields.cpu]: 4,
-          [DbWizardFormFields.memory]: 8,
-          [DbWizardFormFields.disk]: 100,
+          cpu: 4,
+          memory: 8,
+          disk: 100,
         },
         [ResourceSize.large]: {
-          [DbWizardFormFields.cpu]: 8,
-          [DbWizardFormFields.memory]: 32,
-          [DbWizardFormFields.disk]: 200,
+          cpu: 8,
+          memory: 32,
+          disk: 200,
         },
       };
     case DbType.Postresql:
       return {
         [ResourceSize.small]: {
-          [DbWizardFormFields.cpu]: 1,
-          [DbWizardFormFields.memory]: 2,
-          [DbWizardFormFields.disk]: 25,
+          cpu: 1,
+          memory: 2,
+          disk: 25,
         },
         [ResourceSize.medium]: {
-          [DbWizardFormFields.cpu]: 4,
-          [DbWizardFormFields.memory]: 8,
-          [DbWizardFormFields.disk]: 100,
+          cpu: 4,
+          memory: 8,
+          disk: 100,
         },
         [ResourceSize.large]: {
-          [DbWizardFormFields.cpu]: 8,
-          [DbWizardFormFields.memory]: 32,
-          [DbWizardFormFields.disk]: 200,
+          cpu: 8,
+          memory: 32,
+          disk: 200,
         },
       };
   }
@@ -120,44 +119,44 @@ export const NODES_DEFAULT_SIZES = (dbType: DbType, dbVersion: string = '') => {
 export const PROXIES_DEFAULT_SIZES = {
   [DbType.Mysql]: {
     [ResourceSize.small]: {
-      [DbWizardFormFields.cpu]: 0.2,
-      [DbWizardFormFields.memory]: 0.2,
+      cpu: 0.2,
+      memory: 0.2,
     },
     [ResourceSize.medium]: {
-      [DbWizardFormFields.cpu]: 0.5,
-      [DbWizardFormFields.memory]: 0.8,
+      cpu: 0.5,
+      memory: 0.8,
     },
     [ResourceSize.large]: {
-      [DbWizardFormFields.cpu]: 0.8,
-      [DbWizardFormFields.memory]: 3,
+      cpu: 0.8,
+      memory: 3,
     },
   },
   [DbType.Mongo]: {
     [ResourceSize.small]: {
-      [DbWizardFormFields.cpu]: 1,
-      [DbWizardFormFields.memory]: 2,
+      cpu: 1,
+      memory: 2,
     },
     [ResourceSize.medium]: {
-      [DbWizardFormFields.cpu]: 2,
-      [DbWizardFormFields.memory]: 4,
+      cpu: 2,
+      memory: 4,
     },
     [ResourceSize.large]: {
-      [DbWizardFormFields.cpu]: 4,
-      [DbWizardFormFields.memory]: 16,
+      cpu: 4,
+      memory: 16,
     },
   },
   [DbType.Postresql]: {
     [ResourceSize.small]: {
-      [DbWizardFormFields.cpu]: 1,
-      [DbWizardFormFields.memory]: 0.03,
+      cpu: 1,
+      memory: 0.03,
     },
     [ResourceSize.medium]: {
-      [DbWizardFormFields.cpu]: 4,
-      [DbWizardFormFields.memory]: 0.06,
+      cpu: 4,
+      memory: 0.06,
     },
     [ResourceSize.large]: {
-      [DbWizardFormFields.cpu]: 8,
-      [DbWizardFormFields.memory]: 0.1,
+      cpu: 8,
+      memory: 0.1,
     },
   },
 };
@@ -202,21 +201,21 @@ export const resourcesFormSchema = (
   allowDiskDescaling: boolean
 ) => {
   const objectShape = {
-    [DbWizardFormFields.shardNr]: z.string().optional(),
-    [DbWizardFormFields.shardConfigServers]: z.number().optional(),
-    [DbWizardFormFields.cpu]: resourceToNumber(0.6),
-    [DbWizardFormFields.memory]: resourceToNumber(0.512),
-    [DbWizardFormFields.disk]: resourceToNumber(1),
+    shardNr: z.string().optional(),
+    shardConfigServers: z.number().optional(),
+    cpu: resourceToNumber(0.6),
+    memory: resourceToNumber(0.512),
+    disk: resourceToNumber(1),
     // we will never input this, but we need it and zod will let it pass
-    [DbWizardFormFields.diskUnit]: z.string(),
-    [DbWizardFormFields.resourceSizePerNode]: z.nativeEnum(ResourceSize),
-    [DbWizardFormFields.numberOfNodes]: z.string(),
-    [DbWizardFormFields.customNrOfNodes]: z.string().optional(),
-    [DbWizardFormFields.proxyCpu]: resourceToNumber(0),
-    [DbWizardFormFields.proxyMemory]: resourceToNumber(0),
-    [DbWizardFormFields.resourceSizePerProxy]: z.nativeEnum(ResourceSize),
-    [DbWizardFormFields.numberOfProxies]: z.string(),
-    [DbWizardFormFields.customNrOfProxies]: z.string().optional(),
+    diskUnit: z.string(),
+    resourceSizePerNode: z.nativeEnum(ResourceSize),
+    numberOfNodes: z.string(),
+    customNrOfNodes: z.string().optional(),
+    proxyCpu: resourceToNumber(0),
+    proxyMemory: resourceToNumber(0),
+    resourceSizePerProxy: z.nativeEnum(ResourceSize),
+    numberOfProxies: z.string(),
+    customNrOfProxies: z.string().optional(),
   };
 
   const zObject = z.object(objectShape).passthrough();
@@ -243,7 +242,7 @@ export const resourcesFormSchema = (
       numberOfResourcesValidator(
         numberOfNodes,
         customNrOfNodes,
-        DbWizardFormFields.customNrOfNodes,
+        'customNrOfNodes',
         ctx
       );
 
@@ -251,7 +250,7 @@ export const resourcesFormSchema = (
         numberOfResourcesValidator(
           numberOfProxies,
           customNrOfProxies,
-          DbWizardFormFields.customNrOfProxies,
+          'customNrOfProxies',
           ctx
         );
       }
@@ -264,7 +263,7 @@ export const resourcesFormSchema = (
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: 'The number of nodes cannot be even',
-          path: [DbWizardFormFields.customNrOfNodes],
+          path: ['customNrOfNodes'],
         });
       }
 
@@ -283,36 +282,31 @@ export const resourcesFormSchema = (
             ctx.addIssue({
               code: z.ZodIssueCode.custom,
               message: 'Number of proxies must be more than 1',
-              path: [DbWizardFormFields.customNrOfProxies],
+              path: ['customNrOfProxies'],
             });
           } else {
             ctx.addIssue({
               code: z.ZodIssueCode.custom,
               message: 'Number of proxies must be more than 1',
-              path: [DbWizardFormFields.numberOfProxies],
+              path: ['numberOfProxies'],
             });
           }
         }
       }
 
       if (!allowDescalingToOneNode) {
-        const prevNumberOfNodes = defaultValues[
-          DbWizardFormFields.numberOfNodes
-        ] as string;
+        const prevNumberOfNodes = defaultValues['numberOfNodes'] as string;
 
         const prevNumberOfNodesInt =
           prevNumberOfNodes === CUSTOM_NR_UNITS_INPUT_VALUE
-            ? parseInt(
-                defaultValues[DbWizardFormFields.customNrOfNodes] as string,
-                10
-              )
+            ? parseInt(defaultValues['customNrOfNodes'] as string, 10)
             : parseInt(prevNumberOfNodes, 10);
 
         if (intNrNodes === 1 && prevNumberOfNodesInt > 1) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: 'Cannot scale down to one node.',
-            path: [DbWizardFormFields.numberOfNodes],
+            path: ['numberOfNodes'],
           });
         }
       }
@@ -326,19 +320,17 @@ export const resourcesFormSchema = (
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: Messages.sharding.invalid,
-            path: [DbWizardFormFields.shardNr],
+            path: ['shardNr'],
           });
         } else {
-          const previousSharding = defaultValues[
-            DbWizardFormFields.shardNr
-          ] as string;
+          const previousSharding = defaultValues['shardNr'] as string;
           const intPreviousSharding = parseInt(previousSharding || '', 10);
 
           if (intShardNr < intShardNrMin) {
             ctx.addIssue({
               code: z.ZodIssueCode.custom,
               message: Messages.sharding.min(intShardNrMin),
-              path: [DbWizardFormFields.shardNr],
+              path: ['shardNr'],
             });
           }
 
@@ -347,7 +339,7 @@ export const resourcesFormSchema = (
           if (!allowShardingDescaling && intShardNr < intPreviousSharding) {
             ctx.addIssue({
               code: z.ZodIssueCode.custom,
-              path: [DbWizardFormFields.shardNr],
+              path: ['shardNr'],
               message: Messages.descaling,
             });
           }
@@ -361,7 +353,7 @@ export const resourcesFormSchema = (
             ctx.addIssue({
               code: z.ZodIssueCode.custom,
               message: Messages.sharding.numberOfConfigServersError,
-              path: [DbWizardFormFields.shardConfigServers],
+              path: ['shardConfigServers'],
             });
           }
         } else {
@@ -370,19 +362,19 @@ export const resourcesFormSchema = (
               ctx.addIssue({
                 code: z.ZodIssueCode.custom,
                 message: Messages.sharding.numberOfConfigServersError,
-                path: [DbWizardFormFields.shardConfigServers],
+                path: ['shardConfigServers'],
               });
             }
           }
         }
       }
 
-      const prevDiskValue = defaultValues[DbWizardFormFields.disk] as number;
+      const prevDiskValue = defaultValues['disk'] as number;
       if (!allowDiskDescaling && disk < prevDiskValue) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: Messages.descaling,
-          path: [DbWizardFormFields.disk],
+          path: ['disk'],
         });
       }
 
@@ -391,7 +383,7 @@ export const resourcesFormSchema = (
           code: z.ZodIssueCode.custom,
           message: Messages.integerNumber,
 
-          path: [DbWizardFormFields.disk],
+          path: ['disk'],
         });
       }
     }

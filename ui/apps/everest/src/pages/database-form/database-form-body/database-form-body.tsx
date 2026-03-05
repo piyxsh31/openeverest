@@ -18,11 +18,11 @@ import { Box } from '@mui/material';
 import { useDatabasePageMode } from '../hooks/use-database-page-mode';
 import { useDatabasePageDefaultValues } from '../hooks/use-database-form-default-values';
 import { DatabaseFormBodyProps } from './types';
-import DatabaseFormStepControllers from './DatabaseFormStepControllers';
 import { WizardMode } from 'shared-types/wizard.types';
 import { useSteps } from './steps';
 import { useDatabaseFormContext } from '../database-form-context';
 import { StepHeader } from './steps-old/step-header/step-header';
+import DatabaseFormStepControllers from './database-form-step-controllers';
 
 const DatabaseFormBody = ({
   activeStep,
@@ -79,7 +79,8 @@ const DatabaseFormBody = ({
         disableSubmit={isSubmitting || hasErrors}
         disableCancel={isSubmitting}
         disableNext={disableNext}
-        showSubmit={activeStep === steps.length - 1}
+        showSubmit={activeStep === steps.length - 1 || activeStep === 0}
+        showConfigMore={activeStep === 0}
         onPreviousClick={handlePreviousStep}
         onNextClick={handleNextStep}
         onCancel={onCancel}

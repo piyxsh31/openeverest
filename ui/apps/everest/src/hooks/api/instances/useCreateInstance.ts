@@ -18,7 +18,6 @@ export const useCreateInstance = (
     mutationFn: ({
       formValue: { provider, dbName, k8sNamespace, topology, ...rest },
     }: CreateInstanceHookArgType) => {
-      debugger;
       //TODO check topology.config
       const spec = {
         topology: {

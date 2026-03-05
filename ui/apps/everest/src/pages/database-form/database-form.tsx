@@ -40,14 +40,50 @@ import { useUiGenerator } from 'components/ui-generator/hooks/ui-generator';
 import { useDbValidationSchema } from './hooks/use-db-validation-schema';
 import { ImportFields } from 'components/cluster-form/import/import.types';
 import { DbWizardFormFields } from 'consts';
+import { getDefaultValues } from 'components/ui-generator/utils/default-values';
 
-const flattenErrorPaths = (obj: Record<string, any>, prefix = ''): string[] => {
+// When the user switches topology, new topology fields are absent from form
+// data, causing Zod to report errors at the parent-object level instead of the
+// leaf field. This helper deep-merges topology defaults into current values so
+// that every nested object is properly initialised before re-validation.
+const mergeTopologyDefaults = (
+  current: Record<string, unknown>,
+  defaults: Record<string, unknown>
+): Record<string, unknown> => {
+  const result: Record<string, unknown> = { ...current };
+  for (const key of Object.keys(defaults)) {
+    if (result[key] === undefined || result[key] === null) {
+      result[key] = defaults[key];
+    } else if (
+      typeof defaults[key] === 'object' &&
+      defaults[key] !== null &&
+      !Array.isArray(defaults[key]) &&
+      typeof result[key] === 'object' &&
+      result[key] !== null &&
+      !Array.isArray(result[key])
+    ) {
+      result[key] = mergeTopologyDefaults(
+        result[key] as Record<string, unknown>,
+        defaults[key] as Record<string, unknown>
+      );
+    }
+  }
+  return result;
+};
+
+const flattenErrorPaths = (
+  obj: Record<string, unknown>,
+  prefix = ''
+): string[] => {
   if (!obj || typeof obj !== 'object') return prefix ? [prefix] : [];
   // A leaf RHF error node always has `message` or `type`
   if (obj.message !== undefined || obj.type !== undefined)
     return prefix ? [prefix] : [];
   return Object.keys(obj).flatMap((key) =>
-    flattenErrorPaths(obj[key], prefix ? `${prefix}.${key}` : key)
+    flattenErrorPaths(
+      obj[key] as Record<string, unknown>,
+      prefix ? `${prefix}.${key}` : key
+    )
   );
 };
 
@@ -123,12 +159,40 @@ export const DatabasePage = () => {
     handleSubmit,
     trigger,
     control,
+    getValues,
   } = methods;
 
   const selectedTopology = useWatch({
     control,
     name: DbWizardFormFields.topology,
   });
+
+  // ── topology switch: seed new-topology field defaults ────────────────────────
+  // When the user picks a different topology the new topology's nested objects
+  // (e.g. spec.components.configServer) are absent from the current form values.
+  // Zod would then report an invalid_type error at the *parent* path rather than
+  // at the individual field, making the error icon appear on the wrong step.
+  // Merging the new topology's defaults ensures every nested object is present,
+  // so validation errors surface at the correct leaf paths.
+  const prevTopologyTypeRef = useRef<string | undefined>(undefined);
+  useEffect(() => {
+    const topologyType = selectedTopology;
+    if (!topologyType || !uiSchema) return;
+    if (prevTopologyTypeRef.current === undefined) {
+      prevTopologyTypeRef.current = topologyType;
+      return;
+    }
+    if (topologyType === prevTopologyTypeRef.current) return;
+    prevTopologyTypeRef.current = topologyType;
+
+    const topologyDefaults = getDefaultValues(uiSchema, topologyType);
+    const merged = mergeTopologyDefaults(
+      getValues() as Record<string, unknown>,
+      topologyDefaults
+    );
+    reset(merged as DbWizardType, { keepDirty: true, keepIsSubmitted: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedTopology, uiSchema]);
 
   const importOffset = hasImportStep ? 1 : 0;
   // dynamic sections start after step-0 (base) + optional import step
@@ -195,12 +259,13 @@ export const DatabasePage = () => {
   }, [hasImportStep, sectionFieldStepMap]);
 
   const stepsWithErrors = useMemo(() => {
-    console.log(errors);
-    const errorPaths = flattenErrorPaths(errors as Record<string, any>);
+    const errorPaths = flattenErrorPaths(errors as Record<string, unknown>);
     const stepsSet = new Set<number>();
 
     errorPaths.forEach((path) => {
-      // Try the full path first, then progressively shorter prefixes
+      // Try the full path first, then progressively shorter prefixes.
+      // After the buildSectionFieldMap fix, exact and intermediate paths are
+      // registered, so the first match is almost always the full path.
       const parts = path.split('.');
       for (let i = parts.length; i > 0; i--) {
         const prefix = parts.slice(0, i).join('.');

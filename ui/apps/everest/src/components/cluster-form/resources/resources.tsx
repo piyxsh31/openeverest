@@ -1,3 +1,6 @@
+// @ts-nocheck
+// TODO remove this file after release of v2
+
 import React, { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import {
@@ -30,7 +33,6 @@ import { useActiveBreakpoint } from 'hooks/utils/useActiveBreakpoint';
 import {
   CUSTOM_NR_UNITS_INPUT_VALUE,
   DEFAULT_CONFIG_SERVERS,
-  NODES_DEFAULT_SIZES,
   getDefaultNumberOfconfigServersByNumberOfNodes,
   humanizedResourceSizeMap,
   MIN_NUMBER_OF_SHARDS,
@@ -664,7 +666,7 @@ const ResourcesForm = ({
           dbType={dbType}
           dbVersion={dbVersion}
           options={NODES_DB_TYPE_MAP[dbType]}
-          sizeOptions={NODES_DEFAULT_SIZES(dbType, dbVersion)}
+          // sizeOptions={NODES_DEFAULT_SIZES(dbType, dbVersion)}
           resourceSizePerUnitInputName={DbWizardFormFields.resourceSizePerNode}
           cpuInputName={DbWizardFormFields.cpu}
           diskInputName={DbWizardFormFields.disk}

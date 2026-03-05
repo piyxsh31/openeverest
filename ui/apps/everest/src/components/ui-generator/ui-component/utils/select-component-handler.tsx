@@ -19,13 +19,23 @@ import {
   Component,
   SelectFieldParams,
 } from '../../ui-generator.types';
+import { Provider } from 'types/api';
 
 type SelectComponent = Extract<Component, { uiType: FieldType.Select }>;
 
 // Helper to get nested value from object using dot-separated path
-export const getValueByPath = (obj: any, path: string): any => {
+export const getValueByPath = (obj: unknown, path: string): unknown => {
   if (!obj || !path) return undefined;
-  return path.split('.').reduce((acc, part) => acc?.[part], obj);
+  if (typeof obj !== 'object') return undefined;
+  return path
+    .split('.')
+    .reduce<unknown>(
+      (acc, part) =>
+        acc && typeof acc === 'object'
+          ? (acc as Record<string, unknown>)[part]
+          : undefined,
+      obj
+    );
 };
 
 export const isSelectComponent = (item: Component): item is SelectComponent => {
@@ -34,7 +44,7 @@ export const isSelectComponent = (item: Component): item is SelectComponent => {
 
 export const resolveSelectOptions = (
   selectParams: SelectFieldParams,
-  providerObject?: Record<string, any>
+  providerObject?: Provider
 ): { label: string; value: string }[] => {
   if ('options' in selectParams && selectParams.options) {
     return selectParams.options;
@@ -52,8 +62,12 @@ export const resolveSelectOptions = (
     if (Array.isArray(rawData)) {
       const { labelPath, valuePath } = optionsPathConfig;
       return rawData.map((item) => ({
-        label: getValueByPath(item, labelPath) || '',
-        value: getValueByPath(item, valuePath) || '',
+        label: String(
+          getValueByPath(item as Record<string, unknown>, labelPath) ?? ''
+        ),
+        value: String(
+          getValueByPath(item as Record<string, unknown>, valuePath) ?? ''
+        ),
       }));
     }
   }
@@ -77,7 +91,7 @@ export const shouldInjectEmptyOption = (
 export const renderSelectOptions = (
   item: Component,
   name: string,
-  providerObject?: Record<string, any>
+  providerObject?: Provider
 ): React.ReactNode[] | undefined => {
   if (!isSelectComponent(item)) return undefined;
 

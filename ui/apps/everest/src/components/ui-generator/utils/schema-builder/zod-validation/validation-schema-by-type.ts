@@ -75,7 +75,8 @@ export const buildSelectValidationSchema = (
     return z.string();
   }
 
-  const optionValues = component.fieldParams.options.map((opt) => opt.value);
+  const optionValues =
+    component.fieldParams.options?.map((opt) => opt.value) || [];
   const hasDisplayEmpty = !!component.fieldParams.displayEmpty;
 
   // This matches the auto-injected empty option in the UI

@@ -29,9 +29,17 @@ export const buildSectionFieldMap = (
       const leaf = comp as Component;
       if (leaf.path) {
         map[leaf.path] = stepIndex;
-        // Register top-level segment as a fallback for partial-path matching
-        const topLevel = leaf.path.split('.')[0];
-        if (!(topLevel in map)) map[topLevel] = stepIndex;
+        // Register ALL intermediate path prefixes so that Zod errors at parent
+        // nodes (e.g. when a nested object is undefined on topology switch) still
+        // map to the correct step, rather than falling back to the top-level key
+        // which may belong to a completely different step.
+        const parts = leaf.path.split('.');
+        for (let i = 1; i < parts.length; i++) {
+          const prefix = parts.slice(0, i).join('.');
+          if (!(prefix in map)) {
+            map[prefix] = stepIndex;
+          }
+        }
       }
     });
   };
