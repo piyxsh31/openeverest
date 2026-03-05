@@ -1,11 +1,10 @@
-import { PreviewSectionFive } from './section-five.tsx';
-import { BackupsPreviewSection } from './backups-section.tsx';
-import { AdvancedConfigurationsPreviewSection } from './advanced-configurations-section.tsx';
-import { PreviewSectionOne } from './section-one.tsx';
-import { ResourcesPreviewSection } from './resources-section.tsx';
-// import { PreviewImportSection } from './import-section.tsx';
+import { PreviewSectionFive } from './section-five.js';
+import { BackupsPreviewSection } from './backups-section.js';
+import { AdvancedConfigurationsPreviewSection } from './advanced-configurations-section.js';
+import { PreviewSectionOne } from '../../database-preview/sections/base-step.js';
+import { ResourcesPreviewSection } from './resources-section.js';
 import { useLocation } from 'react-router-dom';
-import { PreviewContentText } from '../preview-section.tsx';
+import { PreviewContentText } from '../../database-preview/preview-section.js';
 
 export const usePreviewSections = () => {
   const location = useLocation();

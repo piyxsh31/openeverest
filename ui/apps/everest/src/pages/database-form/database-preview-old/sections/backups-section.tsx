@@ -1,5 +1,8 @@
-import { PreviewContentText } from '../preview-section';
-import { getTimeSelectionPreviewMessage } from '../database.preview.messages';
+//@ts-nocheck
+// TODO remove this file after release of v2
+
+import { PreviewContentText } from '../../database-preview/preview-section.tsx';
+import { getTimeSelectionPreviewMessage } from '../../database-preview/database.preview.messages.ts';
 import { BackupStepType } from '../../database-form-schema.ts';
 import { getFormValuesFromCronExpression } from 'components/time-selection/time-selection.utils.ts';
 

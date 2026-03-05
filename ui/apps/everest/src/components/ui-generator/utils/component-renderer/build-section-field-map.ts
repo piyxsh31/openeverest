@@ -8,6 +8,7 @@ import type {
 // all section
 export const buildSectionFieldMap = (
   sections: { [key: string]: Section },
+  sectionsOrder: string[] | undefined,
   startIndex: number
 ): Record<string, number> => {
   const map: Record<string, number> = {};
@@ -35,9 +36,12 @@ export const buildSectionFieldMap = (
     });
   };
 
-  Object.keys(sections).forEach((sectionKey, idx) => {
+  const orderedKeys = sectionsOrder || Object.keys(sections);
+  orderedKeys.forEach((sectionKey, idx) => {
     const stepIndex = startIndex + idx;
-    walkComponents(sections[sectionKey].components, stepIndex);
+    if (sections[sectionKey]) {
+      walkComponents(sections[sectionKey].components, stepIndex);
+    }
   });
 
   return map;

@@ -1,23 +1,23 @@
 import { z } from 'zod';
-import { DbType } from '@percona/types';
 import { MAX_DB_CLUSTER_NAME_LENGTH } from '../../consts.ts';
 import { Messages } from './database-form.messages.ts';
 import { DbWizardFormFields } from 'consts.ts';
 import { rfc_123_schema } from 'utils/common-validation.ts';
 import { DbClusterName } from './database-form.types.ts';
 import { importStepSchema } from 'components/cluster-form/import/import-schema.tsx';
+import { Instance } from 'types/api.ts';
 
 const basicInfoSchema = (dbClusters: DbClusterName[]) =>
   z
     .object({
-      [DbWizardFormFields.dbType]: z.nativeEnum(DbType),
+      [DbWizardFormFields.provider]: z.string(),
       [DbWizardFormFields.dbName]: rfc_123_schema({
         fieldName: 'database name',
       })
         .max(MAX_DB_CLUSTER_NAME_LENGTH, Messages.errors.dbName.tooLong)
         .nonempty(),
       [DbWizardFormFields.k8sNamespace]: z.string().nullable(),
-      [DbWizardFormFields.topology]: z.string(),
+      topology: z.object({ type: z.string() }),
     })
     .passthrough()
     .superRefine(({ dbName, k8sNamespace }, ctx) => {
@@ -116,9 +116,7 @@ export type ImportStepType = z.infer<typeof importStepSchema>;
 export type BasicInfoType = z.infer<ReturnType<typeof basicInfoSchema>>;
 
 // Base type includes hardcoded fields
-export type DbWizardTypeBase = BasicInfoType & {
-  [key: string]: unknown;
-};
+export type DbWizardTypeBase = BasicInfoType & Instance['spec'] & Instance['metadata'];
 
 export type DbWizardTypeWithPrestep = ImportStepType & DbWizardTypeBase;
 

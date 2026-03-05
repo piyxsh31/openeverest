@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { CrdsGen /*HttpApi*/ } from '@generated/api-types';
+import { CrdsGen, HttpApi } from '@generated/api-types';
 
 export type ProviderList = CrdsGen.components['schemas']['ProviderList'];
 export type Provider = CrdsGen.components['schemas']['Provider'];
+export type Instance = CrdsGen.components['schemas']['Instance'];
+export type CreateInstanceArgType = HttpApi.paths['/clusters/{cluster}/namespaces/{namespace}/instances']['post']['requestBody']['content']['application/json'];
+
+

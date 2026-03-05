@@ -57,42 +57,14 @@ export const EVEREST_POLICY_IN_USE_FINALIZER =
 
 export enum DbWizardForm {
   dbName = 'dbName',
-  //TODO improve, rename to the provider type
-  dbType = 'dbType',
+  provider = 'provider',
   k8sNamespace = 'k8sNamespace',
-  topology = 'topology',
-  // dbEnvironment = 'dbEnvironment',
-  // storageClass = 'storageClass',
-  // cpu = 'cpu',
-  // proxyCpu = 'proxyCpu',
-  // memory = 'memory',
-  // proxyMemory = 'proxyMemory',
-  // disk = 'disk',
-  // This is for retrocompatibility reasons, as some users still have Gb as a unit
-  // diskUnit = 'diskUnit',
-  // numberOfNodes = 'numberOfNodes',
-  // numberOfProxies = 'numberOfProxies',
-  // customNrOfNodes = 'customNrOfNodes',
-  // customNrOfProxies = 'customNrOfProxies',
-  // resourceSizePerNode = 'resourceSizePerNode',
-  // resourceSizePerProxy = 'resourceSizePerProxy',
-  // backupsEnabled = 'backupsEnabled',
-  // schedules = 'schedules',
-  // pitrEnabled = 'pitrEnabled',
-  // pitrStorageLocation = 'pitrStorageLocation',
-  // monitoring = 'monitoring',
-  // monitoringInstance = 'monitoringInstance',
-  // endpoint = 'endpoint',
-  // sharding = 'sharding',
-  // shardNr = 'shardNr',
-  // shardConfigServers = 'shardConfigServers',
+  topology = 'topology.type',
 }
 
 export const DbWizardFormFields = {
   ...ImportFields,
   ...DbWizardForm,
-  // ...DBVersionFields,
-  // ...AdvancedConfigurationFields,
 };
 
 export const EKS_DEFAULT_LOAD_BALANCER_CONFIG = 'eks-default';

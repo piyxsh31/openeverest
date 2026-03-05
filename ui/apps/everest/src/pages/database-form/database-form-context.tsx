@@ -11,6 +11,7 @@ type DatabaseFormContextType = {
   hasMultipleTopologies: boolean;
   defaultTopology: string;
   sections: { [key: string]: Section };
+  sectionsOrder?: string[];
   providerObject?: Provider;
 };
 

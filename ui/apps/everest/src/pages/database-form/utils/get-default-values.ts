@@ -1,9 +1,8 @@
-import { DbType } from '@percona/types';
 import { DbWizardFormFields } from 'consts';
 import { generateShortUID } from 'utils/generateShortUID';
 // TODO add typescript types
-export const getDbWizardDefaultValues = (dbType: DbType): any => ({
-  [DbWizardFormFields.dbType]: dbType,
-  [DbWizardFormFields.dbName]: `${dbType}-${generateShortUID()}`,
+export const getDbWizardDefaultValues = (providerName: string): any => ({
+  [DbWizardFormFields.provider]: providerName,
+  [DbWizardFormFields.dbName]: `inst-${generateShortUID()}`,
   [DbWizardFormFields.k8sNamespace]: null,
 });

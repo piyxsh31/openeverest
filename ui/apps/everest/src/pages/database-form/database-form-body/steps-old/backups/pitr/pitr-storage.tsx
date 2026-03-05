@@ -1,3 +1,5 @@
+// @ts-nocheck
+// TODO remove this file after release of v2
 import { DbType } from '@percona/types';
 import { AutoCompleteAutoFill } from 'components/auto-complete-auto-fill/auto-complete-auto-fill';
 import { DbWizardFormFields } from 'consts.ts';

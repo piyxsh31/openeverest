@@ -1,3 +1,5 @@
+// @ts-nocheck
+// TODO remove this file after release of v2
 import { FormGroup } from '@mui/material';
 import { AutoCompleteInput, SwitchInput } from '@percona/ui-lib';
 import { useEffect, useState, useMemo } from 'react';

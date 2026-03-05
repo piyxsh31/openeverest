@@ -6,6 +6,10 @@ import type {
 export const getSteps = (
   selectedTopology: string,
   topologyUiSchemas: TopologyUISchemas
-): { [key: string]: Section } => {
-  return topologyUiSchemas[selectedTopology]?.sections || {};
+): { sections: { [key: string]: Section }; sectionsOrder?: string[] } => {
+  const topology = topologyUiSchemas[selectedTopology];
+  return {
+    sections: topology?.sections || {},
+    sectionsOrder: topology?.sectionsOrder,
+  };
 };

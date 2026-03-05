@@ -25,18 +25,18 @@ export const useDatabasePageDefaultValues = (
   );
 
   const defaultValues = useMemo(() => {
-    const dbType = dbEngineToDbType(state?.selectedDbEngine);
+    const providerName = state?.selectedDbProvider?.metadata?.name || 'unknown-provider';
     if (mode === WizardMode.New) {
-      const dbWizardDefaultValues = getDbWizardDefaultValues(dbType);
+      const dbWizardDefaultValues = getDbWizardDefaultValues(providerName);
       // Add topology to default values
       return {
         ...defaultSchemaValues,
         ...dbWizardDefaultValues,
-        topology: defaultSelectedTopology,
+        topology: { type: defaultSelectedTopology },
       };
     } else {
       // TODO edit,restore,templates mode
-      return { ...defaultSchemaValues, topology: defaultSelectedTopology };
+      return { ...defaultSchemaValues, topology: { type: defaultSelectedTopology } };
       //   return dbClusterRequestStatus === 'success'
       //     ? DbClusterPayloadToFormValues(dbCluster, mode, namespace)
       //     : defaults;

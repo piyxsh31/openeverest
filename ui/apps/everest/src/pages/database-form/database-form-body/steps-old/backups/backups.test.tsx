@@ -1,3 +1,5 @@
+// @ts-nocheck
+// TODO remove this file after release of v2
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { DbType } from '@percona/types';

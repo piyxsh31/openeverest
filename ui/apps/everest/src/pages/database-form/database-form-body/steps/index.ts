@@ -24,6 +24,7 @@ import { Provider } from 'types/api.js';
 
 export const useSteps = (
   sections: { [key: string]: Section },
+  sectionsOrder: string[] | undefined,
   providerObject?: Provider
 
 ) => {
@@ -36,7 +37,7 @@ export const useSteps = (
       ...(showImportStep ? [{ component: ImportStep, label: 'Import' }] : []),
     ];
 
-    const sectionKeys = Object.keys(sections);
+    const sectionKeys = sectionsOrder || Object.keys(sections);
 
     sectionKeys.forEach((sectionKey, sectionIndex) => {
       const GeneratedStep = (props: Record<string, unknown>) => {
@@ -58,5 +59,5 @@ export const useSteps = (
     });
 
     return steps;
-  }, [sections, showImportStep, providerObject]);
+  }, [sections, sectionsOrder, showImportStep, providerObject]);
 };

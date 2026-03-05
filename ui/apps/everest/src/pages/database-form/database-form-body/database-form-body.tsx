@@ -36,16 +36,16 @@ const DatabaseFormBody = ({
   handlePreviousStep,
 }: DatabaseFormBodyProps) => {
   const mode = useDatabasePageMode();
-  const { uiSchema, defaultTopology, sections, providerObject } =
+  const { uiSchema, defaultTopology, sections, sectionsOrder, providerObject } =
     useDatabaseFormContext();
-  const steps = useSteps(sections, providerObject);
+  const steps = useSteps(sections, sectionsOrder, providerObject);
 
   const { dbClusterRequestStatus, isFetching: loadingDefaultsForEdition } =
     useDatabasePageDefaultValues(mode, uiSchema, defaultTopology);
 
   const isFirstStep = activeStep === 0;
 
-  const sectionKeys = Object.keys(sections);
+  const sectionKeys = sectionsOrder || Object.keys(sections);
   const stepLabel = steps[activeStep].label;
   const sectionKey = sectionKeys.find(
     (key) => sections[key]?.label === stepLabel

@@ -1,4 +1,6 @@
-import { PreviewContentText } from '../preview-section';
+//@ts-nocheck
+// TODO remove this file after release of v2
+import { PreviewContentText } from '../../database-preview/preview-section.tsx';
 import { AdvancedConfigurationType } from '../../database-form-schema.ts';
 import { ProxyExposeType } from 'shared-types/dbCluster.types';
 import { EMPTY_LOAD_BALANCER_CONFIGURATION } from 'consts.ts';

@@ -10,10 +10,11 @@ export const useUiGenerator = (
   dynamicStepsStartIndex = 0
 ): {
   sections: { [key: string]: Section };
+  sectionsOrder?: string[];
   zodSchema: { schema: z.ZodTypeAny; celDependencyGroups: string[][] };
   sectionFieldStepMap: Record<string, number>;
 } => {
-  const sections = useMemo(
+  const { sections, sectionsOrder } = useMemo(
     () => getSteps(selectedTopology, schema),
     [selectedTopology, schema]
   );
@@ -24,16 +25,17 @@ export const useUiGenerator = (
   );
 
   const sectionFieldStepMap = useMemo(
-    () => buildSectionFieldMap(sections, dynamicStepsStartIndex),
-    [sections, dynamicStepsStartIndex]
+    () => buildSectionFieldMap(sections, sectionsOrder, dynamicStepsStartIndex),
+    [sections, sectionsOrder, dynamicStepsStartIndex]
   );
 
   return useMemo(
     () => ({
       sections,
+      sectionsOrder,
       zodSchema,
       sectionFieldStepMap,
     }),
-    [sections, zodSchema, sectionFieldStepMap]
+    [sections, sectionsOrder, zodSchema, sectionFieldStepMap]
   );
 };

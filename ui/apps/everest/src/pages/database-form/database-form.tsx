@@ -17,24 +17,19 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useBlocker, useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Stack } from '@mui/material';
-import { useQueryClient } from '@tanstack/react-query';
 import {
   FormProvider,
   SubmitHandler,
   useForm,
   useWatch,
 } from 'react-hook-form';
-import {
-  useCreateDbCluster,
-  useCreateDbClusterSecret,
-} from 'hooks/api/db-cluster/useCreateDbCluster';
+import { useCreateInstance } from 'hooks/api/instances/useCreateInstance';
 import { useActiveBreakpoint } from 'hooks/utils/useActiveBreakpoint';
 import { DbWizardType } from './database-form-schema';
 import DatabaseFormCancelDialog from './database-form-cancel-dialog/index';
 import DatabaseFormBody from './database-form-body';
 import DatabaseFormSideDrawer from './database-form-side-drawer';
 import {
-  DB_CLUSTERS_QUERY_KEY,
   useDBClustersForNamespaces,
   useNamespaces,
 } from 'hooks';
@@ -65,14 +60,13 @@ export const DatabasePage = () => {
   const [longestAchievedStep, setLongestAchievedStep] = useState(0);
   const [formSubmitted, setFormSubmitted] = useState(false);
 
-  const { mutate: addDbCluster, isPending: isCreating } = useCreateDbCluster();
-  const { mutate: addDbClusterSecret } = useCreateDbClusterSecret();
+
+  const { mutate: createInstance, isPending: isCreating } = useCreateInstance();
   const location = useLocation();
   const navigate = useNavigate();
 
   const { isDesktop } = useActiveBreakpoint();
   const mode = useDatabasePageMode();
-  const queryClient = useQueryClient();
 
   const { uiSchema, topologies, hasMultipleTopologies } = useSchema();
   const defaultTopology = topologies[0] || '';
@@ -137,7 +131,7 @@ export const DatabasePage = () => {
 
   const selectedTopology = useWatch({
     control,
-    name: 'topology',
+    name: DbWizardFormFields.topology,
   });
 
   const importOffset = hasImportStep ? 1 : 0;
@@ -150,6 +144,7 @@ export const DatabasePage = () => {
 
   const {
     sections,
+    sectionsOrder,
     zodSchema: { schema: generatedZodSchema },
     sectionFieldStepMap,
   } = useUiGenerator(stableUiSchema, selectedTopology, dynamicStepsStartIndex);
@@ -185,7 +180,7 @@ export const DatabasePage = () => {
     const map: Record<string, number> = {
       // Step 0 – base step (always present)
       [DbWizardFormFields.dbName]: 0,
-      [DbWizardFormFields.dbType]: 0,
+      [DbWizardFormFields.provider]: 0,
       [DbWizardFormFields.k8sNamespace]: 0,
       [DbWizardFormFields.topology]: 0,
     };
@@ -204,6 +199,7 @@ export const DatabasePage = () => {
   }, [hasImportStep, sectionFieldStepMap]);
 
   const stepsWithErrors = useMemo(() => {
+    console.log(errors);
     const errorPaths = flattenErrorPaths(errors as Record<string, any>);
     const stepsSet = new Set<number>();
 
@@ -231,49 +227,42 @@ export const DatabasePage = () => {
 
   const onSubmit: SubmitHandler<DbWizardType> = (data) => {
     latestDataRef.current = data;
-    if (mode === WizardMode.New || mode === WizardMode.Restore) {
-      const addCluster = () =>
-        addDbCluster(
+
+    //TODO Restore mode === WizardMode.Restore
+    if (mode === WizardMode.New) {
+      const addInstance = () =>
+        createInstance(
           {
-            dbPayload: data,
-            ...(mode === WizardMode.Restore && {
-              backupDataSource: {
-                dbClusterBackupName: location.state?.backupName,
-                ...(location.state?.pointInTimeDate && {
-                  pitr: {
-                    date: location.state?.pointInTimeDate,
-                    type: 'date',
-                  },
-                }),
-              },
-            }),
+            formValue: data,
           },
           {
-            onSuccess: (cluster) => {
-              // We clear the query for the namespace to make sure the new cluster is fetched
-              queryClient.removeQueries({
-                queryKey: [DB_CLUSTERS_QUERY_KEY, cluster.metadata.namespace],
-              });
+            onSuccess: () => {
+              // TODO recheck with list of instances
+              // // We clear the query for the namespace to make sure the new cluster is fetched
+              // queryClient.removeQueries({
+              //   queryKey: [DB_CLUSTERS_QUERY_KEY, instance.metadata.namespace],
+              // });
               setFormSubmitted(true);
             },
           }
         );
-
-      const credentials = latestDataRef.current?.credentials;
-      if (hasImportStep && credentials && Object.keys(credentials).length > 0) {
-        addDbClusterSecret(
-          {
-            dbClusterName: data.dbName,
-            namespace: data.k8sNamespace || '',
-            credentials: credentials as Record<string, string>,
-          },
-          {
-            onSuccess: addCluster,
-          }
-        );
-      } else {
-        addCluster();
-      }
+      addInstance(); 
+      //TODO import flow
+      // const credentials = latestDataRef.current?.credentials;
+      // if (hasImportStep && credentials && Object.keys(credentials).length > 0) {
+      //   addDbClusterSecret(
+      //     {
+      //       dbClusterName: data.dbName,
+      //       namespace: data.k8sNamespace || '',
+      //       credentials: credentials as Record<string, string>,
+      //     },
+      //     {
+      //       onSuccess: addCluster,
+      //     }
+      //   );
+      // } else {
+      //   addCluster();
+      // }
     }
   };
 
@@ -358,6 +347,7 @@ export const DatabasePage = () => {
         hasMultipleTopologies,
         defaultTopology,
         sections,
+        sectionsOrder,
         providerObject: location.state?.selectedDbProvider,
       }}
     >

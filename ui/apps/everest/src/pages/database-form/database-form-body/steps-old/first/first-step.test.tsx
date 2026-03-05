@@ -1,3 +1,6 @@
+// @ts-nocheck
+// TODO remove this file after release of v2
+
 import { ReactNode } from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FormProvider, useForm } from 'react-hook-form';

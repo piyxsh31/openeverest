@@ -13,6 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//@ts-nocheck
+// TODO remove this file after release of v2
+
 import { dbTypeToDbEngine } from '@percona/utils';
 import {
   UseMutationOptions,
@@ -195,22 +198,6 @@ export const useCreateDbCluster = (
     ...options,
   });
 
-export const useCreateDbClusterNew = (
-  options?: UseMutationOptions<
-    DbCluster,
-    unknown,
-    CreateDbClusterArgType,
-    unknown
-  >
-) =>
-  useMutation({
-    mutationFn: ({ dbPayload, backupDataSource }: CreateDbClusterArgType) =>
-      createDbClusterFn(
-        formValuesToPayloadMapping(dbPayload, backupDataSource),
-        dbPayload.k8sNamespace || ''
-      ),
-    ...options,
-  });
 
 export const useDbClusterCredentials = (
   dbClusterName: string,

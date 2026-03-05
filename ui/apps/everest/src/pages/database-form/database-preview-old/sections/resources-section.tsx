@@ -1,6 +1,9 @@
+//@ts-nocheck
+// TODO remove this file after release of v2
+
 import { CUSTOM_NR_UNITS_INPUT_VALUE } from 'components/cluster-form';
-import { PreviewContentText } from '../preview-section';
-import { SectionProps } from './section.types';
+import { PreviewContentText } from '../../database-preview/preview-section';
+import { SectionProps } from '../../database-preview/sections/section.types';
 import { getPreviewResourcesText, getProxyUnitNamesFromDbType } from 'utils/db';
 import { DbType } from '@percona/types';
 

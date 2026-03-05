@@ -13,6 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// @ts-nocheck
+// TODO remove this file after release of v2
+
 import { Stack, Typography } from '@mui/material';
 import EditableItem from 'components/editable-item/editable-item';
 import { Messages } from './schedules.messages';
