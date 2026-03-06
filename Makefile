@@ -44,7 +44,12 @@ gen: gen-crds-deepcopy gen-crds-manifests gen-crds-openapi gen-openapi-ts-types 
 		internal/server/api/everest-server.gen.go \
 		internal/server/api/crds.gen.go \
 		client/everest-client.gen.go \
-		client/crds.gen.go || true
+		client/crds.gen.go \
+		internal/server/handlers/mock_handler.go \
+		pkg/rbac/mocks/i_enforcer.go \
+		ui/api/crds.gen.types.ts \
+		ui/api/http-api.types.ts \
+		ui/api/index.ts || true
 	$(MAKE) format
 
 .PHONY: format

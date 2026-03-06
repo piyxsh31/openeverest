@@ -117,6 +117,19 @@ func extractSchemas(crdFile string, schemas map[string]*openapi3.SchemaRef) erro
 			listKind = kind + "List"
 		}
 
+		metadataProperties := openapi3.Schemas{
+			"name": openapi3.NewSchemaRef("", &openapi3.Schema{
+				Type:        &openapi3.Types{"string"},
+				Description: "Name must be unique within a namespace. Is required when creating resources, although some resources may allow a client to request the generation of an appropriate name automatically. Name is primarily intended for creation idempotence and configuration definition. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#names",
+			}),
+		}
+		if crd.Spec.Scope == apiextensionsv1.NamespaceScoped {
+			metadataProperties["namespace"] = openapi3.NewSchemaRef("", &openapi3.Schema{
+				Type:        &openapi3.Types{"string"},
+				Description: "Namespace defines the space within which each name must be unique. An empty namespace is equivalent to the \"default\" namespace, but \"default\" is the canonical representation. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces",
+			})
+		}
+
 		listSchema := &openapi3.Schema{
 			Type:        &openapi3.Types{"object"},
 			Description: fmt.Sprintf("%s is an object that contains the list of the existing %s.", listKind, strings.ToLower(kind)+"s"),
@@ -134,7 +147,8 @@ func extractSchemas(crdFile string, schemas map[string]*openapi3.SchemaRef) erro
 					Items: openapi3.NewSchemaRef(fmt.Sprintf("#/components/schemas/%s", kind), nil),
 				}),
 				"metadata": openapi3.NewSchemaRef("", &openapi3.Schema{
-					Type: &openapi3.Types{"object"},
+					Type:       &openapi3.Types{"object"},
+					Properties: metadataProperties,
 				}),
 			},
 		}
