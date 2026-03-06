@@ -47,17 +47,17 @@
 
 The schema is organized by **topologies** - different form configurations for different use cases. Each topology defines its own set of sections and their order.
 
-```json
-{
-  "replica": {
-    "sections": { ... },
-    "sectionsOrder": ["basicInfo", "resources"]
-  },
-  "sharded": {
-    "sections": { ... },
-    "sectionsOrder": ["basicInfo", "resources"]
-  }
-}
+```yaml
+replica:
+  sections: { ... }
+  sectionsOrder:
+    - basicInfo
+    - resources
+sharded:
+  sections: { ... }
+  sectionsOrder:
+    - basicInfo
+    - resources
 ```
 
 ### Topology
@@ -69,16 +69,14 @@ A **topology** is a top-level key representing a specific form configuration. Ea
 
 example for psmdb operator:
 
-```json
-{
-  "replica": {
-    "sections": {
-      "basicInfo": { ... },
-      "resources": { ... }
-    },
-    "sectionsOrder": ["basicInfo", "resources"]
-  }
-}
+```yaml
+replica:
+  sections:
+    basicInfo: { ... }
+    resources: { ... }
+  sectionsOrder:
+    - basicInfo
+    - resources
 ```
 
 ### Sections
@@ -92,16 +90,16 @@ example for psmdb operator:
 
 Example:
 
-```json
-"basicInfo": {
-  "label": "Basic Information",
-  "description": "Provide the basic information for your new database.",
-  "components": {
-    "version": { ... },
-    "nodes": { ... }
-  },
-  "componentsOrder": ["version", "nodes"]
-}
+```yaml
+basicInfo:
+  label: Basic Information
+  description: Provide the basic information for your new database.
+  components:
+    version: { ... }
+    nodes: { ... }
+  componentsOrder:
+    - version
+    - nodes
 ```
 
 //TODO if you don't want to use multiSteps you can put everything what you need into the one form
@@ -113,7 +111,9 @@ Example:
 - **Key**: A unique identifier for the component (used for internal references)
 - **Value**: Either a single field or a group of nested fields or groups.
 
-### Component (Single Field)
+### Component vs ComponentGroup
+
+#### Component (Single Field)
 
 A **Component** represents a single form field with the following properties:
 
@@ -125,22 +125,19 @@ A **Component** represents a single form field with the following properties:
 
 Example:
 
-```json
-"numberOfnodes": {
-  "uiType": "number",
-  "path": "spec.replica.nodes",
-  "fieldParams": {
-    "label": "Number of nodes",
-    "defaultValue": 3
-  },
-  "validation": {
-    "min": 1,
-    "max": 7
-  }
-}
+```yaml
+numberOfnodes:
+  uiType: number
+  path: spec.replica.nodes
+  fieldParams:
+    label: Number of nodes
+    defaultValue: 3
+  validation:
+    min: 1
+    max: 7
 ```
 
-### ComponentGroup (Nested Fields)
+#### ComponentGroup (Nested Fields)
 
 A **ComponentGroup** allows you to group multiple components together with custom layout:
 
@@ -160,31 +157,27 @@ The label and description display format may look different for different groups
 
 Example:
 
-```json
-"resources": {
-  "uiType": "group",
-  "groupType": "line",
-  "label": "Resources",
-  "components": {
-    "cpu": {
-      "uiType": "number",
-      "path": "spec.resources.cpu",
-      "fieldParams": {
-        "label": "CPU",
-        "defaultValue": 1
-      }
-    },
-    "memory": {
-      "uiType": "number",
-      "path": "spec.resources.memory",
-      "fieldParams": {
-        "label": "Memory (GB)",
-        "defaultValue": 2
-      }
-    }
-  },
-  "componentsOrder": ["cpu", "memory"]
-}
+```yaml
+resources:
+  uiType: group
+  groupType: line
+  label: Resources
+  components:
+    cpu:
+      uiType: number
+      path: spec.resources.cpu
+      fieldParams:
+        label: CPU
+        defaultValue: 1
+    memory:
+      uiType: number
+      path: spec.resources.memory
+      fieldParams:
+        label: Memory (GB)
+        defaultValue: 2
+  componentsOrder:
+    - cpu
+    - memory
 ```
 
 ## Advanced Properties
@@ -208,21 +201,23 @@ If not specified, the order is determined by the object key insertion order. If 
 
 **Example:**
 
-```json
-{
-  "sections": {
-    "basicInfo": { ... },
-    "resources": { ... },
-    "advanced": { ... }
-  },
-  "sectionsOrder": ["basicInfo", "resources", "advanced"]
-}
+```yaml
+sections:
+  basicInfo: { ... }
+  resources: { ... }
+  advanced: { ... }
+sectionsOrder:
+  - basicInfo
+  - resources
+  - advanced
 ```
 
 The next is also valid:
 
-```json
-  "sectionsOrder": ["resources", "advanced"]
+```yaml
+sectionsOrder:
+  - resources
+  - advanced
 ```
 
 ### CEL Condition Rendering

@@ -45,81 +45,79 @@ Automatically validates that the selected value is one of the allowed options de
 
 ### Basic Select Field
 
-```json
-"databaseType": {
-  "uiType": "select",
-  "path": "spec.database.type",
-  "fieldParams": {
-    "label": "Database Type",
-    "options": [
-      { "label": "MySQL", "value": "mysql" },
-      { "label": "PostgreSQL", "value": "postgresql" },
-      { "label": "MongoDB", "value": "mongodb" }
-    ]
-  }
-}
+```yaml
+databaseType:
+  uiType: select
+  path: spec.database.type
+  fieldParams:
+    label: Database Type
+    options:
+      - label: MySQL
+        value: mysql
+      - label: PostgreSQL
+        value: postgresql
+      - label: MongoDB
+        value: mongodb
 ```
 
 ### Select with Default Value
 
-```json
-"region": {
-  "uiType": "select",
-  "path": "spec.region",
-  "fieldParams": {
-    "label": "Region",
-    "defaultValue": "us-east-1",
-    "options": [
-      { "label": "US East", "value": "us-east-1" },
-      { "label": "US West", "value": "us-west-1" },
-      { "label": "EU Central", "value": "eu-central-1" }
-    ]
-  }
-}
+```yaml
+region:
+  uiType: select
+  path: spec.region
+  fieldParams:
+    label: Region
+    defaultValue: us-east-1
+    options:
+      - label: US East
+        value: us-east-1
+      - label: US West
+        value: us-west-1
+      - label: EU Central
+        value: eu-central-1
 ```
 
 ### Select with displayEmpty (Placeholder)
 
-```json
-"tier": {
-  "uiType": "select",
-  "path": "spec.tier",
-  "fieldParams": {
-    "label": "Service Tier",
-    "displayEmpty": true,
-    "options": [
-      { "label": "Free", "value": "free" },
-      { "label": "Pro", "value": "pro" },
-      { "label": "Enterprise", "value": "enterprise" }
-    ]
-  },
-  "validation": {
-    "required": false
-  }
-}
+```yaml
+tier:
+  uiType: select
+  path: spec.tier
+  fieldParams:
+    label: Service Tier
+    displayEmpty: true
+    options:
+      - label: Free
+        value: free
+      - label: Pro
+        value: pro
+      - label: Enterprise
+        value: enterprise
+  validation:
+    required: false
 ```
 
 This example demonstrates an optional select field with `displayEmpty: true`. An empty option (value: `""`, label: "None") will be automatically added, allowing users to clear their selection.
 
 ### Required Select with displayEmpty
 
-```json
-"environment": {
-  "uiType": "select",
-  "path": "spec.environment",
-  "fieldParams": {
-    "label": "Environment",
-    "displayEmpty": true,
-    "options": [
-      { "label": "Development", "value": "dev" },
-      { "label": "Staging", "value": "staging" },
-      { "label": "Production", "value": "prod" }
-    ]
-  },
-  "validation": {
-    "required": true
-  }
-}
+```yaml
+environment:
+  uiType: select
+  path: spec.environment
+  fieldParams:
+    label: Environment
+    displayEmpty: true
+    options:
+      - label: Development
+        value: dev
+      - label: Staging
+        value: staging
+      - label: Production
+        value: prod
+  validation:
+    required: true
 ```
 
 For required fields, even with `displayEmpty: true`, no empty option is auto-injected since the field must have a value.
@@ -130,52 +128,44 @@ When `displayEmpty` is `true` and the field is **optional** (`validation.require
 
 ### Regexp
 
-```json
-"version": {
-  "uiType": "select",
-  "path": "spec.version",
-  "fieldParams": {
-    "label": "Version",
-    "options": [
-      { "label": "v1.0", "value": "v1.0" },
-      { "label": "v2.0", "value": "v2.0" },
-      { "label": "v3.0-rc1", "value": "v3.0-rc1" }
-    ]
-  },
-  "validation": {
-    "regex": {
-      "pattern": "^v[0-9]+\\.[0-9]+$",
-      "message": "Only stable versions allowed (format vX.Y)"
-    }
-  }
-}
+```yaml
+version:
+  uiType: select
+  path: spec.version
+  fieldParams:
+    label: Version
+    options:
+      - label: v1.0
+        value: v1.0
+      - label: v2.0
+        value: v2.0
+      - label: v3.0-rc1
+        value: v3.0-rc1
+  validation:
+    regex:
+      pattern: "^v[0-9]+\\.[0-9]+$"
+      message: Only stable versions allowed (format vX.Y)
 ```
 
 ### CEL validation
 
-```json
-{
-  "tier": {
-    "uiType": "select",
-    "path": "spec.tier",
-    "fieldParams": {
-      "label": "Service Tier",
-      "options": [
-        { "label": "Free", "value": "free" },
-        { "label": "Pro", "value": "pro" },
-        { "label": "Enterprise", "value": "enterprise" }
-      ]
-    },
-    "validation": {
-      "celExpressions": [
-        {
-          "celExpr": "self == 'pro' || self == 'enterprise' || spec.users < 10",
-          "message": "Free tier is limited to 10 users"
-        }
-      ]
-    }
-  }
-}
+```yaml
+tier:
+  uiType: select
+  path: spec.tier
+  fieldParams:
+    label: Service Tier
+    options:
+      - label: Free
+        value: free
+      - label: Pro
+        value: pro
+      - label: Enterprise
+        value: enterprise
+  validation:
+    celExpressions:
+      - celExpr: "self == 'pro' || self == 'enterprise' || spec.users < 10"
+        message: Free tier is limited to 10 users
 ```
 
 In this example, the `self` keyword refers to the current field's value. The validation passes when the tier is 'pro' or 'enterprise', or when the number of users is less than 10.

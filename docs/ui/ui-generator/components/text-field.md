@@ -64,92 +64,76 @@ A flexible single-line or multi-line text input field. Suitable for names, descr
 
 ### Basic text input (required)
 
-```json
-"username": {
-  "uiType": "text",
-  "path": "spec.username",
-  "fieldParams": {
-    "label": "Username",
-    "placeholder": "Enter your username"
-  },
-  "validation": {
-    "required": true,
-    "min": 3,
-    "max": 32
-  }
-}
+```yaml
+username:
+  uiType: text
+  path: spec.username
+  fieldParams:
+    label: Username
+    placeholder: Enter your username
+  validation:
+    required: true
+    min: 3
+    max: 32
 ```
 
 ### Multiline description (textarea)
 
-```json
-"description": {
-  "uiType": "text",
-  "path": "spec.description",
-  "fieldParams": {
-    "label": "Description",
-    "multiline": true,
-    "minRows": 3,
-    "maxRows": 8,
-    "placeholder": "Describe your database cluster…"
-  },
-  "validation": {
-    "max": 500
-  }
-}
+```yaml
+description:
+  uiType: text
+  path: spec.description
+  fieldParams:
+    label: Description
+    multiline: true
+    minRows: 3
+    maxRows: 8
+    placeholder: "Describe your database cluster…"
+  validation:
+    max: 500
 ```
 
 ### Password field
 
-```json
-"password": {
-  "uiType": "text",
-  "path": "spec.password",
-  "fieldParams": {
-    "label": "Password",
-    "type": "password"
-  },
-  "validation": {
-    "required": true,
-    "min": 8
-  }
-}
+```yaml
+password:
+  uiType: text
+  path: spec.password
+  fieldParams:
+    label: Password
+    type: password
+  validation:
+    required: true
+    min: 8
 ```
 
 ### Auto-trimming with case transform
 
-```json
-"tag": {
-  "uiType": "text",
-  "path": "spec.tag",
-  "fieldParams": {
-    "label": "Tag"
-  },
-  "validation": {
-    "trim": true,
-    "toLowerCase": true,
-    "max": 50
-  }
-}
+```yaml
+tag:
+  uiType: text
+  path: spec.tag
+  fieldParams:
+    label: Tag
+  validation:
+    trim: true
+    toLowerCase: true
+    max: 50
 ```
 
 ### Regexp
 
-```json
-"clusterName": {
-  "uiType": "text",
-  "path": "spec.clusterName",
-  "fieldParams": {
-    "label": "Cluster Name"
-  },
-  "validation": {
-    "required": true,
-    "regex": {
-      "pattern": "^[a-z][a-z0-9-]{2,29}$",
-      "message": "Must be 3–30 lowercase alphanumeric characters or hyphens, starting with a letter"
-    }
-  }
-}
+```yaml
+clusterName:
+  uiType: text
+  path: spec.clusterName
+  fieldParams:
+    label: Cluster Name
+  validation:
+    required: true
+    regex:
+      pattern: "^[a-z][a-z0-9-]{2,29}$"
+      message: "Must be 3–30 lowercase alphanumeric characters or hyphens, starting with a letter"
 ```
 
 ### CEL

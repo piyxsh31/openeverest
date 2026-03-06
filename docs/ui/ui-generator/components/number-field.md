@@ -63,53 +63,45 @@ When converting exclusive bounds (`gt`/`lt`) to HTML attributes:
 
 ### Basic Number Field
 
-```json
-"replicas": {
-  "uiType": "number",
-  "path": "spec.replicas",
-  "fieldParams": {
-    "label": "Number of Replicas",
-    "defaultValue": 3,
-    "step": 1,
-    "autoFocus": true
-  },
-  "validation": {
-    "required": true,
-    "min": 1,
-    "max": 16,
-    "int": true
-  }
-}
+```yaml
+replicas:
+  uiType: number
+  path: spec.replicas
+  fieldParams:
+    label: Number of Replicas
+    defaultValue: 3
+    step: 1
+    autoFocus: true
+  validation:
+    required: true
+    min: 1
+    max: 16
+    int: true
 ```
 
 ### Exclusive Bounds
 
-```json
-  "validation": {
-    "gt": 0,
-    "lt": 32,
-    "multipleOf": 0.5
-  }
+```yaml
+validation:
+  gt: 0
+  lt: 32
+  multipleOf: 0.5
 ```
 
 **Note:** Fields are optional by default. To make a field required, set `required: true` in the `validation` object. Validation rules (min/max/etc.) only apply when a value is entered.
 
 ### Regexp
 
-```json
-"portNumber": {
-  "uiType": "number",
-  "path": "spec.port",
-  "fieldParams": {
-    "label": "Port Number"
-  },
-  "validation": {
-    "regex": {
-      "pattern": "^[1-9][0-9]{3,4}$",
-      "message": "Port must be between 1000-99999"
-    }
-  }
-}
+```yaml
+portNumber:
+  uiType: number
+  path: spec.port
+  fieldParams:
+    label: Port Number
+  validation:
+    regex:
+      pattern: "^[1-9][0-9]{3,4}$"
+      message: Port must be between 1000-99999
 ```
 
 ### CEL

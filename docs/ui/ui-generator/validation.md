@@ -1,4 +1,5 @@
 # Validation
+
 ## Table of Contents
 
 - [Default Validation](#default-validation)
@@ -31,10 +32,9 @@ The following validation rules are supported for **all field types**.
 
 Control whether a field must have a value using the `required` parameter in the `validation` object:
 
-```json
-"validation": {
-  "required": true  // (default is false)
-}
+```yaml
+validation:
+  required: true # (default is false)
 ```
 
 ### Regex
@@ -48,20 +48,16 @@ Apply regular expression validation to any field using the `regex` property in t
 
 **Number field with regex:**
 
-```json
-"portNumber": {
-  "uiType": "number",
-  "path": "spec.port",
-  "fieldParams": {
-    "label": "Port Number"
-  },
-  "validation": {
-    "regex": {
-      "pattern": "^[1-9][0-9]{3,4}$",
-      "message": "Port must be between 1000-99999"
-    }
-  }
-}
+```yaml
+portNumber:
+  uiType: number
+  path: spec.port
+  fieldParams:
+    label: Port Number
+  validation:
+    regex:
+      pattern: "^[1-9][0-9]{3,4}$"
+      message: Port must be between 1000-99999
 ```
 
 More regexp examples can be found in the documentation for a specific field in the **examples => regexp section**
@@ -81,54 +77,40 @@ CEL (Common Expression Language) validation allows you to define cross-field val
 
 ### Example:
 
-```json
-{
-  "numberOfConfigServers": {
-    "uiType": "number",
-    "path": "spec.sharding.configServer.replicas",
-    "fieldParams": {
-      "label": "Number of configuration servers",
-      "defaultValue": 3
-    },
-    "validation": {
-      "celExpressions": [
-        {
-          "celExpr": "!(spec.replica.nodes > 1 && spec.sharding.configServer.replicas == 1)",
-          "message": "The number of configuration servers cannot be 1 if the number of database nodes is greater than 1"
-        }
-      ]
-    }
-  }
-}
+```yaml
+numberOfConfigServers:
+  uiType: number
+  path: spec.sharding.configServer.replicas
+  fieldParams:
+    label: Number of configuration servers
+    defaultValue: 3
+  validation:
+    celExpressions:
+      - celExpr: "!(spec.replica.nodes > 1 && spec.sharding.configServer.replicas == 1)"
+        message: The number of configuration servers cannot be 1 if the number of database nodes is greater than 1
 ```
 
 In this example, the validation fails (returns false) when there are more than 1 database nodes AND the number of config servers is 1. The `!` operator negates the condition so it returns `false` when the invalid condition is true.
 
 **Select field with CEL validation:**
 
-```json
-{
-  "tier": {
-    "uiType": "select",
-    "path": "spec.tier",
-    "fieldParams": {
-      "label": "Service Tier",
-      "options": [
-        { "label": "Free", "value": "free" },
-        { "label": "Pro", "value": "pro" },
-        { "label": "Enterprise", "value": "enterprise" }
-      ]
-    },
-    "validation": {
-      "celExpressions": [
-        {
-          "celExpr": "self == 'pro' || self == 'enterprise' || spec.users < 10",
-          "message": "Free tier is limited to 10 users"
-        }
-      ]
-    }
-  }
-}
+```yaml
+tier:
+  uiType: select
+  path: spec.tier
+  fieldParams:
+    label: Service Tier
+    options:
+      - label: Free
+        value: free
+      - label: Pro
+        value: pro
+      - label: Enterprise
+        value: enterprise
+  validation:
+    celExpressions:
+      - celExpr: "self == 'pro' || self == 'enterprise' || spec.users < 10"
+        message: Free tier is limited to 10 users
 ```
 
 In this example, the `self` keyword refers to the current field's value. The validation passes when the tier is 'pro' or 'enterprise', or when the number of users is less than 10.

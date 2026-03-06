@@ -1,4 +1,5 @@
 # Groups
+
 ## Table of Contents
 
 - [Line Group](#line-group)
@@ -20,18 +21,19 @@ Groups allow you to organize multiple fields together with different layout opti
 //TODO will be renamed, documentation should be checked before merging
 Displays components in a horizontal line (flex layout).
 
-```json
-"resourceGroup": {
-  "uiType": "group",
-  "groupType": "line",
-  "label": "Resources",
-  "components": {
-    "cpu": { ... },
-    "memory": { ... },
-    "disk": { ... }
-  },
-  "componentsOrder": ["cpu", "memory", "disk"]
-}
+```yaml
+resourceGroup:
+  uiType: group
+  groupType: line
+  label: Resources
+  components:
+    cpu: { ... }
+    memory: { ... }
+    disk: { ... }
+  componentsOrder:
+    - cpu
+    - memory
+    - disk
 ```
 
 //TODO visual example
@@ -40,17 +42,15 @@ Displays components in a horizontal line (flex layout).
 
 Displays components in a collapsible accordion panel.
 
-```json
-"advancedSettings": {
-  "uiType": "group",
-  "groupType": "accordion",
-  "label": "Advanced Settings",
-  "description": "Optional advanced configuration",
-  "components": {
-    "setting1": { ... },
-    "setting2": { ... }
-  }
-}
+```yaml
+advancedSettings:
+  uiType: group
+  groupType: accordion
+  label: Advanced Settings
+  description: Optional advanced configuration
+  components:
+    setting1: { ... }
+    setting2: { ... }
 ```
 
 //TODO visual example
