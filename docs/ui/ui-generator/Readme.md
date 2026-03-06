@@ -8,24 +8,23 @@
   - [Topology](#topology)
   - [Sections](#sections)
   - [Components](#components)
-- [Component vs ComponentGroup](#component-vs-componentgroup)
-  - [Component (Single Field)](#component-single-field)
-  - [ComponentGroup (Nested Fields)](#componentgroup-nested-fields)
-- [Field Types](#field-types)
-  - [NumberField](#numberfield)
-  - [SelectField](#selectfield)
-  - [TextField](#textfield)
-  - [HiddenField](#hiddenfield)
-- [Groups](./Groups.md)
-  - [Line Group](./Groups.md#line-group)
-  - [Accordion Group](./Groups.md#accordion-group)
-- [Validation](#validation)
-  - [Default Validation](#default-validation)
-  - [Schema Custom Validation](#schema-custom-validation)
-  - [Common Validation Rules](#common-validation-rules)
-    - [Required Field Validation](#required-field-validation)
-    - [Regex Validation](#regex-validation)
-  - [CEL Expression Validation](#cel-expression-validation)
+  - [Component vs ComponentGroup](#component-vs-componentgroup)
+    - [Component (Single Field)](#component-single-field)
+    - [ComponentGroup (Nested Fields)](#componentgroup-nested-fields)
+- Field Types
+  - [Number Field](components/number-field.md)
+  - [Select Field](components/select-field.md)
+  - [Text Field](components/text-field.md)
+- [Groups](groups.md)
+  - [Line Group](groups.md#line-group)
+  - [Accordion Group](groups.md#accordion-group)
+- [Validation](validation.md)
+  - [Default Validation](validation.md#default-validation)
+  - [Schema Custom Validation](validation.md#schema-custom-validation)
+  - [Common Validation Rules](validation.md#common-validation-rules)
+    - [Required Field Validation](validation.md#required)
+    - [Regex Validation](validation.md#regex)
+  - [CEL Expression Validation](validation.md#cel-expression-validation)
 - [Advanced Properties](#advanced-properties)
   - [Path vs ID](#path-vs-id)
   - [Components Order](#components-order)
@@ -114,8 +113,6 @@ Example:
 - **Key**: A unique identifier for the component (used for internal references)
 - **Value**: Either a single field or a group of nested fields or groups.
 
-## Component vs ComponentGroup
-
 ### Component (Single Field)
 
 A **Component** represents a single form field with the following properties:
@@ -190,509 +187,6 @@ Example:
 }
 ```
 
-## Field Types
-
-### Number Field
-
-A numeric input field for integer and decimal values.
-
-**Properties:**
-
-- `uiType`: `"number"` (required)
-- `path` OR `id`: Data path or unique identifier (required)
-- `fieldParams`: Configuration object with the following optional properties:
-  - `label`: Display label for the field
-  - `placeholder`: Placeholder text shown when field is empty
-  - `defaultValue`: Default numeric value
-  - `disabled`: Whether the field is disabled (default: `false`)
-  - `autoFocus`: Automatically focus this field on render
-  - `helperText`: Help text displayed below the field
-  - `step`: Increment/decrement step for arrow buttons (e.g., `0.1`, `5`, `10`)
-- `validation` (optional): Validation rules object with the following properties:
-  - `required`: Whether the field is required (default: `false`)
-  - `min`: Minimum value (inclusive) - value must be >= specified number
-  - `max`: Maximum value (inclusive) - value must be <= specified number
-  - `gt`: Greater than (exclusive) - value must be > specified number
-  - `lt`: Less than (exclusive) - value must be < specified number
-  - `int`: Must be an integer (boolean: `true`)
-  - `multipleOf`: Value must be a multiple of specified number
-  - `safe`: Must be a safe integer within JavaScript's safe integer range (boolean: `true`)
-  - `regex`: Regular expression validation (see [Regex Validation](./Readme.md#regex-validation))
-  - `celExpressions`: Array of CEL validation expressions for cross-field validation (see [CEL Expression Validation](./Readme.md#cel-expression-validation))
-
-**Native Validation:** Validates that input is numeric
-
-**Validation Auto-Mapping:** The following validation rules are automatically applied to HTML input attributes for browser-level validation:
-
-- `validation.min` → HTML `min` attribute (inclusive lower bound)
-- `validation.max` → HTML `max` attribute (inclusive upper bound)
-- `validation.gt` → HTML `min` attribute (converted to exclusive lower bound)
-- `validation.lt` → HTML `max` attribute (converted to exclusive upper bound)
-
-When converting exclusive bounds (`gt`/`lt`) to HTML attributes:
-
-- For integer validation (`int: true`): offset by 1 (e.g., `gt: 5` becomes `min="6"`)
-- With `step` defined: offset by step value (e.g., `gt: 5` with `step: 0.5` becomes `min="5.5"`)
-- For arbitrary decimals: offset by 0.000001 (e.g., `gt: 5` becomes `min="5.000001"`)
-- Explicit `min`/`max` always take priority over converted `gt`/`lt`
-
-**Examples:**
-
-[OpenEverest TextInput “Number type” Story](https://openeverest.io/openeverest/?path=/story/textinput--number-type)
-
-**Basic Number Field**
-
-```json
-"replicas": {
-  "uiType": "number",
-  "path": "spec.replicas",
-  "fieldParams": {
-    "label": "Number of Replicas",
-    "defaultValue": 3,
-    "step": 1,
-    "autoFocus": true
-  },
-  "validation": {
-    "required": true,
-    "min": 1,
-    "max": 16,
-    "int": true
-  }
-}
-```
-
-**Exclusive Bounds**
-
-```json
-  "validation": {
-    "gt": 0,
-    "lt": 32,
-    "multipleOf": 0.5
-  }
-```
-
-**Note:** Fields are optional by default. To make a field required, set `required: true` in the `validation` object. Validation rules (min/max/etc.) only apply when a value is entered.
-
-### SelectField
-
-A dropdown selection field that allows users to choose one option from a predefined list of values.
-
-**Properties:**
-
-- `uiType`: `"select"` (**Required**)
-- `path` OR `id`: Data path or unique identifier (**Required**)
-- `fieldParams`: Configuration object with the following properties:
-  - `label`: Display label for the field
-  - `options`: Array of objects with `{ label: string, value: string }` format (**Required**)
-  - `defaultValue`: Default selected value (must match one of the option values)
-  - `disabled`: Whether the field is disabled (default: `false`)
-  - `autoFocus`: Automatically focus this field on render
-  - `helperText`: Help text displayed below the field
-  - `multiple`: Allow multi-select (**Note:** While this prop is passed to MUI Select, full support requires array-type validation in the Zod schema builder, array default values handling, and array type definitions - planned for future implementation)
-  - `displayEmpty`: Show placeholder/empty option when no value is selected (default: `false`)
-  - `defaultOpen`: Open dropdown menu on component mount (default: `false`)
-  - `readOnly`: Make field read-only - value displayed but cannot be changed (default: `false`)
-- `validation` (optional): Validation rules object with the following properties:
-  - `required`: Whether the field is required (default: `false`)
-  - `regex`: Regular expression validation (see [Regex Validation](./Readme.md#regex-validation))
-  - `celExpressions`: Array of CEL validation expressions for cross-field validation (see [CEL Expression Validation](./Readme.md#cel-expression-validation))
-
-**Native Validation:** Automatically validates that the selected value is one of the allowed options defined in the `options` array (enum validation).
-
-**Examples:**
-
-[OpenEverest Select “Select uiType" Story](https://openeverest.io/openeverest/?path=/story/select--basic)
-
-**Basic Select Field**
-
-```json
-"databaseType": {
-  "uiType": "select",
-  "path": "spec.database.type",
-  "fieldParams": {
-    "label": "Database Type",
-    "options": [
-      { "label": "MySQL", "value": "mysql" },
-      { "label": "PostgreSQL", "value": "postgresql" },
-      { "label": "MongoDB", "value": "mongodb" }
-    ]
-  }
-}
-```
-
-**Select with Default Value**
-
-```json
-"region": {
-  "uiType": "select",
-  "path": "spec.region",
-  "fieldParams": {
-    "label": "Region",
-    "defaultValue": "us-east-1",
-    "options": [
-      { "label": "US East", "value": "us-east-1" },
-      { "label": "US West", "value": "us-west-1" },
-      { "label": "EU Central", "value": "eu-central-1" }
-    ]
-  }
-}
-```
-
-**Select with displayEmpty (Placeholder)**
-
-```json
-"tier": {
-  "uiType": "select",
-  "path": "spec.tier",
-  "fieldParams": {
-    "label": "Service Tier",
-    "displayEmpty": true,
-    "options": [
-      { "label": "Free", "value": "free" },
-      { "label": "Pro", "value": "pro" },
-      { "label": "Enterprise", "value": "enterprise" }
-    ]
-  },
-  "validation": {
-    "required": false
-  }
-}
-```
-
-This example demonstrates an optional select field with `displayEmpty: true`. An empty option (value: `""`, label: "None") will be automatically added, allowing users to clear their selection.
-
-**Required Select with displayEmpty**
-
-```json
-"environment": {
-  "uiType": "select",
-  "path": "spec.environment",
-  "fieldParams": {
-    "label": "Environment",
-    "displayEmpty": true,
-    "options": [
-      { "label": "Development", "value": "dev" },
-      { "label": "Staging", "value": "staging" },
-      { "label": "Production", "value": "prod" }
-    ]
-  },
-  "validation": {
-    "required": true
-  }
-}
-```
-
-For required fields, even with `displayEmpty: true`, no empty option is auto-injected since the field must have a value.
-
-When `displayEmpty` is `true` and the field is **optional** (`validation.required` is not `true`), an empty option with value `""` and label "None" is automatically injected at the beginning of the options list. This allows users to clear their selection after choosing a value. If you've already included an empty option in your schema, no duplicate will be added.
-
-**Important:** For **required** fields with `displayEmpty: true`, no empty option is injected since the field must have a value.
-
-**Behavior:**
-
-- **Optional fields** (default): Default value is empty string (`''`). Form is valid even when no selection is made. When combined with `displayEmpty: true`, a "None" option is automatically added to allow clearing the selection.
-- **Required fields**: User must select a value from the options. Empty string is not allowed. Form validation fails until a value is selected with error message "Field is required".
-- **Default values**: If no `defaultValue` is specified, the field starts with an empty selection. The `defaultValue` must match one of the option values; invalid default values will cause form validation to fail.
-- **Empty options**: If the `options` array is empty, the select displays a "No options" message and validates as optional string.
-- **Auto-injected empty option**: When a field is optional AND `displayEmpty: true`, an empty option (value: `""`, label: "None") is automatically added to the beginning of the options list, unless you've already provided one.
-
-**Note:** For cross-field validation or regex patterns on select values, see the [Validation](./Readme.md#validation) section in the main README.
-
-### TextField
-
-A flexible single-line or multi-line text input field. Suitable for names, descriptions, URLs, email addresses, passwords, and any other free-form text.
-
-**Properties:**
-
-- `uiType`: `"text"` (**Required**)
-- `path` OR `id`: Data path or unique identifier (**Required**)
-- `fieldParams`: Configuration object with the following optional properties:
-  - `label`: Display label for the field
-  - `placeholder`: Placeholder text shown when the field is empty
-  - `defaultValue`: Default string value (default: `""`)
-  - `disabled`: Whether the field is disabled (default: `false`)
-  - `autoFocus`: Automatically focus this field on render
-  - `helperText`: Help text displayed below the field
-  - `multiline`: Render as a `<textarea>` instead of a single-line `<input>` (default: `false`)
-  - `rows`: Fixed number of visible text rows (only applies when `multiline: true`)
-  - `minRows`: Minimum number of rows; textarea grows as content is added (requires `multiline: true`)
-  - `maxRows`: Maximum number of rows before scrolling (requires `multiline: true`)
-  - `type`: HTML input type — `"text"` | `"password"` | `"email"` | `"search"` | `"tel"` (default: `"text"`)
-  - `readOnly`: Value is visible but cannot be changed by the user (default: `false`)
-  - `variant`: MUI TextField visual variant — `"outlined"` | `"filled"` | `"standard"` (default: `"outlined"`)
-  - `color`: Color theme for the input — `"primary"` | `"secondary"` | `"error"` | `"info"` | `"success"` | `"warning"` (default: `"primary"`)
-  - `fullWidth`: Whether the input takes up the full width of its container (default: `false`)
-  - `hiddenLabel`: Hide the floating label (default: `false`)
-  - `margin`: Vertical spacing around the field — `"none"` | `"dense"` | `"normal"` (default: `"none"`)
-- `validation` (optional): Validation rules object with the following properties:
-  - `required`: Whether a non-empty value is required (default: `false`)
-  - `min`: Minimum number of characters (inclusive)
-  - `max`: Maximum number of characters (inclusive)
-  - `length`: Exact number of characters required
-  - `email`: Value must be a valid e-mail address (boolean: `true`)
-  - `url`: Value must be a valid URL (boolean: `true`)
-  - `uuid`: Value must be a valid UUID (boolean: `true`)
-  - `trim`: Strip leading/trailing whitespace before submitting (boolean: `true`)
-  - `toLowerCase`: Convert the value to lower case before submitting (boolean: `true`)
-  - `toUpperCase`: Convert the value to upper case before submitting (boolean: `true`)
-  - `regex`: Regular expression the value must match (see [Regex Validation](#regex-validation))
-  - `celExpressions`: Array of CEL validation expressions for cross-field validation (see [CEL Expression Validation](#cel-expression-validation))
-
-> **TODO (not yet implemented):** The following Zod string methods are not yet supported in the validation schema builder and will be ignored if specified: `startsWith`, `endsWith`, `includes`, `ip`, `cidr`, `datetime`, `date`, `time`, `duration`, `base64`, `base64url`, `nanoid`, `cuid`, `cuid2`, `ulid`, `emoji`, `jwt`.
-
-**Behavior:**
-
-- **Optional fields** (default): Default value is `""` (empty string). An empty value is treated as "no input" and passes all format validators (`email`, `url`, `uuid`, `regex`, etc.). Validation only runs when the user provides a non-empty value.
-- **Required fields**: User must provide a non-empty value. Format/length validators are combined with the required constraint.
-- **Transforms** (`trim`, `toLowerCase`, `toUpperCase`): Applied before form submission. The UI shows the original typed value; the submitted data contains the transformed value.
-- **Multiline fields**: Setting `multiline: true` renders a `<textarea>`. Use `rows` for a fixed height, or `minRows`/`maxRows` for an auto-growing textarea.
-- **`type: "password"`**: Input is masked. Combined with `min`/`max` validation it provides a password strength constraint.
-
-**Examples:**
-
-**Basic text input (required)**
-
-```json
-"username": {
-  "uiType": "text",
-  "path": "spec.username",
-  "fieldParams": {
-    "label": "Username",
-    "placeholder": "Enter your username"
-  },
-  "validation": {
-    "required": true,
-    "min": 3,
-    "max": 32
-  }
-}
-```
-
-**Multiline description (textarea)**
-
-```json
-"description": {
-  "uiType": "text",
-  "path": "spec.description",
-  "fieldParams": {
-    "label": "Description",
-    "multiline": true,
-    "minRows": 3,
-    "maxRows": 8,
-    "placeholder": "Describe your database cluster…"
-  },
-  "validation": {
-    "max": 500
-  }
-}
-```
-
-**Password field**
-
-```json
-"password": {
-  "uiType": "text",
-  "path": "spec.password",
-  "fieldParams": {
-    "label": "Password",
-    "type": "password"
-  },
-  "validation": {
-    "required": true,
-    "min": 8
-  }
-}
-```
-
-**Auto-trimming with case transform**
-
-```json
-"tag": {
-  "uiType": "text",
-  "path": "spec.tag",
-  "fieldParams": {
-    "label": "Tag"
-  },
-  "validation": {
-    "trim": true,
-    "toLowerCase": true,
-    "max": 50
-  }
-}
-```
-
-### HiddenField
-
-> Documentation coming soon.
-
-## Validation
-
-### Default Validation
-
-Each field type has built-in validation based on its type:
-
-- **Number fields**: Validate that input is numeric
-- **Select fields**: Validate that selected value is in the options list
-- **Text fields**: TODO
-
-### Schema Custom Validation
-
-Custom validation rules can be defined in the `validation` property. These have higher priority than default validation and will override defaults if the same properties are specified.
-
-### Common Validation Rules
-
-The following validation rules are supported for **all field types**.
-
-**Required**
-
-Control whether a field must have a value using the `required` parameter in the `validation` object:
-
-```json
-"validation": {
-  "required": true  // (default is false)
-}
-```
-
-**Regex**
-
-Apply regular expression validation to any field using the `regex` property in the `validation` object:
-
-| Property  | Type              | Description                                           |
-| --------- | ----------------- | ----------------------------------------------------- |
-| `pattern` | string            | Regular expression pattern (without delimiters)       |
-| `message` | string (optional) | Custom error message to display on validation failure |
-
-**Number field with regex:**
-
-```json
-"portNumber": {
-  "uiType": "number",
-  "path": "spec.port",
-  "fieldParams": {
-    "label": "Port Number"
-  },
-  "validation": {
-    "regex": {
-      "pattern": "^[1-9][0-9]{3,4}$",
-      "message": "Port must be between 1000-99999"
-    }
-  }
-}
-```
-
-**Select field with regex:**
-
-```json
-"version": {
-  "uiType": "select",
-  "path": "spec.version",
-  "fieldParams": {
-    "label": "Version",
-    "options": [
-      { "label": "v1.0", "value": "v1.0" },
-      { "label": "v2.0", "value": "v2.0" },
-      { "label": "v3.0-rc1", "value": "v3.0-rc1" }
-    ]
-  },
-  "validation": {
-    "regex": {
-      "pattern": "^v[0-9]+\\.[0-9]+$",
-      "message": "Only stable versions allowed (format vX.Y)"
-    }
-  }
-}
-```
-
-**Text field with regex:**
-
-```json
-"clusterName": {
-  "uiType": "text",
-  "path": "spec.clusterName",
-  "fieldParams": {
-    "label": "Cluster Name"
-  },
-  "validation": {
-    "required": true,
-    "regex": {
-      "pattern": "^[a-z][a-z0-9-]{2,29}$",
-      "message": "Must be 3–30 lowercase alphanumeric characters or hyphens, starting with a letter"
-    }
-  }
-}
-```
-
-### CEL Expression Validation
-
-CEL (Common Expression Language) validation allows you to define cross-field validation rules using CEL expressions. These expressions can reference multiple fields and return `true` when validation passes or `false` when it fails.
-
-**Important:** CEL expressions should return `true` for valid data and `false` for invalid data.
-
-**Properties:**
-
-| Property  | Type   | Description                                    |
-| --------- | ------ | ---------------------------------------------- |
-| `celExpr` | string | CEL expression that returns boolean            |
-| `message` | string | Error message to display when validation fails |
-
-**Example:**
-
-```json
-{
-  "numberOfConfigServers": {
-    "uiType": "number",
-    "path": "spec.sharding.configServer.replicas",
-    "fieldParams": {
-      "label": "Number of configuration servers",
-      "defaultValue": 3
-    },
-    "validation": {
-      "celExpressions": [
-        {
-          "celExpr": "!(spec.replica.nodes > 1 && spec.sharding.configServer.replicas == 1)",
-          "message": "The number of configuration servers cannot be 1 if the number of database nodes is greater than 1"
-        }
-      ]
-    }
-  }
-}
-```
-
-In this example, the validation fails (returns false) when there are more than 1 database nodes AND the number of config servers is 1. The `!` operator negates the condition so it returns `false` when the invalid condition is true.
-
-**Select field with CEL validation:**
-
-```json
-{
-  "tier": {
-    "uiType": "select",
-    "path": "spec.tier",
-    "fieldParams": {
-      "label": "Service Tier",
-      "options": [
-        { "label": "Free", "value": "free" },
-        { "label": "Pro", "value": "pro" },
-        { "label": "Enterprise", "value": "enterprise" }
-      ]
-    },
-    "validation": {
-      "celExpressions": [
-        {
-          "celExpr": "self == 'pro' || self == 'enterprise' || spec.users < 10",
-          "message": "Free tier is limited to 10 users"
-        }
-      ]
-    }
-  }
-}
-```
-
-In this example, the `self` keyword refers to the current field's value. The validation passes when the tier is 'pro' or 'enterprise', or when the number of users is less than 10.
-
-**Note:** All validation rules only apply when a value is entered. Empty fields will pass validation by default since fields are optional unless explicitly marked as `required: true`.
-
-//TODO CEL example for textfield
-
 ## Advanced Properties
 
 ### Path vs ID
@@ -737,83 +231,264 @@ The next is also valid:
 
 ## Complete Example
 
-//TODO some lines about this example
+//TODO update after release of psbdb-provider
 
-```json
-{
-  "replica": {
-    "sections": {
-      "basicInfo": {
-        "label": "Basic Information",
-        "description": "Provide the basic information for your new database.",
-        "components": {
-          "version": {
-            "uiType": "select",
-            "path": "spec.engine.version",
-            "fieldParams": {
-              "label": "Database Version",
-              "options": [
-                { "label": "MongoDB 6.0.19-16", "value": "6.0.19-16" }
-              ],
-              "defaultValue": "6.0.19-16"
-            }
-          }
-        }
-      },
-      "resources": {
-        "label": "Resources",
-        "description": "Configure the resources for your database.",
-        "components": {
-          "numberOfnodes": {
-            "uiType": "number",
-            "path": "spec.replica.nodes",
-            "fieldParams": {
-              "label": "Number of nodes",
-              "defaultValue": 3
-            },
-            "validation": {
-              "min": 1,
-              "max": 7
-            }
-          },
-          "resourceGroup": {
-            "uiType": "group",
-            "groupType": "line",
-            "components": {
-              "cpu": {
-                "uiType": "number",
-                "path": "spec.resources.cpu",
-                "fieldParams": {
-                  "label": "CPU",
-                  "badge": "cores",
-                  "defaultValue": 1
-                },
-                "validation": {
-                  "min": 0.6,
-                  "max": 16
-                }
-              },
-              "memory": {
-                "uiType": "number",
-                "path": "spec.resources.memory",
-                "fieldParams": {
-                  "label": "Memory",
-                  "badge": "GB",
-                  "defaultValue": 2
-                },
-                "validation": {
-                  "min": 1,
-                  "max": 128
-                }
-              }
-            },
-            "componentsOrder": ["cpu", "memory"]
-          }
-        },
-        "componentsOrder": ["numberOfnodes", "resourceGroup"]
-      }
-    },
-    "sectionsOrder": ["basicInfo", "resources"]
-  }
-}
+```yaml
+uiSchema:
+  replicaSet:
+    sections:
+      databaseVersion:
+        label: "Database Version"
+        description: "Provide the information about the database version you want to use."
+        components:
+          version:
+            uiType: select
+            path: "spec.engine.version"
+            fieldParams:
+              label: "Database Version"
+              optionsPath: "spec.componentTypes.mongod.versions"
+              optionsPathConfig:
+                labelPath: "version"
+                valuePath: "version"
+            validation:
+              required: true
+      resources:
+        label: "Resources"
+        description: "Configure the resources your new database will have access to."
+        components:
+          nodes:
+            uiType: group
+            components:
+              numberOfnodes:
+                path: "spec.components.engine.replicas"
+                uiType: number
+                fieldParams:
+                  label: "Number of nodes"
+                  defaultValue: 3
+                validation:
+                  required: true
+                  min: 1
+                  int: true
+                  celExpressions:
+                    - celExpr: "spec.components.engine.replicas % 2 == 1"
+                      message: "The number of nodes must be odd"
+
+              resources:
+                uiType: group
+                groupType: line
+                components:
+                  cpu:
+                    path: "spec.components.engine.resources.limits.cpu"
+                    uiType: number
+                    fieldParams:
+                      label: "CPU"
+                      defaultValue: 1
+                      step: 0.1
+                    validation:
+                      min: 0.6
+                      required: true
+
+                  memory:
+                    path: "spec.components.engine.resources.limits.memory"
+                    uiType: number
+                    fieldParams:
+                      label: "Memory"
+                      defaultValue: 4
+                      step: 0.001
+                      badge: "Gi"
+                      badgeToApi: true
+                    validation:
+                      min: 0.512
+                      required: true
+
+                  disk:
+                    path: "spec.components.engine.storage.size"
+                    uiType: number
+                    fieldParams:
+                      label: "Disk"
+                      defaultValue: 25
+                      badge: "Gi"
+                      badgeToApi: true
+                    validation:
+                      min: 1
+                      int: true
+                      required: true
+      advanced:
+        label: "Advanced configuration"
+        description: "Configure advanced settings for your database"
+        components:
+          storageClass:
+            uiType: select
+            path: spec.components.engine.storage.storageClass
+            fieldParams:
+              label: "Storage class"
+              defaultValue: "local-path"
+              options:
+                - label: "local-path"
+                  value: "local-path"
+          configuration:
+            uiType: text
+            path: spec.components.engine.configuration
+            fieldParams:
+              label: "Advanced configuration"
+              multiline: true
+              minRows: 3
+              maxRows: 8
+        componentsOrder:
+          - storageClass
+          - configuration
+    sectionsOrder:
+      - databaseVersion
+      - resources
+      - advanced
+  sharded:
+    sections:
+      databaseVersion:
+        label: "Database Version"
+        description: "Provide the information about the database version you want to use."
+        components:
+          version:
+            uiType: select
+            path: "spec.engine.version"
+            fieldParams:
+              label: "Database Version"
+              optionsPath: "spec.componentTypes.mongod.versions"
+              optionsPathConfig:
+                labelPath: "version"
+                valuePath: "version"
+            validation:
+              required: true
+      resources:
+        label: "Resources"
+        description: "Some description about resources"
+        components:
+          shards:
+            uiType: number
+            path: "spec.sharding.shards"
+            fieldParams:
+              required: true
+              label: "Nº of shards"
+              defaultValue: 1
+          numberOfnodes:
+            path: "spec.components.engine.replicas"
+            uiType: number
+            fieldParams:
+              label: "Number of nodes"
+              defaultValue: 3
+            validation:
+              required: true
+              min: 1
+              int: true
+              celExpressions:
+                - celExpr: "spec.components.engine.replicas % 2 == 1"
+                  message: "The number of nodes must be odd"
+          nodesResources:
+            uiType: group
+            groupType: line
+            components:
+              cpu:
+                path: "spec.components.engine.resources.limits.cpu"
+                uiType: number
+                fieldParams:
+                  label: "CPU"
+                  defaultValue: 1
+                  step: 0.1
+                validation:
+                  min: 0.6
+                  required: true
+              memory:
+                path: "spec.components.engine.resources.limits.memory"
+                uiType: number
+                fieldParams:
+                  label: "Memory"
+                  defaultValue: 4
+                  step: 0.001
+                  badge: "Gi"
+                  badgeToApi: true
+                validation:
+                  min: 0.512
+                  required: true
+              disk:
+                path: "spec.components.engine.storage.size"
+                uiType: number
+                fieldParams:
+                  label: "Disk"
+                  defaultValue: 25
+                  badge: "Gi"
+                  badgeToApi: true
+                  validation:
+                    min: 1
+                    int: true
+                    required: true
+          numberOfRouters:
+            path: "spec.components.proxy.replicas"
+            uiType: number
+            fieldParams:
+              label: "Number of routers"
+          routersResources:
+            uiType: group
+            groupType: line
+            components:
+              cpu:
+                path: "spec.components.proxy.resources.limits.cpu"
+                uiType: number
+                fieldParams:
+                  label: "CPU"
+                validation:
+                  min: 1
+                  max: 10
+              memory:
+                path: "spec.components.proxy.resources.limits.memory"
+                uiType: number
+                fieldParams:
+                  label: "Memory"
+                validation:
+                  min: 1
+                  max: 10
+          numberOfConfigServers:
+            uiType: number
+            path: "spec.components.configServer.replicas"
+            fieldParams:
+              label: "Nº of configuration servers"
+              defaultValue: 3
+            validation:
+              celExpressions:
+                - celExpr: "!(spec.components.engine.replicas > 1 && spec.components.configServer.replicas == 1)"
+                  message: "The number of configuration servers cannot be 1 if the number of database nodes is greater than 1"
+        componentsOrder:
+          - shards
+          - numberOfnodes
+          - nodesResources
+          - numberOfRouters
+          - routersResources
+          - numberOfConfigServers
+      advanced:
+        label: "Advanced configuration"
+        description: "Configure advanced settings for your database"
+        components:
+          storageClass:
+            uiType: select
+            path: spec.components.engine.storage.storageClass
+            fieldParams:
+              label: "Storage class"
+              defaultValue: "local-path"
+              options:
+                - label: "local-path"
+                  value: "local-path"
+          configuration:
+            uiType: text
+            path: spec.components.engine.configuration
+            fieldParams:
+              label: "Advanced configuration"
+              defaultValue: "operationProfiling:\n  mode: slowOp\n"
+              multiline: true
+              minRows: 3
+              maxRows: 8
+        componentsOrder:
+          - storageClass
+          - configuration
+    sectionsOrder:
+      - databaseVersion
+      - resources
+      - advanced
 ```

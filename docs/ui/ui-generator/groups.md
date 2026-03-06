@@ -1,4 +1,12 @@
 # Groups
+## Table of Contents
+
+- [Line Group](#line-group)
+- [Accordion Group](#accordion-group)
+- [Number Field](components/number-field.md)
+- [Select Field](components/select-field.md)
+- [Text Field](components/text-field.md)
+- [Validation](validation.md)
 
 Groups allow you to organize multiple fields together with different layout options.
 

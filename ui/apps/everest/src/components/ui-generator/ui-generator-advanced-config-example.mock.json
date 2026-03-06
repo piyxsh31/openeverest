@@ -1,209 +1,197 @@
-"advancedConfiguration": {
-        "label": "Advanced Configuration",
-        "description": "Configure advanced settings for your database cluster",
+{
+  "advancedConfiguration": {
+    "label": "Advanced Configuration",
+    "description": "Configure advanced settings for your database cluster",
+    "components": {
+      "storageClass": {
+        "uiType": "select",
+        "path": "spec.storageClass",
+        "fieldParams": {
+          "label": "Storage Class",
+          "options": [],
+          "displayEmpty": true
+        },
+        "validation": {
+          "required": true
+        }
+      },
+      "podSchedulingGroup": {
+        "uiType": "group",
+        "label": "Pod Scheduling Policies",
+        "description": "Apply scheduling policies to control pod placement",
+        "groupType": "accordion",
         "components": {
-          "storageClass": {
+          "podSchedulingPolicyEnabled": {
             "uiType": "select",
-            "path": "spec.storageClass",
+            "path": "spec.podSchedulingEnabled",
             "fieldParams": {
-              "label": "Storage Class",
-              "options": [],
-              "displayEmpty": true
-            },
-            "validation": {
-              "required": true
+              "label": "Enable Pod Scheduling",
+              "options": [
+                { "label": "Enabled", "value": "true" },
+                { "label": "Disabled", "value": "false" }
+              ],
+              "defaultValue": "false"
             }
           },
-          "podSchedulingGroup": {
-            "uiType": "group",
-            "label": "Pod Scheduling Policies",
-            "description": "Apply scheduling policies to control pod placement",
-            "groupType": "accordion",
-            "components": {
-              "podSchedulingPolicyEnabled": {
-                "uiType": "select",
-                "path": "spec.podSchedulingEnabled",
-                "fieldParams": {
-                  "label": "Enable Pod Scheduling",
-                  "options": [
-                    { "label": "Enabled", "value": "true" },
-                    { "label": "Disabled", "value": "false" }
-                  ],
-                  "defaultValue": "false"
-                }
-              },
-              "podSchedulingPolicy": {
-                "uiType": "select",
-                "path": "spec.podSchedulingPolicy",
-                "fieldParams": {
-                  "label": "Policy",
-                  "options": []
-                },
-                "validation": {
-                  "celExpressions": [
-                    {
-                      "celExpr": "spec.podSchedulingEnabled == \"true\" ? required : optional",
-                      "message": "Policy is required when pod scheduling is enabled"
-                    }
-                  ]
-                }
-              }
+          "podSchedulingPolicy": {
+            "uiType": "select",
+            "path": "spec.podSchedulingPolicy",
+            "fieldParams": {
+              "label": "Policy",
+              "options": []
             },
-            "componentsOrder": [
-              "podSchedulingPolicyEnabled",
-              "podSchedulingPolicy"
-            ]
-          },
-          "externalAccess": {
-            "uiType": "group",
-            "label": "External Access",
-            "description": "Configure how your database is accessed externally",
-            "groupType": "accordion",
-            "components": {
-              "exposureMethod": {
-                "uiType": "select",
-                "path": "spec.proxy.expose.type",
-                "fieldParams": {
-                  "label": "Exposure Method",
-                  "options": [
-                    { "label": "Cluster IP", "value": "ClusterIP" },
-                    { "label": "Load Balancer", "value": "LoadBalancer" },
-                    { "label": "Node Port", "value": "NodePort" }
-                  ],
-                  "defaultValue": "ClusterIP"
+            "validation": {
+              "celExpressions": [
+                {
+                  "celExpr": "spec.podSchedulingEnabled == \"true\" ? required : optional",
+                  "message": "Policy is required when pod scheduling is enabled"
                 }
-              },
-              "loadBalancerConfig": {
-                "uiType": "group",
-                "groupType": "line",
-                "components": {
-                  "loadBalancerConfigName": {
-                    "uiType": "select",
-                    "path": "spec.proxy.expose.loadBalancerConfigName",
-                    "fieldParams": {
-                      "label": "Load Balancer Configuration",
-                      "options": [
-                        { "label": "(No config)", "value": "no-config" }
-                      ]
-                    },
-                    "validation": {
-                      "celExpressions": [
-                        {
-                          "celExpr": "spec.proxy.expose.type == \"LoadBalancer\"",
-                          "message": "This field is only available for Load Balancer exposure"
-                        }
-                      ]
-                    }
-                  },
-                  "sourceRanges": {
-                    "uiType": "hidden",
-                    "path": "spec.proxy.expose.sourceRanges",
-                    "fieldParams": {
-                      "label": "Source Ranges",
-                      "helperText": "IP addresses (CIDR notation) allowed to access the database"
-                    },
-                    "validation": {
-                      "regex": {
-                        "pattern": "^(\\\\d{1,3}\\\\.){3}\\\\d{1,3}(\\\\/\\\\d{1,2})?$",
-                        "message": "Must be valid CIDR notation (e.g., 192.168.1.0/24)"
-                      }
-                    }
-                  }
-                },
-                "componentsOrder": [
-                  "loadBalancerConfigName",
-                  "sourceRanges"
-                ]
-              }
-            },
-            "componentsOrder": ["exposureMethod", "loadBalancerConfig"]
-          },
-          "splitHorizonDNS": {
-            "uiType": "group",
-            "label": "Split Horizon DNS",
-            "description": "Configure DNS settings for split-horizon deployments",
-            "groupType": "accordion",
-            "components": {
-              "splitHorizonDNSEnabled": {
-                "uiType": "select",
-                "path": "spec.splitHorizonDNS.enabled",
-                "fieldParams": {
-                  "label": "Enable Split Horizon DNS",
-                  "options": [
-                    { "label": "Enabled", "value": "true" },
-                    { "label": "Disabled", "value": "false" }
-                  ],
-                  "defaultValue": "false"
-                }
-              },
-              "splitHorizonDNSConfig": {
-                "uiType": "select",
-                "path": "spec.splitHorizonDNS.config",
-                "fieldParams": {
-                  "label": "DNS Configuration",
-                  "options": []
-                },
-                "validation": {
-                  "celExpressions": [
-                    {
-                      "celExpr": "spec.splitHorizonDNS.enabled == \"true\" ? required : optional",
-                      "message": "DNS configuration required when split horizon is enabled"
-                    }
-                  ]
-                }
-              }
-            },
-            "componentsOrder": [
-              "splitHorizonDNSEnabled",
-              "splitHorizonDNSConfig"
-            ]
-          },
-          "engineParameters": {
-            "uiType": "group",
-            "label": "Engine Parameters",
-            "description": "Additional configuration parameters to pass to the database engine",
-            "groupType": "accordion",
-            "components": {
-              "engineParametersEnabled": {
-                "uiType": "select",
-                "path": "spec.engineParametersEnabled",
-                "fieldParams": {
-                  "label": "Enable Custom Parameters",
-                  "options": [
-                    { "label": "Enabled", "value": "true" },
-                    { "label": "Disabled", "value": "false" }
-                  ],
-                  "defaultValue": "false"
-                }
-              },
-              "engineParametersValue": {
-                "uiType": "hidden",
-                "path": "spec.engine.config",
-                "fieldParams": {
-                  "label": "Parameters",
-                  "helperText": "Enter engine-specific configuration parameters"
-                },
-                "validation": {
-                  "celExpressions": [
-                    {
-                      "celExpr": "spec.engineParametersEnabled == \"true\" ? required : optional",
-                      "message": "Parameters required when custom parameters are enabled"
-                    }
-                  ]
-                }
-              }
-            },
-            "componentsOrder": [
-              "engineParametersEnabled",
-              "engineParametersValue"
-            ]
+              ]
+            }
           }
         },
-        "componentsOrder": [
-          "storageClass",
-          "podSchedulingGroup",
-          "externalAccess",
-          "splitHorizonDNS",
-          "engineParameters"
-        ]
+        "componentsOrder": ["podSchedulingPolicyEnabled", "podSchedulingPolicy"]
+      },
+      "externalAccess": {
+        "uiType": "group",
+        "label": "External Access",
+        "description": "Configure how your database is accessed externally",
+        "groupType": "accordion",
+        "components": {
+          "exposureMethod": {
+            "uiType": "select",
+            "path": "spec.proxy.expose.type",
+            "fieldParams": {
+              "label": "Exposure Method",
+              "options": [
+                { "label": "Cluster IP", "value": "ClusterIP" },
+                { "label": "Load Balancer", "value": "LoadBalancer" },
+                { "label": "Node Port", "value": "NodePort" }
+              ],
+              "defaultValue": "ClusterIP"
+            }
+          },
+          "loadBalancerConfig": {
+            "uiType": "group",
+            "groupType": "line",
+            "components": {
+              "loadBalancerConfigName": {
+                "uiType": "select",
+                "path": "spec.proxy.expose.loadBalancerConfigName",
+                "fieldParams": {
+                  "label": "Load Balancer Configuration",
+                  "options": [{ "label": "(No config)", "value": "no-config" }]
+                },
+                "validation": {
+                  "celExpressions": [
+                    {
+                      "celExpr": "spec.proxy.expose.type == \"LoadBalancer\"",
+                      "message": "This field is only available for Load Balancer exposure"
+                    }
+                  ]
+                }
+              },
+              "sourceRanges": {
+                "uiType": "hidden",
+                "path": "spec.proxy.expose.sourceRanges",
+                "fieldParams": {
+                  "label": "Source Ranges",
+                  "helperText": "IP addresses (CIDR notation) allowed to access the database"
+                },
+                "validation": {
+                  "regex": {
+                    "pattern": "^(\\\\d{1,3}\\\\.){3}\\\\d{1,3}(\\\\/\\\\d{1,2})?$",
+                    "message": "Must be valid CIDR notation (e.g., 192.168.1.0/24)"
+                  }
+                }
+              }
+            },
+            "componentsOrder": ["loadBalancerConfigName", "sourceRanges"]
+          }
+        },
+        "componentsOrder": ["exposureMethod", "loadBalancerConfig"]
+      },
+      "splitHorizonDNS": {
+        "uiType": "group",
+        "label": "Split Horizon DNS",
+        "description": "Configure DNS settings for split-horizon deployments",
+        "groupType": "accordion",
+        "components": {
+          "splitHorizonDNSEnabled": {
+            "uiType": "select",
+            "path": "spec.splitHorizonDNS.enabled",
+            "fieldParams": {
+              "label": "Enable Split Horizon DNS",
+              "options": [
+                { "label": "Enabled", "value": "true" },
+                { "label": "Disabled", "value": "false" }
+              ],
+              "defaultValue": "false"
+            }
+          },
+          "splitHorizonDNSConfig": {
+            "uiType": "select",
+            "path": "spec.splitHorizonDNS.config",
+            "fieldParams": {
+              "label": "DNS Configuration",
+              "options": []
+            },
+            "validation": {
+              "celExpressions": [
+                {
+                  "celExpr": "spec.splitHorizonDNS.enabled == \"true\" ? required : optional",
+                  "message": "DNS configuration required when split horizon is enabled"
+                }
+              ]
+            }
+          }
+        },
+        "componentsOrder": ["splitHorizonDNSEnabled", "splitHorizonDNSConfig"]
+      },
+      "engineParameters": {
+        "uiType": "group",
+        "label": "Engine Parameters",
+        "description": "Additional configuration parameters to pass to the database engine",
+        "groupType": "accordion",
+        "components": {
+          "engineParametersEnabled": {
+            "uiType": "select",
+            "path": "spec.engineParametersEnabled",
+            "fieldParams": {
+              "label": "Enable Custom Parameters",
+              "options": [
+                { "label": "Enabled", "value": "true" },
+                { "label": "Disabled", "value": "false" }
+              ],
+              "defaultValue": "false"
+            }
+          },
+          "engineParametersValue": {
+            "uiType": "hidden",
+            "path": "spec.engine.config",
+            "fieldParams": {
+              "label": "Parameters",
+              "helperText": "Enter engine-specific configuration parameters"
+            },
+            "validation": {
+              "celExpressions": [
+                {
+                  "celExpr": "spec.engineParametersEnabled == \"true\" ? required : optional",
+                  "message": "Parameters required when custom parameters are enabled"
+                }
+              ]
+            }
+          }
+        },
+        "componentsOrder": ["engineParametersEnabled", "engineParametersValue"]
       }
+    },
+    "componentsOrder": [
+      "storageClass",
+      "podSchedulingGroup",
+      "externalAccess",
+      "splitHorizonDNS",
+      "engineParameters"
+    ]
+  }
+}
