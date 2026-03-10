@@ -86,6 +86,11 @@ export const ResourcesDetails = ({
     ? proxies
     : CUSTOM_NR_UNITS_INPUT_VALUE;
 
+  // in the context of ui-generator, this is the expected behavior,
+  // since we do not know the types that will be set by the user for
+  // the generated part of the form
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onSubmit: SubmitHandler<z.ZodType<any>> = ({
     cpu,
     disk,
