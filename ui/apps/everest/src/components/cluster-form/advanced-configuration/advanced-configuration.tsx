@@ -258,6 +258,7 @@ export const AdvancedConfigurationForm = ({
         { shouldValidate: true }
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     clusterInfo,
     allowedFieldsToInitiallyLoadDefaults,

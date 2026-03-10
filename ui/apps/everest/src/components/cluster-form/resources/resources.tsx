@@ -223,6 +223,7 @@ const ResourcesToggles = ({
       }
       setValue(memoryInputName, sizeOptions[resourceSizePerUnit].memory);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resourceSizePerUnit, allowDiskInputUpdate, setValue]);
 
   useEffect(() => {
@@ -231,6 +232,7 @@ const ResourcesToggles = ({
     } else {
       clearErrors(diskInputName);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [diskCapacityExceeded, clearErrors, setError]);
 
   useEffect(() => {
@@ -240,6 +242,7 @@ const ResourcesToggles = ({
     ) {
       setValue(resourceSizePerUnitInputName, ResourceSize.custom);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cpu, setValue]);
 
   useEffect(() => {
@@ -250,6 +253,7 @@ const ResourcesToggles = ({
     ) {
       setValue(resourceSizePerUnitInputName, ResourceSize.custom);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [disk, allowDiskInputUpdate, setValue]);
 
   useEffect(() => {
@@ -269,6 +273,7 @@ const ResourcesToggles = ({
     } else if (isMySQLSpecialMemory) {
       setValue(resourceSizePerUnitInputName, ResourceSize.small);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [memory, setValue]);
 
   return (

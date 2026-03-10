@@ -60,7 +60,7 @@ export const ScheduleFormWrapper = () => {
   useEffect(() => {
     // This allowed us to get an error from zod .superRefine to avoid duplication of checking the schedule with the same time
     trigger();
-  }, [amPm, hour, minute, onDay, weekDay, selectedTime]);
+  }, [amPm, hour, minute, onDay, weekDay, selectedTime, trigger]);
 
   useEffect(() => {
     if (mode === WizardMode.Edit && setSelectedScheduleName) {
