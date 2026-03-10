@@ -69,6 +69,7 @@ const mapNumberFieldParams = (fieldParams: NumberFieldParams) => {
     placeholder,
   });
 
+  // TODO fix logic, cover with tests and fix readme
   // const getOffset = (): number => {
   //   if (validation?.int) {
   //     return 1;

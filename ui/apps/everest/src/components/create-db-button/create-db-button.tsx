@@ -58,8 +58,8 @@ export const CreateDbButton = ({
   //   });
 
   const { data: providers, isFetching: providersFetching } = useProviders();
-
   const availableProviders = providers?.items || [];
+
   // TODO remove after createDBCluster flow will be ready
   // const availableDbTypes = allAvailableDbTypes.filter((item) =>
   //   item.dbEngines.some((engine) =>

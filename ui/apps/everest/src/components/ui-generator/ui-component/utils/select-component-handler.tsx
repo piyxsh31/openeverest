@@ -20,23 +20,9 @@ import {
   SelectFieldParams,
 } from '../../ui-generator.types';
 import { Provider } from 'types/api';
+import { getValueByPath } from './get-value-by-path';
 
 type SelectComponent = Extract<Component, { uiType: FieldType.Select }>;
-
-// Helper to get nested value from object using dot-separated path
-export const getValueByPath = (obj: unknown, path: string): unknown => {
-  if (!obj || !path) return undefined;
-  if (typeof obj !== 'object') return undefined;
-  return path
-    .split('.')
-    .reduce<unknown>(
-      (acc, part) =>
-        acc && typeof acc === 'object'
-          ? (acc as Record<string, unknown>)[part]
-          : undefined,
-      obj
-    );
-};
 
 export const isSelectComponent = (item: Component): item is SelectComponent => {
   return item.uiType === FieldType.Select;

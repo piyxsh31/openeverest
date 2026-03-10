@@ -18,19 +18,7 @@ import {
   Component,
   ComponentGroup,
 } from 'components/ui-generator/ui-generator.types';
-
-const getValueByPath = (obj: unknown, path: string): unknown => {
-  if (!obj || typeof obj !== 'object') return undefined;
-  return path
-    .split('.')
-    .reduce<unknown>(
-      (acc, part) =>
-        acc && typeof acc === 'object'
-          ? (acc as Record<string, unknown>)[part]
-          : undefined,
-      obj
-    );
-};
+import { getValueByPath } from 'components/ui-generator/ui-component/utils/get-value-by-path';
 
 //TODO describe types
 export const renderComponent = (

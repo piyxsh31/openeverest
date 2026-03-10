@@ -12,19 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { useQuery } from '@tanstack/react-query';
-import { getProvidersFn } from 'api/providers';
-import { PerconaQueryOptions } from 'shared-types/query.types';
-import { ProviderList } from 'types/api';
+export const getValueByPath = (obj: unknown, path: string): unknown => {
+  if (!obj || !path || typeof obj !== 'object') {
+    return undefined;
+  }
 
-export const useProviders = (
-  options?: PerconaQueryOptions<ProviderList, unknown, ProviderList>
-) => {
-  return useQuery<ProviderList, unknown, ProviderList>({
-    queryKey: ['providers'],
-    queryFn: () => getProvidersFn(),
-    retry: 3,
-    refetchInterval: 10 * 1000,
-    ...options,
-  });
+  return path
+    .split('.')
+    .reduce<unknown>(
+      (acc, part) =>
+        acc && typeof acc === 'object'
+          ? (acc as Record<string, unknown>)[part]
+          : undefined,
+      obj
+    );
 };
