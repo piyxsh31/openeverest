@@ -12,19 +12,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react-swc';
 import * as path from 'path';
+import tsconfigPaths from 'vite-tsconfig-paths';
+import { defineConfig } from 'vitest/config';
+import { playwright } from '@vitest/browser-playwright';
+
+const isCI = process.env.CI === 'true';
 
 export default defineConfig({
+  plugins: [tsconfigPaths({ root: '.' }), react()],
+  optimizeDeps: {
+    include: ['@testing-library/jest-dom/matchers'],
+  },
   test: {
+    name: 'browser',
     globals: true,
-    environment: 'jsdom',
-    setupFiles: 'src/setupTests.ts',
-    dir: 'src',
+    include: ['src/**/*.browser.test.{ts,tsx}'],
+    setupFiles: 'src/setupBrowserTests.ts',
     isolate: true,
-    fileParallelism: true,
-    maxWorkers: process.env.CI ? '50%' : undefined,
-    reporters: ['verbose'],
+    maxWorkers: isCI ? '50%' : undefined,
+    browser: {
+      enabled: true,
+      // Work around pnpm type duplication of vitest instances in monorepo.
+      provider: playwright() as never,
+      headless: isCI,
+      instances: [{ browser: 'chromium' as const }],
+      fileParallelism: true,
+    },
+    reporters: isCI ? ['dot', 'github-actions', 'junit'] : ['verbose'],
+    outputFile: isCI
+      ? { junit: './test-results/vitest-browser-junit.xml' }
+      : undefined,
   },
   resolve: {
     alias: {
