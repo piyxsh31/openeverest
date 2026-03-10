@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { TestWrapper } from 'utils/test';
@@ -88,13 +88,15 @@ const Wrapper = ({ children }: { children: React.ReactNode }) => {
 
 describe('BaseInfoStep (browser mode)', () => {
   it('renders form fields and allows editing db name in real browser', async () => {
-    render(
-      <Wrapper>
-        <BaseInfoStep
-          loadingDefaultsForEdition={false}
-          alreadyVisited={false}
-        />
-      </Wrapper>
+    await waitFor(() =>
+      render(
+        <Wrapper>
+          <BaseInfoStep
+            loadingDefaultsForEdition={false}
+            alreadyVisited={false}
+          />
+        </Wrapper>
+      )
     );
 
     await expect
@@ -102,7 +104,7 @@ describe('BaseInfoStep (browser mode)', () => {
       .toBeInTheDocument();
 
     const dbNameInput = page.getByTestId('text-input-db-name');
-    await userEvent.fill(dbNameInput, 'db-browser-mode');
+    await waitFor(() => userEvent.fill(dbNameInput, 'db-browser-mode'));
 
     await expect.element(dbNameInput).toHaveValue('db-browser-mode');
   });
