@@ -21,6 +21,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { buildZodSchema } from '../utils/schema-builder';
 import { getDefaultValues } from '../utils/default-values';
 import { Button } from '@mui/material';
+import { formSubmitPostProcessing } from 'pages/database-form/utils/form-submit-post-processing';
 
 vi.mock('../utils/cel-validation', () => ({
   extractCelFieldPaths: vi.fn(() => []),
@@ -100,7 +101,7 @@ const FormWrapper = ({ children, schema, onSubmit }: FormWrapperProps) => {
 };
 
 describe('UIGenerator - Number Field Required Validation', () => {
-  it('should enable submit button when number field is empty by default (optional)', async () => {
+  it('should enable submit button when number field is empty by default and optional', async () => {
     const mockSubmit = vi.fn();
     const schema = createTestSchema({});
 
@@ -183,6 +184,46 @@ describe('UIGenerator - Number Field Required Validation', () => {
     await waitFor(() => {
       expect(submitButton).not.toBeDisabled();
     });
+  });
+
+  it('should allow submit and keep optional empty number field omitted in payload', async () => {
+    const mockSubmit = vi.fn();
+    const schema = createTestSchema({
+      validation: {
+        required: false,
+      },
+    });
+
+    render(
+      <TestWrapper>
+        <FormWrapper schema={schema} onSubmit={mockSubmit}>
+          <UIGenerator
+            activeStep={0}
+            sections={schema.testTopology!.sections}
+            stepLabels={['basicInfo']}
+          />
+        </FormWrapper>
+      </TestWrapper>
+    );
+
+    const submitButton = screen.getByTestId('submit-button');
+
+    await waitFor(() => {
+      expect(submitButton).not.toBeDisabled();
+    });
+
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(mockSubmit).toHaveBeenCalledTimes(1);
+    });
+
+    const submittedData = mockSubmit.mock.calls[0][0] as Record<
+      string,
+      unknown
+    >;
+    const postProcessedData = formSubmitPostProcessing({}, submittedData);
+    expect(postProcessedData).not.toHaveProperty('spec.testNumber');
   });
 
   it('should not show error for default empty field (optional by default)', async () => {

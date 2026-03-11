@@ -37,7 +37,7 @@ export type ComponentProps<
 };
 
 const UIComponent: React.FC<ComponentProps> = ({ item, name }) => {
-  const { uiType, fieldParams } = item;
+  const { uiType, fieldParams, validation } = item;
   const methods = useFormContext();
   const errors = methods?.formState?.errors || {};
   const { providerObject, loadingDefaultsForEdition } = useUiGeneratorContext();
@@ -53,7 +53,7 @@ const UIComponent: React.FC<ComponentProps> = ({ item, name }) => {
 
   if (!MuiComponent) return null;
 
-  const mappedProps = getMappedParams(uiType, fieldParams);
+  const mappedProps = getMappedParams(uiType, fieldParams, validation);
 
   // Extract badge from mappedProps if present
   const { badge, textFieldProps, selectFieldProps, ...restMappedProps } =

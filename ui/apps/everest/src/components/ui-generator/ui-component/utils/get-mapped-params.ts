@@ -18,6 +18,8 @@ import {
   SelectFieldParams,
   TextFieldParams,
   FieldParamsMap,
+  ValidationMap,
+  FieldType,
 } from '../../ui-generator.types';
 
 export type MappedFieldProps = {
@@ -42,11 +44,15 @@ const filterDefined = <T extends Record<string, unknown>>(
 
 export const getMappedParams = <K extends keyof FieldParamsMap>(
   fieldType: K,
-  fieldParams: FieldParamsMap[K]
+  fieldParams: FieldParamsMap[K],
+  validation?: ValidationMap[K]
 ) => {
   switch (fieldType) {
     case 'number':
-      return mapNumberFieldParams(fieldParams as NumberFieldParams);
+      return mapNumberFieldParams(
+        fieldParams as NumberFieldParams,
+        validation as ValidationMap[FieldType.Number] | undefined
+      );
     case 'text':
       return mapTextFieldParams(fieldParams as TextFieldParams);
     case 'select':
@@ -57,8 +63,11 @@ export const getMappedParams = <K extends keyof FieldParamsMap>(
   }
 };
 
-const mapNumberFieldParams = (fieldParams: NumberFieldParams) => {
-  const { disabled, helperText, badge, autoFocus, placeholder, ...rest } =
+const mapNumberFieldParams = (
+  fieldParams: NumberFieldParams,
+  validation?: ValidationMap[FieldType.Number]
+) => {
+  const { disabled, helperText, badge, autoFocus, placeholder, step, ...rest } =
     fieldParams;
 
   const textFieldProps: Partial<TextFieldProps> = filterDefined({
@@ -69,51 +78,47 @@ const mapNumberFieldParams = (fieldParams: NumberFieldParams) => {
     placeholder,
   });
 
-  // TODO fix logic, cover with tests and fix readme
-  // const getOffset = (): number => {
-  //   if (validation?.int) {
-  //     return 1;
-  //   }
-  //   if (step !== undefined) {
-  //     return step;
-  //   }
-  //   return 0.000001;
-  // };
+  const getOffset = (): number => {
+    if (validation?.int) {
+      return 1;
+    }
+    if (step !== undefined) {
+      return step;
+    }
+    return 0.000001;
+  };
 
-  // const offset = getOffset();
+  const offset = getOffset();
 
-  // // Priority: explicit min/max > converted gt/lt
-  // const minValue =
-  //   validation?.min !== undefined
-  //     ? validation.min
-  //     : validation?.gt !== undefined
-  //       ? validation.gt + offset
-  //       : undefined;
+  // Priority: explicit min/max > converted gt/lt
+  const minValue =
+    validation?.min !== undefined
+      ? validation.min
+      : validation?.gt !== undefined
+        ? validation.gt + offset
+        : undefined;
 
-  // const maxValue =
-  //   validation?.max !== undefined
-  //     ? validation.max
-  //     : validation?.lt !== undefined
-  //       ? validation.lt - offset
-  //       : undefined;
+  const maxValue =
+    validation?.max !== undefined
+      ? validation.max
+      : validation?.lt !== undefined
+        ? validation.lt - offset
+        : undefined;
 
-  // const inputProps = filterDefined({
-  //   min: minValue,
-  //   max: maxValue,
-  //   step,
-  // });
+  const inputProps = filterDefined({
+    min: minValue,
+    max: maxValue,
+    step,
+  });
 
-  // if (Object.keys(inputProps).length > 0) {
-  //   textFieldProps.inputProps = inputProps;
-  // }
+  if (Object.keys(inputProps).length > 0) {
+    textFieldProps.inputProps = inputProps;
+  }
 
   return {
     ...rest,
     textFieldProps: {
       ...textFieldProps,
-      // inputProps: {
-      //   ...inputProps,
-      // },
     },
     badge,
   };

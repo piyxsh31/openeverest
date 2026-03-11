@@ -45,14 +45,7 @@ export const buildDefaultsFromComponents = (
       ) {
         result[fieldId] = component.fieldParams.defaultValue;
       } else {
-        switch (component.uiType) {
-          case 'select':
-            result[fieldId] = component.fieldParams?.defaultValue ?? null;
-            break;
-          default:
-            result[fieldId] = UI_TYPE_DEFAULT_VALUE[component.uiType] ?? null;
-            break;
-        }
+        result[fieldId] = UI_TYPE_DEFAULT_VALUE[component.uiType];
       }
     }
   });

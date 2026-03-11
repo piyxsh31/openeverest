@@ -42,6 +42,7 @@ import { useDbValidationSchema } from './hooks/use-db-validation-schema';
 import { ImportFields } from 'components/cluster-form/import/import.types';
 import { DbWizardFormFields } from 'consts';
 import { getDefaultValues } from 'components/ui-generator/utils/default-values';
+import { formSubmitPostProcessing } from './utils/form-submit-post-processing';
 
 // When the user switches topology, new topology fields are absent from form
 // data, causing Zod to report errors at the parent-object level instead of the
@@ -288,14 +289,19 @@ export const DatabasePage = () => {
   );
 
   const onSubmit: SubmitHandler<DbWizardType> = (data) => {
-    latestDataRef.current = data;
+    const postProcessedData = formSubmitPostProcessing(
+      {},
+      data as Record<string, unknown>
+    ) as DbWizardType;
+
+    latestDataRef.current = postProcessedData;
 
     //TODO Restore mode === WizardMode.Restore
     if (mode === WizardMode.New) {
       const addInstance = () =>
         createInstance(
           {
-            formValue: data,
+            formValue: postProcessedData,
           },
           {
             onSuccess: () => {
@@ -431,7 +437,6 @@ export const DatabasePage = () => {
           <DatabaseFormSideDrawer
             disabled={loadingClusterValues}
             activeStep={activeStep}
-            longestAchievedStep={longestAchievedStep}
             handleSectionEdit={handleSectionEdit}
             stepsWithErrors={stepsWithErrors}
           />

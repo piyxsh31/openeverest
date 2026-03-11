@@ -52,8 +52,8 @@ export const buildNumberValidationSchema = (
     return z
       .union([z.string(), z.number(), z.undefined()])
       .transform((val) => {
-        // Treat empty string, undefined, or null as undefined (skip validation)
-        if (val === '' || val === undefined || val === null) {
+        // Treat empty string and undefined as undefined (skip validation)
+        if (val === '' || val === undefined) {
           return undefined;
         }
         return val;

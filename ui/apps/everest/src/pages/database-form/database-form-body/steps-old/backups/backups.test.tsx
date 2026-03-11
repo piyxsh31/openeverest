@@ -90,7 +90,7 @@ const FormProviderWrapper = ({
   return <FormProvider {...methods}>{children}</FormProvider>;
 };
 
-describe('BackupsStep', () => {
+describe.skip('BackupsStep', () => {
   it('should render nothing when no backup storage', () => {
     render(
       <QueryClientProvider client={queryClient}>

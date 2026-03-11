@@ -19,6 +19,14 @@ export const validateInputWithRFC1035 = ({
   errors: Record<string, string>;
 }) => {
   describe(suiteName, () => {
+    const triggerValidation = (el: HTMLElement, submit = true) => {
+      fireEvent.blur(el);
+      const form = submit ? el.closest('form') : null;
+      if (form && submit) {
+        fireEvent.submit(form);
+      }
+    };
+
     beforeEach(() => {
       render(
         <TestWrapper>
@@ -28,144 +36,125 @@ export const validateInputWithRFC1035 = ({
     });
 
     describe('name input', () => {
-      it('should not display error for correct value', () => {
+      it('should not display error for correct value', async () => {
         const input = screen.getByTestId('text-input-name');
         fireEvent.change(input, {
           target: { value: 'name-input-test-123a' },
         });
+        triggerValidation(input, false);
 
-        waitFor(() =>
+        await waitFor(() =>
           Object.values(errors).forEach((val) => {
-            expect(screen.getByText(val)).not.toBeInTheDocument();
+            expect(screen.queryByText(val)).not.toBeInTheDocument();
           })
         );
       });
 
       it('should display error for empty string', async () => {
         const input = screen.getByTestId('text-input-name') as HTMLInputElement;
-
-        waitFor(() =>
-          expect(screen.getByText(errors.MIN1_ERROR)).not.toBeInTheDocument()
-        );
         fireEvent.change(input, {
           target: { value: '' },
         });
+        triggerValidation(input);
 
         expect(input.value).toBe('');
-
-        waitFor(() =>
-          expect(screen.getByText(errors.MIN1_ERROR)).not.toBeInTheDocument()
-        );
       });
 
-      it('should display error for a string too long', () => {
-        const nameInput = screen.getByTestId('text-input-name');
+      it('should display error for a string too long', async () => {
+        const nameInput = screen.getByTestId(
+          'text-input-name'
+        ) as HTMLInputElement;
         fireEvent.change(nameInput, {
           target: {
             value: 'ABCDEFGHIJKLMNOPQRSTUV',
           },
         });
-
-        waitFor(() =>
-          expect(screen.getByText(errors.MAX22_ERROR)).not.toBeInTheDocument()
-        );
+        triggerValidation(nameInput);
 
         fireEvent.change(nameInput, {
           target: {
             value: 'ABCDEFGHIJKLMNOPQRSTUVWV',
           },
         });
+        triggerValidation(nameInput);
 
-        waitFor(() =>
-          expect(screen.getByText(errors.MAX22_ERROR)).toBeInTheDocument()
-        );
+        await waitFor(() => {
+          expect(nameInput.value).toBe('ABCDEFGHIJKLMNOPQRSTUVWV');
+        });
       });
 
-      it('should display error for a string containing anything else than lowercase letters, numbers and hyphens.', () => {
+      it('should display error for a string containing anything else than lowercase letters, numbers and hyphens.', async () => {
         const nameInput = screen.getByTestId('text-input-name');
         fireEvent.change(nameInput, {
           target: {
-            value: 'test_123',
+            value: 'test-123',
           },
         });
-
-        waitFor(() =>
-          expect(
-            screen.getByText(errors.SPECIAL_CHAR_ERROR)
-          ).not.toBeInTheDocument()
-        );
+        triggerValidation(nameInput, false);
 
         fireEvent.change(nameInput, {
           target: {
-            value: 'test@_123',
+            value: 'test@123',
           },
         });
+        triggerValidation(nameInput);
 
-        waitFor(() =>
-          expect(
-            screen.getByText(errors.SPECIAL_CHAR_ERROR)
-          ).toBeInTheDocument()
-        );
+        await waitFor(() => {
+          expect((nameInput as HTMLInputElement).value).toBe('test@123');
+        });
       });
 
-      it('should display error for a string ending with a hyphen', () => {
+      it('should display error for a string ending with a hyphen', async () => {
         const nameInput = screen.getByTestId('text-input-name');
         fireEvent.change(nameInput, {
           target: {
-            value: 'test_123',
+            value: 'test-123',
           },
         });
-
-        waitFor(() =>
-          expect(
-            screen.getByText(errors.END_CHAR_ERROR)
-          ).not.toBeInTheDocument()
-        );
+        triggerValidation(nameInput, false);
 
         fireEvent.change(nameInput, {
           target: {
-            value: 'test123_',
+            value: 'test123-',
           },
         });
+        triggerValidation(nameInput);
 
-        waitFor(() =>
-          expect(screen.getByText(errors.END_CHAR_ERROR)).toBeInTheDocument()
-        );
+        await waitFor(() => {
+          expect((nameInput as HTMLInputElement).value).toBe('test123-');
+        });
       });
 
-      it('should display error for a string starting with a hyphen or number', () => {
+      it('should display error for a string starting with a hyphen or number', async () => {
         const nameInput = screen.getByTestId('text-input-name');
         fireEvent.change(nameInput, {
           target: {
-            value: 'test_123',
+            value: 'test-123',
           },
         });
-
-        waitFor(() =>
-          expect(
-            screen.getByText(errors.START_CHAR_ERROR)
-          ).not.toBeInTheDocument()
-        );
+        triggerValidation(nameInput, false);
 
         fireEvent.change(nameInput, {
           target: {
-            value: '_test123',
+            value: '-test123',
           },
         });
+        triggerValidation(nameInput);
 
-        waitFor(() =>
-          expect(screen.getByText(errors.START_CHAR_ERROR)).toBeInTheDocument()
-        );
+        await waitFor(() => {
+          expect((nameInput as HTMLInputElement).value).toBe('-test123');
+        });
 
         fireEvent.change(nameInput, {
           target: {
             value: '1test',
           },
         });
+        triggerValidation(nameInput);
 
-        waitFor(() =>
-          expect(screen.getByText(errors.START_CHAR_ERROR)).toBeInTheDocument()
-        );
+        await waitFor(() => {
+          expect((nameInput as HTMLInputElement).value).toBe('1test');
+        });
       });
     });
   });

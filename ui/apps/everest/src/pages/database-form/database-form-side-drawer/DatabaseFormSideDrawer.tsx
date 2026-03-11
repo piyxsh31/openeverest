@@ -6,7 +6,6 @@ import { DatabaseFormSideDrawerProps } from './DatabaseFormSideDrawer.types';
 
 const DatabaseFormSideDrawer = ({
   activeStep,
-  longestAchievedStep,
   handleSectionEdit,
   disabled,
   stepsWithErrors,
@@ -19,7 +18,6 @@ const DatabaseFormSideDrawer = ({
       <DatabasePreview
         disabled={disabled}
         activeStep={activeStep}
-        longestAchievedStep={longestAchievedStep}
         onSectionEdit={handleSectionEdit}
         stepsWithErrors={stepsWithErrors}
         sx={{
@@ -30,14 +28,7 @@ const DatabaseFormSideDrawer = ({
         }}
       />
     ),
-    [
-      disabled,
-      activeStep,
-      longestAchievedStep,
-      handleSectionEdit,
-      stepsWithErrors,
-      isDesktop,
-    ]
+    [disabled, activeStep, handleSectionEdit, stepsWithErrors, isDesktop]
   );
 
   if (isDesktop) {

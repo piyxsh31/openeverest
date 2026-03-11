@@ -15,7 +15,7 @@
 import { Box, Paper } from '@mui/material';
 import { useState, useEffect, useRef } from 'react';
 import { JsonEditorPanel } from './json-editor-panel/json-editor-panel';
-import schemaYaml from './ui-generator-schema.yaml?raw';
+import schemaYaml from 'components/ui-generator/ui-generator.mock.yaml?raw';
 import { TopologyUISchemas } from '../../components/ui-generator/ui-generator.types';
 import { ErrorBoundary } from 'utils/ErrorBoundary';
 import { GenericError } from 'pages/generic-error/GenericError';

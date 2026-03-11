@@ -22,7 +22,7 @@ import { DbType } from '@percona/types';
 import { TestWrapper } from 'utils/test';
 import { DatabasePreview } from './database-preview.tsx';
 import { DbWizardType } from '../database-form-schema.ts';
-import { getDbWizardDefaultValues } from '../database-form.utils';
+import { getDbWizardDefaultValues } from '../utils/get-default-values';
 
 const FormProviderWrapper = ({
   children,
@@ -49,11 +49,7 @@ describe.skip('DatabasePreview', () => {
     render(
       <FormProviderWrapper>
         <TestWrapper>
-          <DatabasePreview
-            stepsWithErrors={[]}
-            activeStep={0}
-            longestAchievedStep={0}
-          />
+          <DatabasePreview stepsWithErrors={[]} activeStep={0} />
         </TestWrapper>
       </FormProviderWrapper>
     );
@@ -73,11 +69,7 @@ describe.skip('DatabasePreview', () => {
         }}
       >
         <TestWrapper>
-          <DatabasePreview
-            stepsWithErrors={[]}
-            activeStep={0}
-            longestAchievedStep={0}
-          />
+          <DatabasePreview stepsWithErrors={[]} activeStep={0} />
         </TestWrapper>
       </FormProviderWrapper>
     );
@@ -100,11 +92,7 @@ describe.skip('DatabasePreview', () => {
         }}
       >
         <TestWrapper>
-          <DatabasePreview
-            stepsWithErrors={[]}
-            activeStep={1}
-            longestAchievedStep={1}
-          />
+          <DatabasePreview stepsWithErrors={[]} activeStep={1} />
         </TestWrapper>
       </FormProviderWrapper>
     );
@@ -145,11 +133,7 @@ describe.skip('DatabasePreview', () => {
       >
         <TestWrapper>
           <FormConsumer />
-          <DatabasePreview
-            stepsWithErrors={[]}
-            activeStep={1}
-            longestAchievedStep={1}
-          />
+          <DatabasePreview stepsWithErrors={[]} activeStep={1} />
         </TestWrapper>
       </FormProviderWrapper>
     );

@@ -17,7 +17,6 @@ import { StackProps, TypographyProps } from '@mui/material';
 export type DatabasePreviewProps = {
   // zero indexed
   activeStep: number;
-  longestAchievedStep: number;
   onSectionEdit?: (order: number) => void;
   disabled?: boolean;
   stepsWithErrors: number[];

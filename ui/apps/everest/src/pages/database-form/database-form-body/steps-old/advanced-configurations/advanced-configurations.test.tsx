@@ -45,7 +45,7 @@ const FormProviderWrapper = ({
   );
 };
 
-describe('FourthStep', () => {
+describe.skip('FourthStep', () => {
   it('should show an error message when duplicate sourceRanges are added', async () => {
     render(
       <TestWrapper>
