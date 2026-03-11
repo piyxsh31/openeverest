@@ -12,14 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { parse } from 'yaml';
-import { TopologyUISchemas } from './ui-generator.types';
-import topologyUiSchemasYaml from './ui-generator.mock.yaml?raw';
+import { parse, stringify } from 'yaml';
+import { TopologyUISchemas } from 'components/ui-generator/ui-generator.types';
 
-const parsed = parse(topologyUiSchemasYaml);
+export const yamlToJson = (yamlText: string): TopologyUISchemas => {
+  const parsed = parse(yamlText);
 
-if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-  throw new Error('ui-generator.mock.yaml must contain a top-level object');
-}
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    throw new Error('Top level YAML value must be an object');
+  }
 
-export const topologyUiSchemas = parsed as TopologyUISchemas;
+  return parsed as TopologyUISchemas;
+};
+
+export const formatYamlText = (yamlText: string): string => {
+  const parsed = yamlToJson(yamlText);
+  return stringify(parsed);
+};

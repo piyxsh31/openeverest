@@ -17,14 +17,14 @@ import { Typography, Paper, Button, Stack } from '@mui/material';
 import Editor from '@monaco-editor/react';
 
 interface JsonEditorPanelProps {
-  jsonText: string;
+  yamlText: string;
   error: string;
   onChange: (value: string) => void;
   onFormat: () => void;
 }
 
 export const JsonEditorPanel = ({
-  jsonText,
+  yamlText,
   error,
   onChange,
   onFormat,
@@ -46,12 +46,12 @@ export const JsonEditorPanel = ({
       }}
     >
       <Typography variant="h6" sx={{ mb: 2 }}>
-        JSON Editor
+        YAML Editor
       </Typography>
       <Editor
         height="100%"
-        defaultLanguage="json"
-        value={jsonText}
+        defaultLanguage="yaml"
+        value={yamlText}
         onChange={(value) => onChange(value || '')}
         theme="light"
         options={{
@@ -76,7 +76,7 @@ export const JsonEditorPanel = ({
       )}
       <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
         <Button size="small" variant="contained" onClick={onFormat}>
-          Format JSON
+          Format YAML
         </Button>
       </Stack>
     </Paper>

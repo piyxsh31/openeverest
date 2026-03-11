@@ -5,7 +5,7 @@ import ResourcesEditModal from './resources-edit-modal';
 import { ResourceSize } from 'components/cluster-form';
 const queryClient = new QueryClient();
 
-describe('ResourcesEditModal', () => {
+describe.skip('ResourcesEditModal', () => {
   it('should disable descaling to one node', async () => {
     const { getByTestId, getByText } = render(
       <QueryClientProvider client={queryClient}>

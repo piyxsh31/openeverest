@@ -15,26 +15,27 @@
 import { Box, Paper } from '@mui/material';
 import { useState, useEffect, useRef } from 'react';
 import { JsonEditorPanel } from './json-editor-panel/json-editor-panel';
-import schemaData from './ui-generator-schema.json';
+import schemaYaml from './ui-generator-schema.yaml?raw';
 import { TopologyUISchemas } from '../../components/ui-generator/ui-generator.types';
 import { ErrorBoundary } from 'utils/ErrorBoundary';
 import { GenericError } from 'pages/generic-error/GenericError';
 import { ErrorContextProvider } from 'utils/ErrorBoundaryProvider';
 import { DynamicForm } from './dynamic-form-preview/dynamic-form-preview';
+import { formatYamlText, yamlToJson } from './utils/yaml-json-converter';
 
 export const UIGeneratorBuilder = () => {
-  const defaultJsonText = JSON.stringify(schemaData, null, 2);
-  const [jsonText, setJsonText] = useState(defaultJsonText);
-  const [parsedJson, setParsedJson] = useState<TopologyUISchemas | null>(null);
+  const defaultYamlText = schemaYaml;
+  const [yamlText, setYamlText] = useState(defaultYamlText);
+  const [parsedSchema, setParsedSchema] = useState<TopologyUISchemas | null>(
+    null
+  );
   const [error, setError] = useState<string>('');
   const [leftWidth, setLeftWidth] = useState(25); // percentage
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  // const topologies = Object.keys(topologyUiSchemas);
 
-  // Initialize parsed JSON on mount
   useEffect(() => {
-    validateJson(defaultJsonText);
+    validateYaml(defaultYamlText);
   }, []);
 
   useEffect(() => {
@@ -65,35 +66,33 @@ export const UIGeneratorBuilder = () => {
     };
   }, [isDragging]);
 
-  const handleJsonChange = (text: string) => {
-    setJsonText(text);
-    validateJson(text);
+  const handleYamlChange = (text: string) => {
+    setYamlText(text);
+    validateYaml(text);
   };
 
-  const validateJson = (text: string) => {
+  const validateYaml = (text: string) => {
     try {
-      const parsed = JSON.parse(text);
-      setParsedJson(parsed as TopologyUISchemas);
+      const parsed = yamlToJson(text);
+      setParsedSchema(parsed);
       setError('');
     } catch (err) {
       setError(
-        err instanceof SyntaxError
-          ? `JSON Error: ${err.message}`
-          : 'Invalid JSON'
+        err instanceof Error ? `YAML Error: ${err.message}` : 'Invalid YAML'
       );
-      setParsedJson(null);
+      setParsedSchema(null);
     }
   };
 
-  const formatJson = () => {
+  const formatYaml = () => {
     try {
-      const parsed = JSON.parse(jsonText);
-      const formatted = JSON.stringify(parsed, null, 2);
-      setJsonText(formatted);
-      setParsedJson(parsed);
+      const parsed = yamlToJson(yamlText);
+      const formatted = formatYamlText(yamlText);
+      setYamlText(formatted);
+      setParsedSchema(parsed);
       setError('');
-    } catch (err) {
-      setError('Invalid JSON format');
+    } catch {
+      setError('Invalid YAML format');
     }
   };
 
@@ -117,10 +116,10 @@ export const UIGeneratorBuilder = () => {
         }}
       >
         <JsonEditorPanel
-          jsonText={jsonText}
+          yamlText={yamlText}
           error={error}
-          onChange={handleJsonChange}
-          onFormat={formatJson}
+          onChange={handleYamlChange}
+          onFormat={formatYaml}
         />
       </Box>
       <Box
@@ -165,10 +164,10 @@ export const UIGeneratorBuilder = () => {
           }}
         >
           {/*TODO add custom error boundary for FormBuilder*/}
-          {parsedJson && (
+          {parsedSchema && (
             <ErrorContextProvider>
               <ErrorBoundary fallback={<GenericError />}>
-                <DynamicForm schema={parsedJson as TopologyUISchemas} />
+                <DynamicForm schema={parsedSchema as TopologyUISchemas} />
               </ErrorBoundary>
             </ErrorContextProvider>
           )}
