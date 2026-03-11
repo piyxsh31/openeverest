@@ -5,6 +5,7 @@ on:
     paths:
       - "ui/**"
       - ".github/workflows/dev-fe-gatekeeper.yaml"
+      - ".github/workflows/dev-fe-browser-tests.yaml"
       - ".github/workflows/dev-fe-e2e.yaml"
     types: [opened, synchronize]
 
@@ -88,7 +89,9 @@ jobs:
 
       - name: test
         if: matrix.action == 'test'
-        run: make test
+        run: |
+          pnpm --filter "@percona/ui-lib" test
+          pnpm --filter "@percona/everest" test:unit
 
       - name: build
         if: matrix.action == 'build'
@@ -105,6 +108,11 @@ jobs:
         if: steps.check_changes.outputs.changes == 'true' && github.event_name == 'pull_request'
         with:
           commit_message: "chore: lint/format"
+
+  browser_tests:
+    needs: cache_pnpm
+    uses: ./.github/workflows/dev-fe-browser-tests.yaml
+    secrets: inherit
 
   permission_checks:
     runs-on: ubuntu-latest
@@ -125,7 +133,7 @@ jobs:
           exit 1
 
   merge-gatekeeper:
-    needs: [CI_checks, permission_checks]
+    needs: [CI_checks, browser_tests, permission_checks]
     name: Merge Gatekeeper
     if: ${{ always() }}
     runs-on: ubuntu-latest

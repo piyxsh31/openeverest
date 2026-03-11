@@ -2,11 +2,7 @@
 name: FE Browser Tests
 
 on:
-  pull_request:
-    paths:
-      - "ui/**"
-      - ".github/workflows/dev-fe-browser-tests.yaml"
-    types: [opened, synchronize]
+  workflow_call:
   workflow_dispatch:
 
 jobs:
@@ -19,7 +15,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           lfs: true
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.sha }}
 
       - uses: pnpm/action-setup@v4
         with:
