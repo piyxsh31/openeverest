@@ -43,7 +43,11 @@ export default defineConfig({
     isolate: true,
     fileParallelism: true,
     maxWorkers: process.env.CI ? '50%' : undefined,
-    reporters: ['verbose'],
+    reporters: ['default'],
+    // Keep local output compact so failures are visible quickly.
+    silent: process.env.CI ? false : 'passed-only',
+    // Fail fast locally to avoid waiting through a full noisy run.
+    bail: process.env.CI ? 0 : 1,
   },
   // During prod the libs will be built, so no need to point to src
   ...(process.env.NODE_ENV !== 'production' && {

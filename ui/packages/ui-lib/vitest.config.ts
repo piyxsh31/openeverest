@@ -24,7 +24,10 @@ export default defineConfig({
     isolate: true,
     fileParallelism: true,
     maxWorkers: process.env.CI ? '50%' : undefined,
-    reporters: ['verbose'],
+    reporters: ['default'],
+    silent: process.env.CI ? false : 'passed-only',
+    // Fail fast locally to avoid waiting through a full noisy run.
+    bail: process.env.CI ? 0 : 1,
   },
   resolve: {
     alias: {
