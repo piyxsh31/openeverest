@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
 export type DatabaseFormSideDrawerProps = {
-  activeStep: number;
+  activeStepId: string;
   disabled: boolean;
-  stepsWithErrors: number[];
-  handleSectionEdit: (section: number) => void;
+  stepsWithErrors: string[];
+  handleSectionEdit: (stepId: string) => void;
 };

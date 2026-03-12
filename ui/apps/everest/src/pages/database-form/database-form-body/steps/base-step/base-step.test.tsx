@@ -99,7 +99,6 @@ describe('BaseInfoStep', () => {
       <Wrapper>
         <BaseInfoStep
           loadingDefaultsForEdition={false}
-          alreadyVisited={false}
         />
       </Wrapper>
     );
@@ -116,7 +115,6 @@ describe('BaseInfoStep', () => {
       <Wrapper topologies={['replica']}>
         <BaseInfoStep
           loadingDefaultsForEdition={false}
-          alreadyVisited={false}
         />
       </Wrapper>
     );
@@ -131,7 +129,6 @@ describe('BaseInfoStep', () => {
       <Wrapper topologies={['replica', 'sharded']}>
         <BaseInfoStep
           loadingDefaultsForEdition={false}
-          alreadyVisited={false}
         />
       </Wrapper>
     );
@@ -151,7 +148,6 @@ describe('BaseInfoStep', () => {
       >
         <BaseInfoStep
           loadingDefaultsForEdition={false}
-          alreadyVisited={false}
         />
       </Wrapper>
     );

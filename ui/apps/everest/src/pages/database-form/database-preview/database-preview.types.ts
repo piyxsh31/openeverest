@@ -16,11 +16,10 @@
 import { StackProps, TypographyProps } from '@mui/material';
 
 export type DatabasePreviewProps = {
-  // zero indexed
-  activeStep: number;
-  onSectionEdit?: (order: number) => void;
+  activeStepId: string;
+  onSectionEdit?: (stepId: string) => void;
   disabled?: boolean;
-  stepsWithErrors: number[];
+  stepsWithErrors: string[];
 } & StackProps;
 
 export type PreviewSectionProps = {

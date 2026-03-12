@@ -26,7 +26,6 @@ import DatabaseFormStepControllers from './database-form-step-controllers';
 
 const DatabaseFormBody = ({
   activeStep,
-  longestAchievedStep,
   isSubmitting,
   hasErrors,
   disableNext,
@@ -69,9 +68,6 @@ const DatabaseFormBody = ({
             dbClusterRequestStatus === 'success')) &&
           React.createElement(steps[activeStep].component, {
             loadingDefaultsForEdition,
-            alreadyVisited:
-              longestAchievedStep > activeStep ||
-              activeStep === steps.length - 1,
           })}
       </Box>
       <DatabaseFormStepControllers

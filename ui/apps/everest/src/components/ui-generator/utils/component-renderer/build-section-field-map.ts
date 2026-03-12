@@ -22,27 +22,26 @@ import type {
 // all section
 export const buildSectionFieldMap = (
   sections: { [key: string]: Section },
-  sectionsOrder: string[] | undefined,
-  startIndex: number
-): Record<string, number> => {
-  const map: Record<string, number> = {};
+  sectionsOrder: string[] | undefined
+): Record<string, string> => {
+  const map: Record<string, string> = {};
 
   const walkComponents = (
     components: { [key: string]: Component | ComponentGroup },
-    stepIndex: number
+    sectionKey: string
   ) => {
     Object.values(components).forEach((comp) => {
       if (!comp) return;
 
       if (comp.uiType === 'group' || comp.uiType === 'hidden') {
         // Recurse into group children
-        walkComponents((comp as ComponentGroup).components, stepIndex);
+        walkComponents((comp as ComponentGroup).components, sectionKey);
         return;
       }
 
       const leaf = comp as Component;
       if (leaf.path) {
-        map[leaf.path] = stepIndex;
+        map[leaf.path] = sectionKey;
         // Register ALL intermediate path prefixes so that Zod errors at parent
         // nodes (e.g. when a nested object is undefined on topology switch) still
         // map to the correct step, rather than falling back to the top-level key
@@ -51,7 +50,7 @@ export const buildSectionFieldMap = (
         for (let i = 1; i < parts.length; i++) {
           const prefix = parts.slice(0, i).join('.');
           if (!(prefix in map)) {
-            map[prefix] = stepIndex;
+            map[prefix] = sectionKey;
           }
         }
       }
@@ -59,10 +58,9 @@ export const buildSectionFieldMap = (
   };
 
   const orderedKeys = sectionsOrder || Object.keys(sections);
-  orderedKeys.forEach((sectionKey, idx) => {
-    const stepIndex = startIndex + idx;
+  orderedKeys.forEach((sectionKey) => {
     if (sections[sectionKey]) {
-      walkComponents(sections[sectionKey].components, stepIndex);
+      walkComponents(sections[sectionKey].components, sectionKey);
     }
   });
 

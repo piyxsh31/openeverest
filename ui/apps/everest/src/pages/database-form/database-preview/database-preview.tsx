@@ -23,9 +23,11 @@ import { DbWizardType } from '../database-form-schema.ts';
 import { useDatabaseFormContext } from '../database-form-context.tsx';
 import DynamicSectionPreview from './dynamic-section-preview/dynamic-section-preview.tsx';
 import { PreviewSectionOne } from './sections/base-step.tsx';
+import { BASE_STEP_ID, IMPORT_STEP_ID } from '../database-form-body/steps/constants.ts';
+import { getSectionStepId } from 'components/ui-generator/utils/section-step-id.ts';
 
 export const DatabasePreview = ({
-  activeStep,
+  activeStepId,
   onSectionEdit = () => {},
   disabled,
   stepsWithErrors,
@@ -45,19 +47,26 @@ export const DatabasePreview = ({
   const orderedSectionKeys = sectionsOrder || Object.keys(sections);
 
   const previewSections: {
+    stepId: string;
     title: string;
     component: React.ComponentType<DbWizardType>;
   }[] = [
-    { title: 'Basic Information', component: PreviewSectionOne },
+    {
+      stepId: BASE_STEP_ID,
+      title: 'Basic Information',
+      component: PreviewSectionOne,
+    },
     ...(showImportStep
       ? [
           {
+            stepId: IMPORT_STEP_ID,
             title: 'Import information',
             component: () => <PreviewContentText text="" />,
           },
         ]
       : []),
     ...orderedSectionKeys.map((key) => ({
+      stepId: getSectionStepId(key),
       title: sections[key]?.label || key,
       component: (v: DbWizardType) => (
         <DynamicSectionPreview section={sections[key]} formValues={v} />
@@ -77,10 +86,13 @@ export const DatabasePreview = ({
                 order={idx + 1}
                 title={section.title}
                 hasBeenReached
-                hasError={stepsWithErrors.includes(idx) && activeStep !== idx}
-                active={activeStep === idx}
+                hasError={
+                  stepsWithErrors.includes(section.stepId) &&
+                  activeStepId !== section.stepId
+                }
+                active={activeStepId === section.stepId}
                 disabled={disabled}
-                onEditClick={() => onSectionEdit(idx + 1)}
+                onEditClick={() => onSectionEdit(section.stepId)}
                 sx={{ mt: idx === 0 ? 2 : 0 }}
               >
                 <Section {...values} />

@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// TODO clean this file after release of v2
+
 import { DbType } from '@percona/types';
 import { z } from 'zod';
 import { Resources } from 'shared-types/dbCluster.types';

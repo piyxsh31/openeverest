@@ -32,31 +32,30 @@ const makeSections = (paths: string[]): { [key: string]: Section } => ({
 });
 
 describe('buildSectionFieldMap', () => {
-  it('maps the leaf path to the correct step index', () => {
+  it('maps the leaf path to the correct section key', () => {
     const sections = makeSections(['spec.components.configServer.replicas']);
-    const map = buildSectionFieldMap(sections, ['resources'], 2);
+    const map = buildSectionFieldMap(sections, ['resources']);
 
-    expect(map['spec.components.configServer.replicas']).toBe(2);
+    expect(map['spec.components.configServer.replicas']).toBe('resources');
   });
 
   it('registers ALL intermediate path prefixes for robust error-path lookup', () => {
-    // This is the regression fix: when topology switches, Zod may report errors
-    // at intermediate paths (e.g. spec.components.configServer) instead of the
-    // leaf (spec.components.configServer.replicas) because the nested object is
+    // when topology switches, zod may report errors at intermediate paths (spec.components.configServer) 
+    // instead of the (spec.components.configServer.replicas) because the nested object is
     // undefined. All intermediate prefixes must map to the same step so that
     // stepsWithErrors always highlights the correct step.
     const sections = makeSections(['spec.components.configServer.replicas']);
-    const map = buildSectionFieldMap(sections, ['resources'], 2);
+    const map = buildSectionFieldMap(sections, ['resources']);
 
-    expect(map['spec']).toBe(2);
-    expect(map['spec.components']).toBe(2);
-    expect(map['spec.components.configServer']).toBe(2);
-    expect(map['spec.components.configServer.replicas']).toBe(2);
+    expect(map['spec']).toBe('resources');
+    expect(map['spec.components']).toBe('resources');
+    expect(map['spec.components.configServer']).toBe('resources');
+    expect(map['spec.components.configServer.replicas']).toBe('resources');
   });
 
-  it('does not override an intermediate prefix already registered by another field on a different step', () => {
-    // "spec" is first registered by "spec.databaseVersion" on step 1.
-    // Later fields on step 2 have paths inside "spec.components.*", but since
+  it('does not override an intermediate prefix already registered by another field in a different section', () => {
+    // "spec" is first registered by "spec.databaseVersion" in section dbVersion.
+    // Later fields in resources have paths inside "spec.components.*", but since
     // "spec" is already in the map it must NOT be overwritten.
     const sections: { [key: string]: Section } = {
       dbVersion: {
@@ -81,28 +80,22 @@ describe('buildSectionFieldMap', () => {
       },
     };
 
-    const map = buildSectionFieldMap(
-      sections,
-      ['dbVersion', 'resources'],
-      1 // start index
-    );
+    const map = buildSectionFieldMap(sections, ['dbVersion', 'resources']);
 
-    // spec.databaseVersion is on step 1 (startIndex 1 + sectionsOrder[0])
-    expect(map['spec.databaseVersion']).toBe(1);
-    // "spec" was first registered when processing "spec.databaseVersion" → step 1
-    expect(map['spec']).toBe(1);
-    // spec.components.configServer.replicas is on step 2
-    expect(map['spec.components.configServer.replicas']).toBe(2);
+    expect(map['spec.databaseVersion']).toBe('dbVersion');
+    // "spec" was first registered when processing "spec.databaseVersion"
+    expect(map['spec']).toBe('dbVersion');
+    expect(map['spec.components.configServer.replicas']).toBe('resources');
     // intermediate paths for the replicas field that weren't yet registered:
-    expect(map['spec.components']).toBe(2);
-    expect(map['spec.components.configServer']).toBe(2);
+    expect(map['spec.components']).toBe('resources');
+    expect(map['spec.components.configServer']).toBe('resources');
   });
 
   it('handles top-level (no-dot) paths', () => {
     const sections = makeSections(['dbName']);
-    const map = buildSectionFieldMap(sections, ['resources'], 0);
+    const map = buildSectionFieldMap(sections, ['resources']);
 
-    expect(map['dbName']).toBe(0);
+    expect(map['dbName']).toBe('resources');
     // A single-segment path has no intermediate prefixes to register
     expect(Object.keys(map)).toEqual(['dbName']);
   });
@@ -113,16 +106,16 @@ describe('buildSectionFieldMap', () => {
       'spec.components.proxy.replicas',
       'spec.sharding.enabled',
     ]);
-    const map = buildSectionFieldMap(sections, ['resources'], 3);
+    const map = buildSectionFieldMap(sections, ['resources']);
 
-    expect(map['spec.components.configServer.replicas']).toBe(3);
-    expect(map['spec.components.proxy.replicas']).toBe(3);
-    expect(map['spec.sharding.enabled']).toBe(3);
-    // Intermediate prefixes for the first field encountered win
-    expect(map['spec']).toBe(3);
-    expect(map['spec.components']).toBe(3);
-    expect(map['spec.components.configServer']).toBe(3);
-    expect(map['spec.components.proxy']).toBe(3);
-    expect(map['spec.sharding']).toBe(3);
+    expect(map['spec.components.configServer.replicas']).toBe('resources');
+    expect(map['spec.components.proxy.replicas']).toBe('resources');
+    expect(map['spec.sharding.enabled']).toBe('resources');
+
+    expect(map['spec']).toBe('resources');
+    expect(map['spec.components']).toBe('resources');
+    expect(map['spec.components.configServer']).toBe('resources');
+    expect(map['spec.components.proxy']).toBe('resources');
+    expect(map['spec.sharding']).toBe('resources');
   });
 });

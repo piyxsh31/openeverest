@@ -21,7 +21,6 @@ export type StepInfo = {
 
 export type DatabaseFormBodyProps = {
   activeStep: number;
-  longestAchievedStep: number;
   disableNext?: boolean;
   isSubmitting: boolean;
   hasErrors: boolean;

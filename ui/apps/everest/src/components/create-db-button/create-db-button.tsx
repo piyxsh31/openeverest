@@ -198,7 +198,6 @@ export const CreateDbButton = ({
                   data-testid={`${createFromImport ? 'import' : 'add'}-db-cluster-button-${item.metadata?.name}`}
                   key={item?.metadata?.name}
                   component={Link}
-                  // to="/databases/new-ui-generated"
                   to="/databases/new"
                   sx={{
                     display: 'flex',
@@ -212,6 +211,7 @@ export const CreateDbButton = ({
                     showImport: createFromImport,
                   }}
                 >
+                  {/* TODO rewrite for provider logic*/ }
                   {humanizeDbType(dbEngineToDbType(item?.metadata?.name!))}
                 </MenuItem>
               ))}

@@ -49,7 +49,7 @@ describe.skip('DatabasePreview', () => {
     render(
       <FormProviderWrapper>
         <TestWrapper>
-          <DatabasePreview stepsWithErrors={[]} activeStep={0} />
+          <DatabasePreview stepsWithErrors={[]} activeStepId="base" />
         </TestWrapper>
       </FormProviderWrapper>
     );
@@ -69,7 +69,7 @@ describe.skip('DatabasePreview', () => {
         }}
       >
         <TestWrapper>
-          <DatabasePreview stepsWithErrors={[]} activeStep={0} />
+          <DatabasePreview stepsWithErrors={[]} activeStepId="base" />
         </TestWrapper>
       </FormProviderWrapper>
     );
@@ -92,7 +92,7 @@ describe.skip('DatabasePreview', () => {
         }}
       >
         <TestWrapper>
-          <DatabasePreview stepsWithErrors={[]} activeStep={1} />
+          <DatabasePreview stepsWithErrors={[]} activeStepId="base" />
         </TestWrapper>
       </FormProviderWrapper>
     );
@@ -133,7 +133,7 @@ describe.skip('DatabasePreview', () => {
       >
         <TestWrapper>
           <FormConsumer />
-          <DatabasePreview stepsWithErrors={[]} activeStep={1} />
+          <DatabasePreview stepsWithErrors={[]} activeStepId="base" />
         </TestWrapper>
       </FormProviderWrapper>
     );

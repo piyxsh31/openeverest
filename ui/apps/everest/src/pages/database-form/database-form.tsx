@@ -43,6 +43,8 @@ import { ImportFields } from 'components/cluster-form/import/import.types';
 import { DbWizardFormFields } from 'consts';
 import { getDefaultValues } from 'components/ui-generator/utils/default-values';
 import { formSubmitPostProcessing } from './utils/form-submit-post-processing';
+import { BASE_STEP_ID, IMPORT_STEP_ID } from './database-form-body/steps/constants';
+import { getSectionStepId } from 'components/ui-generator/utils/section-step-id';
 
 // When the user switches topology, new topology fields are absent from form
 // data, causing Zod to report errors at the parent-object level instead of the
@@ -91,8 +93,7 @@ const flattenErrorPaths = (
 
 export const DatabasePage = () => {
   const latestDataRef = useRef<DbWizardType | null>(null);
-  const [activeStep, setActiveStep] = useState(0);
-  const [longestAchievedStep, setLongestAchievedStep] = useState(0);
+  const [activeStepId, setActiveStepId] = useState<string>(BASE_STEP_ID);
   const [formSubmitted, setFormSubmitted] = useState(false);
 
   const { mutate: createInstance, isPending: isCreating } = useCreateInstance();
@@ -196,10 +197,6 @@ export const DatabasePage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTopology, uiSchema]);
 
-  const importOffset = hasImportStep ? 1 : 0;
-  // dynamic sections start after step-0 (base) + optional import step
-  const dynamicStepsStartIndex = 1 + importOffset;
-
   // Stable reference – avoids re-running useUiGenerator when uiSchema is falsy
   // TODO recheck rerender
   const stableUiSchema = useMemo(() => uiSchema || {}, [uiSchema]);
@@ -208,15 +205,40 @@ export const DatabasePage = () => {
     sections,
     sectionsOrder,
     zodSchema: { schema: generatedZodSchema },
-    sectionFieldStepMap,
-  } = useUiGenerator(stableUiSchema, selectedTopology, dynamicStepsStartIndex);
+    sectionFieldMap,
+  } = useUiGenerator(stableUiSchema, selectedTopology);
+
+  const sectionKeys = useMemo(
+    () => sectionsOrder || Object.keys(sections),
+    [sectionsOrder, sections]
+  );
+
+  const orderedStepIds = useMemo(
+    () => [
+      BASE_STEP_ID,
+      ...(hasImportStep ? [IMPORT_STEP_ID] : []),
+      ...sectionKeys.map((key) => getSectionStepId(key)),
+    ],
+    [hasImportStep, sectionKeys]
+  );
+
+  const stepIdToIndex = useMemo(
+    () =>
+      Object.fromEntries(orderedStepIds.map((id, idx) => [id, idx])) as Record<
+        string,
+        number
+      >,
+    [orderedStepIds]
+  );
+
+  const activeStepIndex = stepIdToIndex[activeStepId] ?? 0;
 
   //TODO probably it will be cleaner to use steps.length or to
   // use Callback func (but in first scenario may be a problem of
   // last step cashing) and problem with submit/cancel
   const totalSteps = useMemo(
-    () => 1 + (hasImportStep ? 1 : 0) + Object.keys(sections).length,
-    [hasImportStep, sections]
+    () => orderedStepIds.length,
+    [orderedStepIds]
   );
 
   const validationSchema = useDbValidationSchema(
@@ -239,30 +261,29 @@ export const DatabasePage = () => {
 
   //TODO refactor and move to separate hook
   const fieldToStepMap = useMemo(() => {
-    const map: Record<string, number> = {
-      // Step 0 – base step (always present)
-      [DbWizardFormFields.dbName]: 0,
-      [DbWizardFormFields.provider]: 0,
-      [DbWizardFormFields.k8sNamespace]: 0,
-      [DbWizardFormFields.topology]: 0,
+    const map: Record<string, string> = {
+      [DbWizardFormFields.dbName]: BASE_STEP_ID,
+      [DbWizardFormFields.provider]: BASE_STEP_ID,
+      [DbWizardFormFields.k8sNamespace]: BASE_STEP_ID,
+      [DbWizardFormFields.topology]: BASE_STEP_ID,
     };
 
-    // Step 1 (optional) – import step
     if (hasImportStep) {
       (Object.values(ImportFields) as string[]).forEach((f) => {
-        map[f] = 1;
+        map[f] = IMPORT_STEP_ID;
       });
     }
 
-    // Dynamic steps – comes pre-built from useUiGenerator
-    Object.assign(map, sectionFieldStepMap);
+    Object.entries(sectionFieldMap).forEach(([fieldPath, sectionKey]) => {
+      map[fieldPath] = getSectionStepId(sectionKey);
+    });
 
     return map;
-  }, [hasImportStep, sectionFieldStepMap]);
+  }, [hasImportStep, sectionFieldMap]);
 
   const stepsWithErrors = useMemo(() => {
     const errorPaths = flattenErrorPaths(errors as Record<string, unknown>);
-    const stepsSet = new Set<number>();
+    const stepsSet = new Set<string>();
 
     errorPaths.forEach((path) => {
       // Try the full path first, then progressively shorter prefixes.
@@ -278,8 +299,8 @@ export const DatabasePage = () => {
       }
     });
 
-    return Array.from(stepsSet);
-  }, [errors, fieldToStepMap]);
+    return Array.from(stepsSet).filter((stepId) => stepId in stepIdToIndex);
+  }, [errors, fieldToStepMap, stepIdToIndex]);
 
   const blocker = useBlocker(
     ({ currentLocation, nextLocation }) =>
@@ -335,28 +356,22 @@ export const DatabasePage = () => {
   };
 
   const handleNext = async () => {
-    if (activeStep < totalSteps - 1) {
-      setActiveStep((prevActiveStep) => {
-        const newStep = prevActiveStep + 1;
-
-        if (newStep > longestAchievedStep) {
-          setLongestAchievedStep(newStep);
-        }
-        return newStep;
-      });
+    if (activeStepIndex < totalSteps - 1) {
+      const newIndex = activeStepIndex + 1;
+      setActiveStepId(orderedStepIds[newIndex]);
     }
   };
 
   const handleBack = () => {
     clearErrors();
-    if (activeStep > 0) {
-      setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    if (activeStepIndex > 0) {
+      setActiveStepId(orderedStepIds[activeStepIndex - 1]);
     }
   };
 
-  const handleSectionEdit = (order: number) => {
+  const handleSectionEdit = (stepId: string) => {
     clearErrors();
-    setActiveStep(order - 1);
+    setActiveStepId(stepId);
   };
 
   const handleCloseCancellationModal = () => {
@@ -373,7 +388,13 @@ export const DatabasePage = () => {
 
   useEffect(() => {
     trigger();
-  }, [activeStep, trigger]);
+  }, [activeStepId, trigger]);
+
+  useEffect(() => {
+    if (!(activeStepId in stepIdToIndex)) {
+      setActiveStepId(BASE_STEP_ID);
+    }
+  }, [activeStepId, stepIdToIndex]);
 
   useEffect(() => {
     // We disable the inputs on first step to make sure user doesn't change anything before all data is loaded
@@ -422,12 +443,13 @@ export const DatabasePage = () => {
       <Stack direction={isDesktop ? 'row' : 'column'}>
         <FormProvider {...methods}>
           <DatabaseFormBody
-            activeStep={activeStep}
-            longestAchievedStep={longestAchievedStep}
+            activeStep={activeStepIndex}
             isSubmitting={isCreating}
             hasErrors={stepsWithErrors.length > 0}
             disableNext={
-              hasImportStep && activeStep === 1 && stepsWithErrors.includes(1)
+              hasImportStep &&
+              activeStepId === IMPORT_STEP_ID &&
+              stepsWithErrors.includes(IMPORT_STEP_ID)
             }
             onSubmit={handleSubmit(onSubmit)}
             onCancel={() => navigate('/databases')}
@@ -436,7 +458,7 @@ export const DatabasePage = () => {
           />
           <DatabaseFormSideDrawer
             disabled={loadingClusterValues}
-            activeStep={activeStep}
+            activeStepId={activeStepId}
             handleSectionEdit={handleSectionEdit}
             stepsWithErrors={stepsWithErrors}
           />

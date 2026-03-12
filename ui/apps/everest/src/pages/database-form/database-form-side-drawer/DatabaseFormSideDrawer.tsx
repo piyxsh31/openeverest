@@ -19,7 +19,7 @@ import { DatabasePreview } from '../database-preview/database-preview';
 import { DatabaseFormSideDrawerProps } from './DatabaseFormSideDrawer.types';
 
 const DatabaseFormSideDrawer = ({
-  activeStep,
+  activeStepId,
   handleSectionEdit,
   disabled,
   stepsWithErrors,
@@ -31,7 +31,7 @@ const DatabaseFormSideDrawer = ({
     () => (
       <DatabasePreview
         disabled={disabled}
-        activeStep={activeStep}
+        activeStepId={activeStepId}
         onSectionEdit={handleSectionEdit}
         stepsWithErrors={stepsWithErrors}
         sx={{
@@ -42,7 +42,13 @@ const DatabaseFormSideDrawer = ({
         }}
       />
     ),
-    [disabled, activeStep, handleSectionEdit, stepsWithErrors, isDesktop]
+    [
+      disabled,
+      activeStepId,
+      handleSectionEdit,
+      stepsWithErrors,
+      isDesktop,
+    ]
   );
 
   if (isDesktop) {

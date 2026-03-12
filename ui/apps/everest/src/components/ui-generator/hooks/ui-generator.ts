@@ -20,13 +20,12 @@ import { buildZodSchema } from '../utils/schema-builder';
 
 export const useUiGenerator = (
   schema: TopologyUISchemas,
-  selectedTopology: string,
-  dynamicStepsStartIndex = 0
+  selectedTopology: string
 ): {
   sections: { [key: string]: Section };
   sectionsOrder?: string[];
   zodSchema: { schema: z.ZodTypeAny; celDependencyGroups: string[][] };
-  sectionFieldStepMap: Record<string, number>;
+  sectionFieldMap: Record<string, string>;
 } => {
   const { sections, sectionsOrder } = useMemo(
     () => getSteps(selectedTopology, schema),
@@ -38,9 +37,9 @@ export const useUiGenerator = (
     [schema, selectedTopology]
   );
 
-  const sectionFieldStepMap = useMemo(
-    () => buildSectionFieldMap(sections, sectionsOrder, dynamicStepsStartIndex),
-    [sections, sectionsOrder, dynamicStepsStartIndex]
+  const sectionFieldMap = useMemo(
+    () => buildSectionFieldMap(sections, sectionsOrder),
+    [sections, sectionsOrder]
   );
 
   return useMemo(
@@ -48,8 +47,8 @@ export const useUiGenerator = (
       sections,
       sectionsOrder,
       zodSchema,
-      sectionFieldStepMap,
+      sectionFieldMap,
     }),
-    [sections, sectionsOrder, zodSchema, sectionFieldStepMap]
+    [sections, sectionsOrder, zodSchema, sectionFieldMap]
   );
 };

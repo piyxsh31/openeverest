@@ -93,7 +93,6 @@ describe('BaseInfoStep (browser mode)', () => {
         <Wrapper>
           <BaseInfoStep
             loadingDefaultsForEdition={false}
-            alreadyVisited={false}
           />
         </Wrapper>
       )

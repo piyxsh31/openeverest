@@ -77,7 +77,7 @@ describe('DatabasePreview - Sections Order', () => {
               providerObject: undefined,
             }}
           >
-            <DatabasePreview stepsWithErrors={[]} activeStep={0} />
+            <DatabasePreview stepsWithErrors={[]} activeStepId="base" />
           </DatabaseFormProvider>
         </TestWrapper>
       </FormProviderWrapper>
@@ -139,7 +139,7 @@ describe('DatabasePreview - Sections Order', () => {
               providerObject: undefined,
             }}
           >
-            <DatabasePreview stepsWithErrors={[]} activeStep={0} />
+            <DatabasePreview stepsWithErrors={[]} activeStepId="base" />
           </DatabaseFormProvider>
         </TestWrapper>
       </FormProviderWrapper>
@@ -183,7 +183,7 @@ describe('DatabasePreview - Sections Order', () => {
               providerObject: undefined,
             }}
           >
-            <DatabasePreview stepsWithErrors={[]} activeStep={0} />
+            <DatabasePreview stepsWithErrors={[]} activeStepId="base" />
           </DatabaseFormProvider>
         </TestWrapper>
       </FormProviderWrapper>
