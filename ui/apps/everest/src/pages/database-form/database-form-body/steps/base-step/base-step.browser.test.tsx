@@ -91,9 +91,7 @@ describe('BaseInfoStep (browser mode)', () => {
     await waitFor(() =>
       render(
         <Wrapper>
-          <BaseInfoStep
-            loadingDefaultsForEdition={false}
-          />
+          <BaseInfoStep loadingDefaultsForEdition={false} />
         </Wrapper>
       )
     );

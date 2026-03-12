@@ -40,7 +40,7 @@ describe('buildSectionFieldMap', () => {
   });
 
   it('registers ALL intermediate path prefixes for robust error-path lookup', () => {
-    // when topology switches, zod may report errors at intermediate paths (spec.components.configServer) 
+    // when topology switches, zod may report errors at intermediate paths (spec.components.configServer)
     // instead of the (spec.components.configServer.replicas) because the nested object is
     // undefined. All intermediate prefixes must map to the same step so that
     // stepsWithErrors always highlights the correct step.

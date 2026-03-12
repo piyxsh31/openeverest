@@ -97,9 +97,7 @@ describe('BaseInfoStep', () => {
   it('renders all required base fields on form open', async () => {
     render(
       <Wrapper>
-        <BaseInfoStep
-          loadingDefaultsForEdition={false}
-        />
+        <BaseInfoStep loadingDefaultsForEdition={false} />
       </Wrapper>
     );
 
@@ -113,9 +111,7 @@ describe('BaseInfoStep', () => {
   it('does NOT show topology select when only one topology is available', () => {
     render(
       <Wrapper topologies={['replica']}>
-        <BaseInfoStep
-          loadingDefaultsForEdition={false}
-        />
+        <BaseInfoStep loadingDefaultsForEdition={false} />
       </Wrapper>
     );
 
@@ -127,9 +123,7 @@ describe('BaseInfoStep', () => {
   it('shows topology select when multiple topologies are provided', async () => {
     render(
       <Wrapper topologies={['replica', 'sharded']}>
-        <BaseInfoStep
-          loadingDefaultsForEdition={false}
-        />
+        <BaseInfoStep loadingDefaultsForEdition={false} />
       </Wrapper>
     );
 
@@ -146,9 +140,7 @@ describe('BaseInfoStep', () => {
         topologies={['replica', 'sharded']}
         defaultValues={makeDefaultValues('replica')}
       >
-        <BaseInfoStep
-          loadingDefaultsForEdition={false}
-        />
+        <BaseInfoStep loadingDefaultsForEdition={false} />
       </Wrapper>
     );
 

@@ -211,7 +211,7 @@ export const CreateDbButton = ({
                     showImport: createFromImport,
                   }}
                 >
-                  {/* TODO rewrite for provider logic*/ }
+                  {/* TODO rewrite for provider logic*/}
                   {humanizeDbType(dbEngineToDbType(item?.metadata?.name!))}
                 </MenuItem>
               ))}

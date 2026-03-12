@@ -42,13 +42,7 @@ const DatabaseFormSideDrawer = ({
         }}
       />
     ),
-    [
-      disabled,
-      activeStepId,
-      handleSectionEdit,
-      stepsWithErrors,
-      isDesktop,
-    ]
+    [disabled, activeStepId, handleSectionEdit, stepsWithErrors, isDesktop]
   );
 
   if (isDesktop) {

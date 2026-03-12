@@ -43,7 +43,10 @@ import { ImportFields } from 'components/cluster-form/import/import.types';
 import { DbWizardFormFields } from 'consts';
 import { getDefaultValues } from 'components/ui-generator/utils/default-values';
 import { formSubmitPostProcessing } from './utils/form-submit-post-processing';
-import { BASE_STEP_ID, IMPORT_STEP_ID } from './database-form-body/steps/constants';
+import {
+  BASE_STEP_ID,
+  IMPORT_STEP_ID,
+} from './database-form-body/steps/constants';
 import { getSectionStepId } from 'components/ui-generator/utils/section-step-id';
 
 // When the user switches topology, new topology fields are absent from form
@@ -236,10 +239,7 @@ export const DatabasePage = () => {
   //TODO probably it will be cleaner to use steps.length or to
   // use Callback func (but in first scenario may be a problem of
   // last step cashing) and problem with submit/cancel
-  const totalSteps = useMemo(
-    () => orderedStepIds.length,
-    [orderedStepIds]
-  );
+  const totalSteps = useMemo(() => orderedStepIds.length, [orderedStepIds]);
 
   const validationSchema = useDbValidationSchema(
     dbClustersNamesList,

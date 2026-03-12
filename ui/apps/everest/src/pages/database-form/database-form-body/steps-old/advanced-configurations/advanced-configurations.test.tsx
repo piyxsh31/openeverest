@@ -60,9 +60,7 @@ describe.skip('FourthStep', () => {
           }}
         >
           <QueryClientProvider client={queryClient}>
-            <AdvancedConfigurations
-              loadingDefaultsForEdition={false}
-            />
+            <AdvancedConfigurations loadingDefaultsForEdition={false} />
           </QueryClientProvider>
         </FormProviderWrapper>
       </TestWrapper>
@@ -156,9 +154,7 @@ describe.skip('FourthStep', () => {
           }}
         >
           <QueryClientProvider client={queryClient}>
-            <AdvancedConfigurations
-              loadingDefaultsForEdition={false}
-            />
+            <AdvancedConfigurations loadingDefaultsForEdition={false} />
           </QueryClientProvider>
         </FormProviderWrapper>
       </TestWrapper>
@@ -211,9 +207,7 @@ describe.skip('FourthStep', () => {
           }}
         >
           <QueryClientProvider client={queryClient}>
-            <AdvancedConfigurations
-              loadingDefaultsForEdition={false}
-            />
+            <AdvancedConfigurations loadingDefaultsForEdition={false} />
           </QueryClientProvider>
         </FormProviderWrapper>
       </TestWrapper>

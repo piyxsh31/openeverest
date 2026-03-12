@@ -23,7 +23,10 @@ import { DbWizardType } from '../database-form-schema.ts';
 import { useDatabaseFormContext } from '../database-form-context.tsx';
 import DynamicSectionPreview from './dynamic-section-preview/dynamic-section-preview.tsx';
 import { PreviewSectionOne } from './sections/base-step.tsx';
-import { BASE_STEP_ID, IMPORT_STEP_ID } from '../database-form-body/steps/constants.ts';
+import {
+  BASE_STEP_ID,
+  IMPORT_STEP_ID,
+} from '../database-form-body/steps/constants.ts';
 import { getSectionStepId } from 'components/ui-generator/utils/section-step-id.ts';
 
 export const DatabasePreview = ({
