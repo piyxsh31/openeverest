@@ -2,8 +2,9 @@ REPO_ROOT=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 RELEASE_VERSION ?= v0.0.0-$(shell git rev-parse --short HEAD)
 RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
 IMAGE_PREFIX ?= ghcr.io/openeverest
-EVEREST_SERVER_DEV_IMAGE_NAME ?= everest-dev
-EVEREST_OPERATOR_DEV_IMAGE_NAME ?= everest-operator-dev
+EVEREST_SERVER_DEV_IMAGE_NAME ?= openeverest-dev
+EVEREST_OPERATOR_DEV_IMAGE_NAME ?= openeverest-operator-dev
+EVEREST_CATALOG_DEV_IMAGE_NAME ?= openeverest-catalog-dev
 IMAGE_TAG ?= 0.0.0
 IMG = $(IMAGE_PREFIX)/$(EVEREST_SERVER_DEV_IMAGE_NAME):$(IMAGE_TAG)
 EVEREST_OPERATOR_IMG = $(IMAGE_PREFIX)/$(EVEREST_OPERATOR_DEV_IMAGE_NAME):$(IMAGE_TAG)
@@ -67,7 +68,7 @@ check:                  ## Run checks/linters for the whole project.
 HELM=go tool helm
 charts:        ## Install Helm dependency charts for Everest CLI.
 	$(HELM) repo add prometheus-community https://prometheus-community.github.io/helm-charts
-	$(HELM) repo add percona https://percona.github.io/percona-helm-charts/
+	$(HELM) repo add openeverest https://openeverest.github.io/helm-charts/
 	$(HELM) repo add vm https://victoriametrics.github.io/helm-charts
 	$(HELM) repo update
 
@@ -91,6 +92,11 @@ SERVER_GC_FLAGS =
 build-server-helper: GOOS = linux
 build-server-helper: GOARCH = amd64
 build-server-helper: $(LOCALBIN)
+# We need to ensure that /public/dist/index.html exists before building Everest
+# API server because it's embedded into the binary and missing file will cause
+# build failure. We avoid touching the file if it already exists to prevent
+# unnecessary rebuilds when only the timestamp of the file changes.
+	mkdir -p ./public/dist && [ -f ./public/dist/index.html ] || touch ./public/dist/index.html
 	$(info Building Everest API server for $(GOOS)/$(GOARCH) with CGO_ENABLED=$(CGO_ENABLED))
 	go build -v $(SERVER_BUILD_TAGS) $(SERVER_GC_FLAGS) -ldflags "$(SERVER_LD_FLAGS)" -o $(LOCALBIN)/everest ./cmd
 
@@ -166,14 +172,29 @@ clean:
 
 .PHONY: test
 test:                   ## Run unit tests.
+# We need to ensure that /public/dist/index.html exists before running tests
+# because it's embedded into the binary and missing file will cause test
+# failure. We avoid touching the file if it already exists to prevent
+# unnecessary rebuilds when only the timestamp of the file changes.
+	mkdir -p ./public/dist && [ -f ./public/dist/index.html ] || touch ./public/dist/index.html
 	CGO_ENABLED=1 go test -race -timeout=20m ./...
 
 .PHONY: test-cover
 test-cover:             ## Run unit tests and collect per-package coverage information.
+# We need to ensure that /public/dist/index.html exists before running tests
+# because it's embedded into the binary and missing file will cause test
+# failure. We avoid touching the file if it already exists to prevent
+# unnecessary rebuilds when only the timestamp of the file changes.
+	mkdir -p ./public/dist && [ -f ./public/dist/index.html ] || touch ./public/dist/index.html
 	CGO_ENABLED=1 go test -race -timeout=20m -count=1 -coverprofile=cover.out -covermode=atomic ./...
 
 .PHONY: test-crosscover
 test-crosscover:        ## Run unit tests and collect cross-package coverage information.
+# We need to ensure that /public/dist/index.html exists before running tests
+# because it's embedded into the binary and missing file will cause test
+# failure. We avoid touching the file if it already exists to prevent
+# unnecessary rebuilds when only the timestamp of the file changes.
+	mkdir -p ./public/dist && [ -f ./public/dist/index.html ] || touch ./public/dist/index.html
 	CGO_ENABLED=1 go test -race -timeout=20m -count=1 -coverprofile=crosscover.out -covermode=atomic -p=1 -coverpkg=./... ./...
 
 ##@ Deployment management
@@ -211,7 +232,9 @@ deploy:  ## Deploy Everest to K8S cluster using Everest CLI.
 	--helm.set server.sessionRequestsRateLimit=200 \
 	--helm.set versionMetadataURL=https://check-dev.percona.com \
 	--helm.set server.initialAdminPassword=admin \
-	--helm.set operator.init=false
+	--helm.set operator.init=false \
+	--helm.set operator.image=$(IMAGE_PREFIX)/$(EVEREST_OPERATOR_DEV_IMAGE_NAME) \
+	--helm.set olm.catalogSourceImage=$(IMAGE_PREFIX)/$(EVEREST_CATALOG_DEV_IMAGE_NAME)
 	$(MAKE) expose
 
 DEPLOY_ALL_DEPS := build-ui build-debug docker-build k3d-upload-server-image
@@ -290,7 +313,7 @@ cert:                   ## Create dev TLS certificates.
 CHART_BRANCH ?= main
 .PHONY: update-dev-chart
 update-dev-chart: ## Update dependency to Everest Helm chart to the latest version from the specified branch (default main).
-	GOPROXY=direct go get -u -v github.com/percona/percona-helm-charts/charts/everest@${CHART_BRANCH}
+	GOPROXY=direct go get -u -v github.com/openeverest/helm-charts/charts/everest@${CHART_BRANCH}
 	go mod tidy
 
 EVEREST_OPERATOR_BRANCH ?= main

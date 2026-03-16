@@ -31,4 +31,4 @@ go.work
 
 api_tests/node_modules/*
 
-public/
+public/dist/
