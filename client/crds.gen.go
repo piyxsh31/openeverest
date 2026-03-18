@@ -588,7 +588,7 @@ type Instance_Spec_Components_Storage_Size struct {
 // InstanceStatusConditionsStatus status of the condition, one of True, False, Unknown.
 type InstanceStatusConditionsStatus string
 
-// InstanceConnectionDetails defines model for InstanceConnectionDetails.
+// InstanceConnectionDetails ConnectionDetails holds the typed connection details for a database instance. These are written by the provider-runtime reconciler to a Kubernetes Secret and later read back by the API server to serve the connection endpoint. They follow the Service Binding well-known keys where applicable.
 type InstanceConnectionDetails struct {
 	// Host Host is the hostname or IP address to connect to
 	Host *string `json:"host,omitempty"`

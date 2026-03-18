@@ -574,6 +574,7 @@ export interface components {
                 phase?: string;
             };
         };
+        /** @description ConnectionDetails holds the typed connection details for a database instance. These are written by the provider-runtime reconciler to a Kubernetes Secret and later read back by the API server to serve the connection endpoint. They follow the Service Binding well-known keys where applicable. */
         InstanceConnectionDetails: {
             /** @description Host is the hostname or IP address to connect to */
             host?: string;
