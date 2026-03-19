@@ -19,7 +19,7 @@ NOTE: for MacOS tilt needs to have installed and runing `docker-desktop` tool. T
  
 3. Clone [everest-operator](https://github.com/percona/everest-operator).
 
-4. Clone [percona-helm-charts](https://github.com/percona/percona-helm-charts).
+4. Clone [helm-charts](https://github.com/openeverest/helm-charts).
 
 ## Set up the environment
 
@@ -55,14 +55,14 @@ gcloud auth configure-docker <REGISTRY_REGION>-docker.pkg.dev
 Copy file dev/.env.example to dev/.env and set the following environment variables:
 ```sh
 EVEREST_OPERATOR_DIR=<path to github.com/percona/everest-operator repository directory>
-EVEREST_CHART_DIR=<path to github.com/percona/percona-helm-charts>/charts/everest
+EVEREST_CHART_DIR=<path to github.com/openeverest/helm-charts>/charts/everest
 ```
 
 or set environment variables manually in the terminal:
 
 ```sh
 export EVEREST_OPERATOR_DIR=<path to github.com/percona/everest-operator repository directory>
-export EVEREST_CHART_DIR=<path to github.com/percona/percona-helm-charts>/charts/everest
+export EVEREST_CHART_DIR=<path to github.com/openeverest/helm-charts>/charts/everest
 ```
 
 2. Set namespaces for the Everest components:
@@ -74,9 +74,9 @@ Copy file dev/config.yaml.example to dev/config.yaml and:
 
 3. (Optional) If you want to test a specific version of a given DB operator you can set the following environment variables in .env file or in the terminal:
 ```sh
-export PXC_OPERATOR_VERSION=1.16.1
-export PSMDB_OPERATOR_VERSION=1.19.1
-export PG_OPERATOR_VERSION=2.7.0
+export PXC_OPERATOR_VERSION=1.19.0
+export PSMDB_OPERATOR_VERSION=1.22.0
+export PG_OPERATOR_VERSION=2.8.2
 ```
 
 4. (Optional) If you want to debug Everest Server and/or Everest operator remotely, you can set the following environment variables in .env file or in the terminal: 
