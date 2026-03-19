@@ -15,6 +15,27 @@
 
 import { execSync } from 'child_process';
 
+export const getK8sObjectsNamespaceYaml = async (
+  namespace: string,
+  prefix: string,
+  directory: string = 'upgrade-objects-yaml'
+) => {
+  const objects = ['pxc', 'psmdb', 'pg', 'sts', 'db', 'secret'];
+  execSync(`mkdir -p ${directory} || true`);
+
+  for (const obj of objects) {
+    const output = execSync(
+      `kubectl get ${obj} -n ${namespace} -o jsonpath='{.items[*].metadata.name}' || true`
+    );
+    const arr = output.toString().split(' ');
+    for (const objName of arr) {
+      execSync(
+        `kubectl get ${obj} ${objName} -n ${namespace} -oyaml > ${directory}/${prefix}-${obj}-${objName}.yaml || true`
+      );
+    }
+  }
+};
+
 export const getK8sUid = async () => {
   try {
     const command = `kubectl get namespace kube-system -o jsonpath='{.metadata.uid}'`;
@@ -23,26 +44,6 @@ export const getK8sUid = async () => {
   } catch (error) {
     console.error(`Error executing command: ${error}`);
     throw error;
-  }
-};
-
-export const getK8sObjectsNamespaceYaml = async (
-  namespace: string,
-  prefix: string,
-  directory: string = 'upgrade-objects-yaml'
-) => {
-  const objects = ['pxc', 'psmdb', 'pg', 'sts', 'db', 'secret'];
-  const command = `mkdir -p ${directory} || true`;
-  execSync(command);
-
-  for (const obj of objects) {
-    const command = `kubectl get ${obj} -n ${namespace} -o jsonpath='{.items[*].metadata.name}' || true`;
-    const output = execSync(command);
-    const arr = output.toString().split(' ');
-    for (const objName of arr) {
-      const command = `kubectl get ${obj} ${objName} -n ${namespace} -oyaml > ${directory}/${prefix}-${obj}-${objName}.yaml || true`;
-      execSync(command);
-    }
   }
 };
 
@@ -77,7 +78,7 @@ export const deleteAllK8sPVCs = async (namespace: string) => {
 
 export const getK8sNodes = async () => {
   try {
-    const command = `kubectl get nodes --selector='!node-role.kubernetes.io/infra,!node-role.kubernetes.io/control-plane,!node-role.kubernetes.io/master' -o jsonpath='{.items[*].metadata.name}'`;
+    const command = `kubectl get nodes -o jsonpath='{.items[*].metadata.name}'`;
     const output = execSync(command).toString();
     return output.split(' ');
   } catch (error) {
@@ -127,37 +128,6 @@ export const removeFinalizersFromDB = async (
     console.error(
       `Error removing finalizers from ${resourceType} ${resourceName}: ${error}`
     );
-    throw error;
-  }
-};
-
-export const getK8sProvider = async (): Promise<string> => {
-  try {
-    const versionCmd = `kubectl version -ojson`;
-    const versionOutput = execSync(versionCmd).toString();
-    const version = JSON.parse(versionOutput);
-
-    const gitVersion: string = version?.serverVersion?.gitVersion ?? '';
-
-    // Quick checks for GKE/EKS
-    if (gitVersion.includes('gke')) {
-      return 'GKE';
-    }
-    if (gitVersion.includes('eks')) {
-      return 'EKS';
-    }
-
-    // Check for OpenShift APIs (ROSA is OpenShift on AWS)
-    try {
-      execSync(`kubectl api-resources --api-group=config.openshift.io`, {
-        stdio: 'ignore',
-      });
-      return 'OpenShift';
-    } catch {
-      return 'unknown';
-    }
-  } catch (error) {
-    console.error(`Error detecting Kubernetes provider: ${error}`);
     throw error;
   }
 };

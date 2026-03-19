@@ -192,6 +192,7 @@ docker-build-operator:
 	make build docker-build IMG=$(EVEREST_OPERATOR_IMG) ;\
 	}
 
+DB_NAMESPACES ?= everest
 .PHONY: deploy
 deploy:  ## Deploy Everest to K8S cluster using Everest CLI.
 	$(info Deploying Everest ($(IMG)) into K8S cluster using everestctl)
@@ -203,7 +204,7 @@ deploy:  ## Deploy Everest to K8S cluster using Everest CLI.
 	--operator.postgresql=true \
 	--operator.mysql=true \
 	--skip-wizard \
-	--namespaces everest \
+	--namespaces $(DB_NAMESPACES) \
 	--helm.set server.image=$(IMAGE_PREFIX)/$(EVEREST_SERVER_DEV_IMAGE_NAME) \
 	--helm.set server.apiRequestsRateLimit=200 \
 	--helm.set versionMetadataURL=https://check-dev.percona.com \
@@ -223,6 +224,33 @@ deploy-all: $(DEPLOY_ALL_DEPS) ## Build and deploy Everest and its dependencies 
 undeploy: build-cli-debug ## Undeploy Everest from K8S cluster using Everest CLI.
 	$(info Uninstalling Everest from K8S cluster using everestctl)
 	$(LOCALBIN)/everestctl uninstall -y -f -v
+
+.PHONY: add-pg-namespaces
+add-pg-namespaces: ## Add PostgreSQL namespace to Everest (usage: DB_NAMESPACES=ns-1 make add-pg-namespaces).
+	$(info Adding PostgreSQL namespaces=$(DB_NAMESPACES) to Everest)
+	$(LOCALBIN)/everestctl namespaces add $(DB_NAMESPACES) -v \
+	--operator.mongodb=false \
+	--operator.postgresql=true \
+	--operator.mysql=false \
+	--skip-wizard
+
+.PHONY: add-psmdb-namespaces
+add-psmdb-namespaces: ## Add PSMDB namespace to Everest (usage: DB_NAMESPACES=ns-1 make add-psmdb-namespaces).
+	$(info Adding PSMDB namespaces=$(DB_NAMESPACES) to Everest)
+	$(LOCALBIN)/everestctl namespaces add $(DB_NAMESPACES) -v \
+	--operator.mongodb=true \
+	--operator.postgresql=false \
+	--operator.mysql=false \
+	--skip-wizard
+
+.PHONY: add-pxc-namespaces
+add-pxc-namespaces: ## Add PXC namespace to Everest (usage: DB_NAMESPACES=ns-1 make add-pxc-namespaces).
+	$(info Adding PXC namespaces=$(DB_NAMESPACES) to Everest)
+	$(LOCALBIN)/everestctl namespaces add $(DB_NAMESPACES) -v \
+	--operator.mongodb=false \
+	--operator.postgresql=false \
+	--operator.mysql=true \
+	--skip-wizard
 
 .PHONY: expose
 expose:

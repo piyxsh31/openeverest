@@ -1,4 +1,5 @@
 import { expect, Page } from '@playwright/test';
+import {TIMEOUTS} from "@e2e/constants";
 
 export const storageLocationAutocompleteEmptyValidationCheck = async (
   page: Page,
@@ -31,13 +32,15 @@ const waitForStepHeaderToChange = async (
 
 export const moveForward = async (page: Page) => {
   await waitForStepHeaderToChange(page, 'db-wizard-continue-button');
+  await page.waitForLoadState('load', {timeout: TIMEOUTS.ThirtySeconds})
 };
 
 export const moveBack = async (page: Page) => {
   await waitForStepHeaderToChange(page, 'db-wizard-previous-button');
+  await page.waitForLoadState('load', {timeout: TIMEOUTS.ThirtySeconds})
 };
 
-export const goToStep = (
+export const goToStep = async (
   page: Page,
   step:
     | 'basic-information'
@@ -45,7 +48,10 @@ export const goToStep = (
     | 'backups'
     | 'advanced-configurations'
     | 'monitoring'
-) => page.getByTestId(`button-edit-preview-${step}`).click();
+) => {
+  await page.getByTestId(`button-edit-preview-${step}`).click();
+  await page.waitForLoadState('load', {timeout: TIMEOUTS.ThirtySeconds})
+}
 
 export const setPitrEnabledStatus = async (page: Page, checked: boolean) => {
   const checkbox = page
@@ -77,15 +83,9 @@ export const goToLastStepByStepAndSubmit = async (
   waitMs?: number
 ) => {
   let createDbVisible = false;
-  let stepNr = 0;
   while (!createDbVisible) {
     if (waitMs) {
       await page.waitForTimeout(waitMs);
-    }
-    stepNr++;
-    if (stepNr == 3) {
-      await moveBack(page);
-      await moveForward(page);
     }
     await moveForward(page);
     const a = await page.getByTestId('db-wizard-submit-button').isVisible();
@@ -269,7 +269,7 @@ export const populateAdvancedConfig = async (
   if (externalAccess) {
     await page.getByTestId('select-input-exposure-method').waitFor();
     await page.getByTestId('select-exposure-method-button').click();
-    await page.getByRole('option', { name: 'LoadBalancer' }).click();
+    await page.getByRole('option', { name: 'Load balancer' }).click();
 
     if (externalAccessSourceRange != '') {
       await page

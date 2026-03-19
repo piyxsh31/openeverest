@@ -54,6 +54,24 @@ export const createMonitoringInstance = async (
   expect(response.ok()).toBeTruthy();
 };
 
+export const getMonitoringInstance = async (
+  request: APIRequestContext,
+  namespace: string,
+  name: string,
+  token: string
+) => {
+  const response = await request.get(
+    `/v1/namespaces/${namespace}/monitoring-instances/${name}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  expect(response.status() === 200).toBeTruthy();
+  return await response.json()
+};
+
 export const deleteMonitoringInstance = async (
   request: APIRequestContext,
   namespace,
@@ -67,8 +85,9 @@ export const deleteMonitoringInstance = async (
         Authorization: `Bearer ${token}`,
       },
     }
-  );
-  expect(response.ok()).toBeTruthy();
+  ),
+    code = response.status()
+  expect(code === 204 || response.status() === 404).toBeTruthy();
 };
 
 export const listMonitoringInstances = async (
@@ -88,17 +107,6 @@ export const listMonitoringInstances = async (
 
   const responseBody = await response.json();
   return responseBody;
-};
-
-export const getPMMMajorVersion = async () => {
-  try {
-    const command = `kubectl get pods -l app.kubernetes.io/component=pmm-server -n everest-system -o jsonpath='{.items[0].spec.containers[0].image}' | cut -d':' -f2 | cut -d'.' -f1`;
-    const output = execSync(command).toString();
-    return output;
-  } catch (error) {
-    console.error(`Error executing command: ${error}`);
-    throw error;
-  }
 };
 
 export const checkDBMetrics = async (
@@ -162,12 +170,9 @@ export const checkQAN = async (
   const now = new Date();
   const start = new Date(now.getTime() - 12 * 60 * 60 * 1000).toISOString();
   const end = now.toISOString();
-  const PMMMajorVersion = await getPMMMajorVersion();
+
   const endpoint = 'monitoring-service.everest-system:443';
-  const url =
-    PMMMajorVersion.trim() === '2'
-      ? `https://${userPass}@${endpoint}/v0/qan/ObjectDetails/GetMetrics`
-      : `https://${userPass}@${endpoint}/v1/qan:getMetrics`;
+  const url = `https://${userPass}@${endpoint}/v0/qan/ObjectDetails/GetMetrics`;
 
   const payload = JSON.stringify({
     period_start_from: start,

@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 import { expect, Page, test } from '@playwright/test';
-import { getTokenFromLocalStorage } from '@e2e/utils/localStorage';
+import { getCITokenFromLocalStorage } from '@e2e/utils/localStorage';
 import {
   deleteDbCluster,
   findDbAndClickRow,
@@ -50,7 +50,7 @@ const openResourcesModal = async (page: Page) => {
       let storageClasses = [];
 
       test.beforeAll(async ({ request }) => {
-        token = await getTokenFromLocalStorage();
+        token = await getCITokenFromLocalStorage();
 
         const { storageClassNames = [] } = await getClusterDetailedInfo(
           token,
@@ -206,10 +206,11 @@ const openResourcesModal = async (page: Page) => {
         await page.getByTestId('form-dialog-save').click();
 
         //check result
+        const numberOfNodes = size * (db !== 'psmdb' ? 1 : 2);
         await expect(
           page
             .getByTestId('node-cpu-overview-section-row')
-            .filter({ hasText: '2' })
+            .filter({ hasText: `${2 * numberOfNodes}.00 CPU` })
         ).toBeVisible();
 
         await expect(
@@ -218,7 +219,7 @@ const openResourcesModal = async (page: Page) => {
               `${db != 'psmdb' ? 'proxies' : 'routers'}-cpu-overview-section-row`
             )
             .filter({
-              hasText: `${db != 'psmdb' ? '0.8' : '4'}`,
+              hasText: `${db != 'psmdb' ? '0.80' : '4.00'} CPU`,
             })
         ).toBeVisible();
       });

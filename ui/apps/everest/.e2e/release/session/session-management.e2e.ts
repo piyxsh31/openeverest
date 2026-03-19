@@ -14,8 +14,8 @@
 // limitations under the License.
 
 import { test, expect } from '@playwright/test';
-import { loginSessionUser, logout } from '../../utils/user';
-import { getSessionToken } from '../../utils/localStorage';
+import { loginSessionUser, logoutSessionUser } from '../../utils/user';
+import { getSessionTokenFromLocalStorage } from '../../utils/localStorage';
 import { execSync } from 'child_process';
 import { getCliPath } from '../../utils/session-cli';
 
@@ -48,12 +48,12 @@ test('T191 - Verify token invalidity after user logout from Everest UI - Everest
   page,
   request,
 }) => {
-  const token = await getSessionToken();
+  const token = await getSessionTokenFromLocalStorage();
 
   await test.step('Token works before logout', () =>
     expectAuthorized(request, token));
 
-  await test.step('Perform UI logout', () => logout(page));
+  await test.step('Perform UI logout', () => logoutSessionUser(page));
 
   await test.step('Token invalid after logout', () =>
     expectUnauthorized(request, token));
@@ -66,8 +66,8 @@ test('T190 - Verify user is logged out and token is invalidated after updating u
   let token: string;
 
   await test.step('Login as session user', async () => {
-    await loginSessionUser(page, true);
-    token = await getSessionToken();
+    await loginSessionUser(page);
+    token = await getSessionTokenFromLocalStorage();
     expect(token).toBeTruthy();
   });
 
@@ -102,8 +102,8 @@ test('T189 - Verify user is logged out and token is invalidated after user delet
   let token: string;
 
   await test.step('Login as session user', async () => {
-    await loginSessionUser(page, true);
-    token = await getSessionToken();
+    await loginSessionUser(page);
+    token = await getSessionTokenFromLocalStorage();
     expect(token).toBeTruthy();
   });
 
