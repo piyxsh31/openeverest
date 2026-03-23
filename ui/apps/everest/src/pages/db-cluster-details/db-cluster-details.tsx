@@ -1,3 +1,17 @@
+// Copyright (C) 2026 The OpenEverest Contributors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import { Alert, Box, Skeleton, Tab, Tabs } from '@mui/material';
 import {
   Link,
@@ -13,9 +27,6 @@ import { DBClusterDetailsTabs } from './db-cluster-details.types';
 import { DbClusterStatus } from 'shared-types/dbCluster.types';
 import { DbClusterContext } from './dbCluster.context';
 import { useContext } from 'react';
-import { DB_CLUSTER_STATUS_TO_BASE_STATUS } from '../databases/DbClusterView.constants';
-import { beautifyDbClusterStatus } from '../databases/DbClusterView.utils';
-import StatusField from 'components/status-field';
 import DbActions from 'components/db-actions/db-actions';
 import { Messages } from './db-cluster-details.messages';
 import { useRBACPermissionRoute } from 'hooks/rbac';
@@ -70,7 +81,8 @@ const WithPermissionDetails = ({
               alignItems: 'center',
             }}
           >
-            <StatusField
+            {/*TODO DB_CLUSTER_STATUS is no more actual this will be replaced with instance status */}
+            {/* <StatusField
               dataTestId={dbClusterName}
               status={dbCluster?.status?.status || DbClusterStatus.creating}
               statusMap={DB_CLUSTER_STATUS_TO_BASE_STATUS}
@@ -79,7 +91,7 @@ const WithPermissionDetails = ({
                 dbCluster?.status?.status || DbClusterStatus.creating,
                 dbCluster?.status?.conditions || []
               )}
-            </StatusField>
+            </StatusField> */}
             <DbActions showStatusActions={true} dbCluster={dbCluster!} />
           </Box>
         </Box>

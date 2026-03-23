@@ -1,5 +1,4 @@
-// everest
-// Copyright (C) 2023 Percona LLC
+// Copyright (C) 2026 The OpenEverest Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-import { api } from './api';
 
-export const getProvidersFn = async () => {
-  const response = await api.get<{ providers: string[] }>(
-    '/clusters/main/providers'
-  );
-  return response.data.providers;
-};
+export * from './useCreateDbInstance';
+export * from './useDbInstanceList';

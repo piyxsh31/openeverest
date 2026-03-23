@@ -1,3 +1,17 @@
+// Copyright (C) 2026 The OpenEverest Contributors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { MRT_ColumnDef } from 'material-react-table';
 import { Button } from '@mui/material';
@@ -8,14 +22,15 @@ import {
   DbEngineToolStatus,
   OperatorUpgradePendingAction,
 } from 'shared-types/dbEngines.types';
-import { DbCluster, DbClusterStatus, Spec } from 'shared-types/dbCluster.types';
+import { DbCluster, Spec } from 'shared-types/dbCluster.types';
 import { ClusterStatusTableProps } from './types';
 import { useDbClusters } from 'hooks/api/db-clusters/useDbClusters';
-import { DB_CLUSTER_STATUS_TO_BASE_STATUS } from 'pages/databases/DbClusterView.constants';
-import { beautifyDbClusterStatus } from 'pages/databases/DbClusterView.utils';
 import StatusField from 'components/status-field';
 import UpdateCrDialog from './update-cr-dialog';
 import UpdateEngineDialog from './update-engine-dialog';
+import { DB_INSTANCE_STATUS_TO_BASE_STATUS } from 'pages/databases/DbClusterView.constants';
+import { beautifyDbInstanceStatus } from 'pages/databases/DbClusterView.utils';
+import { DbInstanceStatus } from 'shared-types/instance.types';
 
 type EnhancedDbList = OperatorUpgradePendingAction & {
   db?: DbCluster;
@@ -126,11 +141,11 @@ const ClusterStatusTable = ({
         accessorFn: (row) => row.db?.status?.status,
         Cell: ({ cell }) => (
           <StatusField
-            status={cell.getValue<DbClusterStatus>()}
-            statusMap={DB_CLUSTER_STATUS_TO_BASE_STATUS}
+            status={cell.getValue<DbInstanceStatus>()}
+            statusMap={DB_INSTANCE_STATUS_TO_BASE_STATUS}
           >
-            {beautifyDbClusterStatus(
-              cell.getValue<DbClusterStatus>(),
+            {beautifyDbInstanceStatus(
+              cell.getValue<DbInstanceStatus>(),
               cell.row?.original.db?.status?.conditions || []
             )}
           </StatusField>

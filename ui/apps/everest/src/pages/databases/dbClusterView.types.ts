@@ -1,5 +1,6 @@
 // everest
 // Copyright (C) 2023 Percona LLC
+// Copyright (C) 2026 The OpenEverest Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,6 +21,8 @@ import {
   ProxyExposeType,
 } from 'shared-types/dbCluster.types';
 import { DbEngineType } from 'shared-types/dbEngines.types';
+import { DbInstanceStatus } from 'shared-types/instance.types';
+import { Instance } from 'types/api';
 
 export interface DbTypeIconProviderProps {
   dbType: DbEngineType | DbType;
@@ -44,4 +47,13 @@ export interface DbClusterTableElement {
   exposetype?: ProxyExposeType;
   monitoringConfigName?: string;
   raw: DbCluster;
+}
+
+export interface InstanceTableElement {
+  namespace: string;
+  instanceName: string;
+  phase: DbInstanceStatus;
+  provider: string;
+  topologyType: string;
+  raw: Instance;
 }
