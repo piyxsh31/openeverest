@@ -904,6 +904,115 @@ components:
               type: string
           type: object
       type: object
+    MonitoringConfig:
+      description: MonitoringConfig is the Schema for the monitoringconfigs API.
+      properties:
+        apiVersion:
+          description: |-
+            APIVersion defines the versioned schema of this representation of an object.
+            Servers should convert recognized schemas to the latest internal value, and
+            may reject unrecognized values.
+            More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+          type: string
+        kind:
+          description: |-
+            Kind is a string value representing the REST resource this object represents.
+            Servers may infer this from the endpoint the client submits requests to.
+            Cannot be updated.
+            In CamelCase.
+            More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+          type: string
+        metadata:
+          type: object
+        spec:
+          description: spec defines the desired state of MonitoringConfig
+          properties:
+            credentialsSecretName:
+              description: |-
+                CredentialsSecretName is the reference to the secret containing the API key.
+                It contains `apiKey` key with the API key value.
+              type: string
+            pmm:
+              description: PMM is configuration specific for monitoring using PMM
+                tool.
+              properties:
+                url:
+                  description: URL is url to the monitoring config.
+                  type: string
+              required:
+              - url
+              type: object
+            type:
+              description: Type is the name of monitoring tool (e.g., "pmm").
+              enum:
+              - pmm
+              type: string
+            verifyTLS:
+              default: true
+              description: |-
+                VerifyTLS is set to ensure TLS/SSL verification.
+                If unspecified, the default value is true.
+              type: boolean
+          required:
+          - credentialsSecretName
+          - type
+          type: object
+        status:
+          default:
+            inUse: false
+          description: status defines the observed state of MonitoringConfig
+          properties:
+            inUse:
+              default: false
+              description: InUse is a flag that indicates if any Instance uses the
+                monitoring config.
+              type: boolean
+            lastObservedGeneration:
+              description: LastObservedGeneration is the most recent generation observed
+                for this MonitoringConfig.
+              format: int64
+              type: integer
+            pmmServerVersion:
+              description: PMMServerVersion shows PMM server version.
+              type: string
+          type: object
+      required:
+      - spec
+      type: object
+    MonitoringConfigList:
+      description: MonitoringConfigList is an object that contains the list of the
+        existing monitoringconfigs.
+      properties:
+        apiVersion:
+          description: 'APIVersion defines the versioned schema of this representation
+            of an object. Servers should convert recognized schemas to the latest
+            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+          type: string
+        items:
+          items:
+            $ref: '#/components/schemas/MonitoringConfig'
+          type: array
+        kind:
+          description: 'Kind is a string value representing the REST resource this
+            object represents. Servers may infer this from the endpoint the client
+            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+          type: string
+        metadata:
+          properties:
+            name:
+              description: 'Name must be unique within a namespace. Is required when
+                creating resources, although some resources may allow a client to
+                request the generation of an appropriate name automatically. Name
+                is primarily intended for creation idempotence and configuration definition.
+                More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#names'
+              type: string
+            namespace:
+              description: 'Namespace defines the space within which each name must
+                be unique. An empty namespace is equivalent to the "default" namespace,
+                but "default" is the canonical representation. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces'
+              type: string
+          type: object
+      type: object
     Provider:
       description: Provider is the Schema for the providers API
       properties:
