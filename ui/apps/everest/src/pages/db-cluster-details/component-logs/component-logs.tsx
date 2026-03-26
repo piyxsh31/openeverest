@@ -190,9 +190,11 @@ const Logs = () => {
                 setSelectedContainer(newContainer);
                 setSearchParams((prev) => {
                   const newParams = new URLSearchParams(prev);
-                  newContainer
-                    ? newParams.set('container', newContainer)
-                    : newParams.delete('container');
+                  if (newContainer) {
+                    newParams.set('container', newContainer);
+                  } else {
+                    newParams.delete('container');
+                  }
                   return newParams;
                 });
               }}

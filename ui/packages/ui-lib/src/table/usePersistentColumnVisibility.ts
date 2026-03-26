@@ -19,7 +19,7 @@ const usePersistentColumnVisibility = (
           return JSON.parse(value);
         }
         return {};
-      } catch (error) {
+      } catch {
         return {};
       }
     });

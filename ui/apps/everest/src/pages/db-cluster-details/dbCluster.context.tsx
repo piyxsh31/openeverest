@@ -47,8 +47,9 @@ export const DbClusterContextProvider = ({
     timeoutTime: number
   ) => {
     setRefetchInterval(interval);
-    const a = setTimeout(() => {
-      setRefetchInterval(defaultInterval), clearTimeout(a);
+    const timeout = setTimeout(() => {
+      setRefetchInterval(defaultInterval);
+      clearTimeout(timeout);
     }, timeoutTime);
   };
 

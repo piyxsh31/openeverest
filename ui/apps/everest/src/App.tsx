@@ -44,7 +44,7 @@ const App = () => {
             redirectUri: `${window.location.protocol}//${window.location.host}/`,
           },
         });
-      } catch (error) {
+      } catch {
         setConfigs(null);
       }
     };

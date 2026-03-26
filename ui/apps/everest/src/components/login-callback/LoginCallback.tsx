@@ -12,7 +12,7 @@ const LoginCallback = () => {
           localStorage.setItem('everestToken', user.access_token);
           window.location.href = '/';
         }
-      } catch (error) {
+      } catch {
         return;
       }
     };

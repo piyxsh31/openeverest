@@ -1,16 +1,24 @@
 {
   "name": "@percona/eslint-config-react",
-  "version": "1.1.0",
-  "main": "./eslint-config.js",
+  "version": "2.0.0",
+  "type": "module",
+  "main": "./eslint-config.mjs",
+  "exports": {
+    ".": "./eslint-config.mjs"
+  },
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
+  "dependencies": {
+    "@eslint/js": "^9.28.0",
+    "typescript-eslint": "^8.35.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "eslint-config-prettier": "^10.1.0",
+    "globals": "^16.3.0"
+  },
   "peerDependencies": {
-    "@typescript-eslint/parser": "^6.0.0",
-    "eslint": "^8.45.0",
-    "eslint-config-prettier": "^9.0.0",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-refresh": "^0.4.3"
+    "eslint": "^9.0.0"
   }
 }

@@ -9,7 +9,7 @@ const useLocalStorage = (key: string, defaultValue: unknown) => {
       }
       localStorage.setItem(key, JSON.stringify(defaultValue));
       return defaultValue;
-    } catch (error) {
+    } catch {
       localStorage.setItem(key, JSON.stringify(defaultValue));
       return defaultValue;
     }

@@ -141,7 +141,7 @@ const AuthProvider = ({ children, isSsoEnabled }: AuthProviderProps) => {
       } else {
         setLogoutStatus();
       }
-    } catch (error) {
+    } catch {
       setLogoutStatus();
     }
   }, [userManager]);
@@ -201,7 +201,7 @@ const AuthProvider = ({ children, isSsoEnabled }: AuthProviderProps) => {
             return;
           }
         }
-      } catch (error) {
+      } catch {
         logout();
       }
     };

@@ -89,7 +89,6 @@ export const useDbClusterComponentLogsStream = (
 
         const decoder = new TextDecoder();
 
-        // eslint-disable-next-line no-constant-condition
         while (true) {
           const { value, done } = await reader.read();
           if (done || abortController.signal.aborted) break;
