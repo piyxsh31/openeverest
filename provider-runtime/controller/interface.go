@@ -18,7 +18,6 @@ package controller
 // Embed BaseProvider for default implementations.
 
 import (
-	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
@@ -29,9 +28,6 @@ import (
 type ProviderInterface interface {
 	// Name returns the unique identifier for this provider (e.g., "psmdb", "postgresql").
 	Name() string
-
-	// Types returns the scheme builder for registering provider-specific CRDs.
-	Types() func(*runtime.Scheme) error
 
 	// Validate checks if the Instance spec is valid.
 	Validate(c *Context) error
@@ -239,26 +235,11 @@ type FieldIndexProvider interface {
 // Embed this in your provider struct to inherit defaults.
 type BaseProvider struct {
 	ProviderName string
-	SchemeFuncs  []func(*runtime.Scheme) error
 	WatchConfigs []WatchConfig
 }
 
 func (b *BaseProvider) Name() string {
 	return b.ProviderName
-}
-
-func (b *BaseProvider) Types() func(*runtime.Scheme) error {
-	if len(b.SchemeFuncs) == 0 {
-		return nil
-	}
-	return func(s *runtime.Scheme) error {
-		for _, fn := range b.SchemeFuncs {
-			if err := fn(s); err != nil {
-				return err
-			}
-		}
-		return nil
-	}
 }
 
 // Watches returns the configured watch configurations.

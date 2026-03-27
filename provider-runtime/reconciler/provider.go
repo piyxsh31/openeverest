@@ -55,7 +55,6 @@ type ProviderReconciler struct {
 // providerAdapter is the internal interface that both provider types satisfy.
 type providerAdapter interface {
 	Name() string
-	Types() func(*runtime.Scheme) error
 	Validate(c *controller.Context) error
 	Sync(c *controller.Context) error
 	Status(c *controller.Context) (controller.Status, error)
@@ -67,8 +66,19 @@ type providerAdapter interface {
 type ServerConfig = server.ServerConfig
 
 // New creates a reconciler from a provider.
-func New(ctx context.Context, p controller.ProviderInterface, opts ...ReconcilerOption) (*ProviderReconciler, error) {
-	return newReconciler(ctx, p, opts...)
+//
+// The manager must be created first via SetupManager and passed here.
+// This allows providers to receive the manager at construction time.
+//
+// Example:
+//
+//	mgr, err := reconciler.SetupManager(psmdbv1.AddToScheme)
+//	provider := psmdb.NewProvider(mgr)
+//	r, err := reconciler.New(ctx, mgr, provider,
+//	    reconciler.WithServer(reconciler.ServerConfig{Port: 8082, ValidationPath: "/validate"}),
+//	)
+func New(ctx context.Context, mgr ctrl.Manager, p controller.ProviderInterface, opts ...ReconcilerOption) (*ProviderReconciler, error) {
+	return newReconciler(ctx, mgr, p, opts...)
 }
 
 // ReconcilerOption configures the reconciler.
@@ -111,12 +121,12 @@ func WithServer(config server.ServerConfig) ReconcilerOption {
 // Example:
 //
 //	// Custom port
-//	r, err := reconciler.New(provider,
+//	mgr, err := reconciler.SetupManager(psmdbv1.AddToScheme,
 //	    reconciler.WithMetrics(":9090"),
 //	)
 //
 //	// Disable metrics
-//	r, err := reconciler.New(provider,
+//	mgr, err := reconciler.SetupManager(psmdbv1.AddToScheme,
 //	    reconciler.WithMetrics("0"),
 //	)
 func WithMetrics(bindAddress string) ReconcilerOption {
@@ -125,9 +135,19 @@ func WithMetrics(bindAddress string) ReconcilerOption {
 	}
 }
 
-// newReconciler creates a reconciler from any provider that satisfies providerAdapter.
-func newReconciler(ctx context.Context, p providerAdapter, opts ...ReconcilerOption) (*ProviderReconciler, error) {
-	// Apply options
+// SetupManager creates a controller-runtime Manager with the scheme
+// registration.
+//
+// Example:
+//
+//	mgr, err := reconciler.SetupManager(psmdbv1.AddToScheme,
+//	    reconciler.WithMetrics(":9090"),
+//	)
+//	provider := psmdb.NewProvider(mgr)
+//	r, err := reconciler.New(ctx, mgr, provider,
+//	    reconciler.WithServer(reconciler.ServerConfig{Port: 8082, ValidationPath: "/validate"}),
+//	)
+func SetupManager(schemeFuncs []func(*runtime.Scheme) error, opts ...ReconcilerOption) (ctrl.Manager, error) {
 	options := &reconcilerOptions{}
 	for _, opt := range opts {
 		opt(options)
@@ -145,8 +165,8 @@ func newReconciler(ctx context.Context, p providerAdapter, opts ...ReconcilerOpt
 	}
 
 	// Register provider-specific types
-	if typesFunc := p.Types(); typesFunc != nil {
-		if err := typesFunc(scheme); err != nil {
+	for _, fn := range schemeFuncs {
+		if err := fn(scheme); err != nil {
 			return nil, fmt.Errorf("failed to add provider scheme: %w", err)
 		}
 	}
@@ -164,6 +184,17 @@ func newReconciler(ctx context.Context, p providerAdapter, opts ...ReconcilerOpt
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), mgrOpts)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create manager: %w", err)
+	}
+
+	return mgr, nil
+}
+
+// newReconciler creates a reconciler from any provider that satisfies providerAdapter.
+func newReconciler(ctx context.Context, mgr ctrl.Manager, p providerAdapter, opts ...ReconcilerOption) (*ProviderReconciler, error) {
+	// Apply options
+	options := &reconcilerOptions{}
+	for _, opt := range opts {
+		opt(options)
 	}
 
 	// Setup field indexes if provider implements FieldIndexProvider
