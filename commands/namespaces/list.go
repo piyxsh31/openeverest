@@ -86,10 +86,10 @@ const (
 // Print namespaces to console.
 func printNamespacesTable(nsList []namespaces.NamespaceInfo) {
 	// Prepare table headings.
-	headings := []interface{}{columnName, columnManagedByEverest, columnOperators}
+	headings := []any{columnName, columnManagedByEverest, columnOperators}
 	// Prepare table header.
 	tbl := table.New(headings...)
-	tbl.WithHeaderFormatter(func(format string, vals ...interface{}) string {
+	tbl.WithHeaderFormatter(func(format string, vals ...any) string {
 		// Print all in caps.
 		return strings.ToUpper(fmt.Sprintf(format, vals...))
 	})

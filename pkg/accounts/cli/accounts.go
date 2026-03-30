@@ -177,7 +177,7 @@ func (c *Accounts) List(ctx context.Context, opts ListOptions) error {
 	// Prepare table headings.
 	headings := []any{ColumnUser, ColumnCapabilities, ColumnEnabled}
 	if len(opts.Columns) > 0 {
-		headings = []any{}
+		headings = make([]any, 0, len(opts.Columns))
 		for _, col := range opts.Columns {
 			headings = append(headings, col)
 		}

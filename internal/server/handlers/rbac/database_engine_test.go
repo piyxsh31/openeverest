@@ -199,7 +199,7 @@ func TestRBAC_DatabaseEngines(t *testing.T) {
 				},
 			},
 		}
-		ctx := context.WithValue(context.Background(), common.UserCtxKey, rbac.User{Subject: "bob"})
+		ctx := context.WithValue(context.Background(), common.UserCtxKey, rbac.User{Subject: "bob"}) //nolint:staticcheck
 		for _, tc := range testCases {
 			t.Run(tc.desc, func(t *testing.T) {
 				t.Parallel()
@@ -258,7 +258,7 @@ func TestRBAC_DatabaseEngines(t *testing.T) {
 			return &h
 		}
 
-		ctx := context.WithValue(context.Background(), common.UserCtxKey, rbac.User{Subject: "bob"})
+		ctx := context.WithValue(context.Background(), common.UserCtxKey, rbac.User{Subject: "bob"}) //nolint:staticcheck
 		for _, tc := range testCases {
 			t.Run(tc.desc, func(t *testing.T) {
 				t.Parallel()
@@ -314,7 +314,7 @@ func TestRBAC_DatabaseEngines(t *testing.T) {
 			return &h
 		}
 
-		ctx := context.WithValue(context.Background(), common.UserCtxKey, rbac.User{Subject: "bob"})
+		ctx := context.WithValue(context.Background(), common.UserCtxKey, rbac.User{Subject: "bob"}) //nolint:staticcheck
 		for _, tc := range testCases {
 			t.Run(tc.desc, func(t *testing.T) {
 				t.Parallel()

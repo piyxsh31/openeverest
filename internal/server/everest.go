@@ -156,7 +156,7 @@ type Template struct {
 	templates *template.Template
 }
 
-func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+func (t *Template) Render(w io.Writer, name string, data any, c echo.Context) error {
 	return t.templates.ExecuteTemplate(w, name, data)
 }
 
@@ -172,7 +172,7 @@ func (e *EverestServer) initHTTPServer(ctx context.Context) error {
 		// for this request and stored in the context by the secure middleware.
 		// See the securityHeaders middleware for more information.
 		return c.Render(http.StatusOK, "index.html",
-			map[string]interface{}{"CSPNonce": secure.CSPNonce(c.Request().Context())},
+			map[string]any{"CSPNonce": secure.CSPNonce(c.Request().Context())},
 		)
 	}, e.securityHeaders(),
 	)
@@ -280,7 +280,7 @@ func (e *EverestServer) newJWTKeyFunc(ctx context.Context) (jwt.Keyfunc, error) 
 		oidcKeyFn = fn
 	}
 
-	return func(token *jwt.Token) (interface{}, error) {
+	return func(token *jwt.Token) (any, error) {
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
 			return nil, errors.New("failed to get claims from token")

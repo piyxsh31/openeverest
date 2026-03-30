@@ -153,7 +153,7 @@ func shortenToken(token *jwt.Token) (string, error) {
 
 // JWTContent represents the JWT token structure that is used by blocklist.
 type JWTContent struct {
-	Payload map[string]interface{} `json:"payload"`
+	Payload map[string]any `json:"payload"`
 }
 
 func (j JWTContent) getStringClaim(key string) string {
@@ -168,11 +168,11 @@ func extractContent(token *jwt.Token) (*JWTContent, error) {
 	if token == nil {
 		return nil, errEmptyToken
 	}
-	claimsMap := make(map[string]interface{})
+	claimsMap := make(map[string]any)
 
 	switch claims := token.Claims.(type) {
 	case jwt.MapClaims:
-		maps.Copy(claimsMap, map[string]interface{}(claims))
+		maps.Copy(claimsMap, map[string]any(claims))
 	default:
 		return nil, errUnsupportedClaim(claims)
 	}

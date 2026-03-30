@@ -65,7 +65,7 @@ func rootPersistentPreRun(_ *cobra.Command, _ []string) { //nolint:revive
 	// to be set within 30 seconds of the program initialization.
 	ctrlruntimelog.SetLogger(zapr.NewLogger(logger.GetLogger().Desugar()))
 
-	rootCmdFlags.Pretty = !(rootCmdFlags.Verbose || rootCmdFlags.JSON)
+	rootCmdFlags.Pretty = !rootCmdFlags.Verbose && !rootCmdFlags.JSON
 	logger.GetLogger().Debug("Debug logging enabled")
 }
 
