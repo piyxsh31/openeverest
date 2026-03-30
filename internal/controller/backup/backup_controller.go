@@ -40,9 +40,8 @@ import (
 )
 
 const (
-	backupToolRequestSecretNameSuffix = "-data-import-request" //nolint:gosec
-	backupJobJSONSecretKey            = "request.json"
-	payloadMountPath                  = "/payload"
+	backupJobJSONSecretKey = "request.json"
+	payloadMountPath       = "/payload"
 
 	// Label constants for backup resource handling
 	backupRefNameLabel         = "backup.openeverest.io/ref-name"
@@ -242,7 +241,7 @@ func (r *BackupReconciler) ensureBackupJob(
 	if useServiceAccount {
 		serviceAccount = r.getServiceAccountName(backup)
 	}
-	job.Spec = r.getJobSpec(backup, bc, serviceAccount)
+	job.Spec = r.getJobSpec(bc, serviceAccount)
 	if err := controllerutil.SetControllerReference(backup, job, r.Scheme); err != nil {
 		return fmt.Errorf("failed to set controller reference: %w", err)
 	}
@@ -260,12 +259,7 @@ func backupJobName(backup *backupv1alpha1.Backup) string {
 	return fmt.Sprintf("%s-%s", backup.GetName(), hashStr[:6])
 }
 
-func backupToolRequestSecretName(backup *backupv1alpha1.Backup) string {
-	return backupJobName(backup) + backupToolRequestSecretNameSuffix
-}
-
 func (r *BackupReconciler) getJobSpec(
-	backup *backupv1alpha1.Backup,
 	bc *backupv1alpha1.BackupClass,
 	serviceAccountName string,
 ) batchv1.JobSpec {

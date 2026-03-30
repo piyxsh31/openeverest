@@ -156,26 +156,27 @@ func (r *NamespaceRemover) Run(ctx context.Context) error {
 
 // NewRemoveNamespaceSteps returns the steps to remove a namespace.
 func NewRemoveNamespaceSteps(namespace string, keepNs bool, k kubernetes.KubernetesConnector) []steps.Step {
-	removeSteps := []steps.Step{
-		{
+	removeSteps := make([]steps.Step, 0, 4)
+	removeSteps = append(removeSteps,
+		steps.Step{
 			Desc: fmt.Sprintf("Deleting database clusters in namespace '%s'", namespace),
 			F: func(ctx context.Context) error {
 				return k.DeleteDatabaseClusters(ctx, ctrlclient.InNamespace(namespace))
 			},
 		},
-		{
+		steps.Step{
 			Desc: fmt.Sprintf("Deleting backup storages in namespace '%s'", namespace),
 			F: func(ctx context.Context) error {
 				return k.DeleteBackupStorages(ctx, ctrlclient.InNamespace(namespace))
 			},
 		},
-		{
+		steps.Step{
 			Desc: fmt.Sprintf("Deleting monitoring instances in namespace '%s'", namespace),
 			F: func(ctx context.Context) error {
 				return k.DeleteMonitoringConfigs(ctx, ctrlclient.InNamespace(namespace))
 			},
 		},
-	}
+	)
 	nsStepDesc := fmt.Sprintf("Deleting database namespace '%s'", namespace)
 	if keepNs {
 		nsStepDesc = fmt.Sprintf("Deleting resources from namespace '%s'", namespace)

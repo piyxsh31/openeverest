@@ -161,14 +161,14 @@ type DataImportJobHandler interface {
 //  ------ Engine Features interfaces ------
 
 // EngineFeaturesHandler provides methods for handling operations on engine features.
-type EngineFeaturesHandler interface {
+type EngineFeaturesHandler interface { //nolint:iface
 	// PMDB engine features.
 
 	SplitHorizonDNSConfigHandler
 }
 
 // SplitHorizonDNSConfigHandler provides methods for handling operations on Split-Horizon DNS Config.
-type SplitHorizonDNSConfigHandler interface {
+type SplitHorizonDNSConfigHandler interface { //nolint:iface
 	CreateSplitHorizonDNSConfig(ctx context.Context, shdc *enginefeaturesv1alpha1.SplitHorizonDNSConfig) (*enginefeaturesv1alpha1.SplitHorizonDNSConfig, error)
 	UpdateSplitHorizonDNSConfig(ctx context.Context, namespace, name string, req *api.SplitHorizonDNSConfigUpdateParams) (*enginefeaturesv1alpha1.SplitHorizonDNSConfig, error)
 	ListSplitHorizonDNSConfigs(ctx context.Context, namespace string) (*enginefeaturesv1alpha1.SplitHorizonDNSConfigList, error)

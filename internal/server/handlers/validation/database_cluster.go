@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -239,12 +240,7 @@ func containsVersion(version string, versions []string) bool {
 	if version == "" {
 		return true
 	}
-	for _, allowedVersion := range versions {
-		if version == allowedVersion {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(versions, version)
 }
 
 func validateProxy(databaseCluster *everestv1alpha1.DatabaseCluster) error {
@@ -724,7 +720,7 @@ func (h *validateHandler) validatePodSchedulingPolicy(ctx context.Context, db *e
 		if k8serrors.IsNotFound(err) {
 			return err
 		}
-		return fmt.Errorf("failed to check if requested pod scheduling policy with name='%s' exists: %v", pspName, err)
+		return fmt.Errorf("failed to check if requested pod scheduling policy with name='%s' exists: %w", pspName, err)
 	}
 
 	if psp.Spec.EngineType != db.Spec.Engine.Type {

@@ -34,7 +34,7 @@ import (
 	"github.com/openeverest/openeverest/v2/pkg/common"
 	"github.com/openeverest/openeverest/v2/pkg/kubernetes"
 	"github.com/openeverest/openeverest/v2/pkg/output"
-	. "github.com/openeverest/openeverest/v2/pkg/utils/must" //nolint:revive,stylecheck
+	. "github.com/openeverest/openeverest/v2/pkg/utils/must" //nolint:revive,stylecheck,staticcheck
 	"github.com/openeverest/openeverest/v2/pkg/version"
 )
 
@@ -169,7 +169,7 @@ func (cfg *NamespaceAddConfig) PopulateOperators(ctx context.Context) error {
 		}
 	}
 
-	if !(cfg.Operators.PXC || cfg.Operators.PG || cfg.Operators.PSMDB) {
+	if !cfg.Operators.PXC && !cfg.Operators.PG && !cfg.Operators.PSMDB {
 		// need to select at least one operator to install
 		return ErrOperatorsNotSelected
 	}
@@ -267,7 +267,7 @@ func NewNamespaceAdd(c NamespaceAddConfig, l *zap.SugaredLogger) (*NamespaceAdde
 			return nil, ErrNamespaceListEmpty
 		}
 
-		if !(c.Operators.PXC || c.Operators.PG || c.Operators.PSMDB) {
+		if !c.Operators.PXC && !c.Operators.PG && !c.Operators.PSMDB {
 			// need to select at least one operator to install
 			return nil, ErrOperatorsNotSelected
 		}

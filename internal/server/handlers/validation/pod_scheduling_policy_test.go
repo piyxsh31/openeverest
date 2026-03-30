@@ -581,7 +581,6 @@ func TestValidate_ListPodSchedulingPolicy(t *testing.T) {
 		name    string
 		objs    []ctrlclient.Object
 		assert  func(*everestv1alpha1.PodSchedulingPolicyList) bool
-		wantErr error
 	}
 
 	testCases := []testCase{

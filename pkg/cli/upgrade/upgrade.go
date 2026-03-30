@@ -37,7 +37,7 @@ import (
 	"github.com/openeverest/openeverest/v2/pkg/common"
 	"github.com/openeverest/openeverest/v2/pkg/kubernetes"
 	"github.com/openeverest/openeverest/v2/pkg/output"
-	. "github.com/openeverest/openeverest/v2/pkg/utils/must" //nolint:revive,stylecheck
+	. "github.com/openeverest/openeverest/v2/pkg/utils/must" //nolint:revive,stylecheck,staticcheck
 	cliVersion "github.com/openeverest/openeverest/v2/pkg/version"
 	versionservice "github.com/openeverest/openeverest/v2/pkg/version_service"
 )
@@ -161,7 +161,7 @@ func (u *Upgrade) Run(ctx context.Context) error {
 		return fmt.Errorf("could not detect Kubernetes environment: %w", err)
 	}
 
-	if err := u.setupHelmInstaller(ctx); err != nil {
+	if err := u.setupHelmInstaller(); err != nil {
 		return fmt.Errorf("could not initialize Helm installer: %w", err)
 	}
 
@@ -204,7 +204,7 @@ func (u *Upgrade) setKubernetesEnv(ctx context.Context) error {
 	return nil
 }
 
-func (u *Upgrade) setupHelmInstaller(ctx context.Context) error {
+func (u *Upgrade) setupHelmInstaller() error {
 	overrides := helm.NewValues(helm.Values{
 		ClusterType:        u.clusterType,
 		VersionMetadataURL: u.config.VersionMetadataURL,

@@ -28,7 +28,7 @@ func (out *MonitoringInstance) FromCR(in *v1alpha1.MonitoringConfig) {
 }
 
 func (out *StorageClass) FromCR(in *v1.StorageClass) {
-	meta := make(map[string]interface{})
+	meta := make(map[string]any)
 	meta["name"] = in.GetName()
 	meta["annotations"] = in.GetAnnotations()
 	meta["labels"] = in.GetLabels()

@@ -52,7 +52,7 @@ func init() {
 
 func settingsRBACValidatePreRun(cmd *cobra.Command, _ []string) { //nolint:revive
 	// Copy global flags to config
-	rbacValidatePretty = !(cmd.Flag(cli.FlagVerbose).Changed || cmd.Flag(cli.FlagJSON).Changed)
+	rbacValidatePretty = !cmd.Flag(cli.FlagVerbose).Changed && !cmd.Flag(cli.FlagJSON).Changed
 	rbacValidateKubeconfigPath = cmd.Flag(cli.FlagKubeconfig).Value.String()
 }
 

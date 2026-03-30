@@ -312,7 +312,7 @@ func mergeNamespacesEnvVar(str1, str2 string) string {
 		nsMap[ns] = struct{}{}
 	}
 
-	namespaces := []string{}
+	namespaces := make([]string, 0, len(nsMap))
 	for ns := range nsMap {
 		namespaces = append(namespaces, ns)
 	}

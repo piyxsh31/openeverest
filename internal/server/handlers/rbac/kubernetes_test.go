@@ -94,11 +94,11 @@ func TestRBAC_Kubernetes(t *testing.T) {
 				},
 				policy: newPolicy(
 					"p, bob, database-clusters, *, */*",
-					"p, role:creater, database-clusters, create, */*",
+					"p, role:creater, database-clusters, create, */*", //nolint:misspell
 					"p, role:reader, database-clusters, read, */*",
 					"p, role:updater, database-clusters, update, */*",
 					"p, role:deleter, database-clusters, delete, */*",
-					"g, bob, role:creater",
+					"g, bob, role:creater", //nolint:misspell
 					"g, bob, role:reader",
 					"g, bob, role:updater",
 					"g, another-user, role:deleter",

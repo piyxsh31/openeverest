@@ -37,7 +37,7 @@ import (
 // Use validateNamespaceNames to validate them.
 func ParseNamespaceNames(namespaces string) []string {
 	result := []string{}
-	for _, ns := range strings.Split(namespaces, ",") {
+	for ns := range strings.SplitSeq(namespaces, ",") {
 		ns = strings.TrimSpace(ns)
 		if ns == "" {
 			continue

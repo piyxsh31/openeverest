@@ -52,7 +52,7 @@ func init() {
 
 func accountsCreatePreRun(cmd *cobra.Command, _ []string) { //nolint:revive
 	// Copy global flags to config
-	accountsCreateCfg.Pretty = !(cmd.Flag(cli.FlagVerbose).Changed || cmd.Flag(cli.FlagJSON).Changed)
+	accountsCreateCfg.Pretty = !cmd.Flag(cli.FlagVerbose).Changed && !cmd.Flag(cli.FlagJSON).Changed
 	accountsCreateCfg.KubeconfigPath = cmd.Flag(cli.FlagKubeconfig).Value.String()
 
 	// Check username

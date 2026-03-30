@@ -167,7 +167,7 @@ func Test_rbacHandler_CreateSplitHorizonDNSConfig(t *testing.T) {
 		},
 	}
 
-	ctx := context.WithValue(context.Background(), common.UserCtxKey, rbac.User{Subject: "bob"})
+	ctx := context.WithValue(context.Background(), common.UserCtxKey, rbac.User{Subject: "bob"}) //nolint:staticcheck
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
 			t.Parallel()
@@ -323,7 +323,7 @@ func Test_rbacHandler_DeleteSplitHorizonDNSConfig(t *testing.T) {
 		},
 	}
 
-	ctx := context.WithValue(context.Background(), common.UserCtxKey, rbac.User{Subject: "bob"})
+	ctx := context.WithValue(context.Background(), common.UserCtxKey, rbac.User{Subject: "bob"}) //nolint:staticcheck
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
 			t.Parallel()
@@ -475,7 +475,7 @@ func Test_rbacHandler_GetSplitHorizonDNSConfig(t *testing.T) {
 		},
 	}
 
-	ctx := context.WithValue(context.Background(), common.UserCtxKey, rbac.User{Subject: "bob"})
+	ctx := context.WithValue(context.Background(), common.UserCtxKey, rbac.User{Subject: "bob"}) //nolint:staticcheck
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
 			t.Parallel()
@@ -536,7 +536,6 @@ func Test_rbacHandler_ListSplitHorizonDNSConfigs(t *testing.T) {
 	type testCase struct {
 		desc   string
 		policy string
-		outLen int
 		assert func(list *enginefeatureseverestv1alpha1.SplitHorizonDNSConfigList) bool
 	}
 	testCases := []testCase{
@@ -741,7 +740,7 @@ func Test_rbacHandler_ListSplitHorizonDNSConfigs(t *testing.T) {
 		},
 	}
 
-	ctx := context.WithValue(context.Background(), common.UserCtxKey, rbac.User{Subject: "bob"})
+	ctx := context.WithValue(context.Background(), common.UserCtxKey, rbac.User{Subject: "bob"}) //nolint:staticcheck
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
 			t.Parallel()
@@ -897,7 +896,7 @@ func Test_rbacHandler_UpdateSplitHorizonDNSConfig(t *testing.T) {
 		},
 	}
 
-	ctx := context.WithValue(context.Background(), common.UserCtxKey, rbac.User{Subject: "bob"})
+	ctx := context.WithValue(context.Background(), common.UserCtxKey, rbac.User{Subject: "bob"}) //nolint:staticcheck
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
 			t.Parallel()

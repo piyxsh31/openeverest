@@ -109,8 +109,8 @@ func installPreRun(cmd *cobra.Command, _ []string) { //nolint:revive
 func checkDBNamespaceParameters(cmd *cobra.Command) error {
 	// Check DB namespaces parameters
 	// If user doesn't pass --namespaces flag - need to ask explicitly.
-	askNamespaces := !(cmd.Flags().Lookup(cli.FlagNamespaces).Changed ||
-		installCfg.NamespaceAddConfig.SkipWizard)
+	askNamespaces := !cmd.Flags().Lookup(cli.FlagNamespaces).Changed &&
+		!installCfg.NamespaceAddConfig.SkipWizard
 
 	// Note: there are the following cases possible:
 	// - user doesn't provide '--namespaces' flag -> namespacesToAdd="everest" (default).

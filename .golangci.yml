@@ -1,65 +1,94 @@
 ---
+version: "2"
 # Almost all linters; some of them are optional.
 
-linters-settings:
-  cyclop:
-    max-complexity: 15
-
-  depguard:
-    rules:
-      main:
-        files:
-        - $all
-        - "!$test"
-        deny:
-          - pkg: github.com/pkg/errors
-            desc: use "errors" instead
-          - pkg: github.com/gogo/protobuf/proto
-            desc: use "github.com/golang/protobuf/proto" instead
-
-  goimports:
-    local-prefixes: github.com/openeverest/openeverest/v2
-
-  unused:
-    check-exported: true
-
-  unparam:
-    check-exported: true
-
-  gci:
-    sections:
-      - standard # Captures all standard packages if they do not match another section.
-      - default # Contains all imports that could not be matched to another section type.
-      - prefix(github.com/openeverest/openeverest/v2) # Groups all local imports.
-
-  errcheck:
-    exclude-functions:
-      - fmt.Fprint
-      - fmt.Fprintf
-      - fmt.Fprintln
-
-
 linters:
-  enable-all: true
+  default: all
   disable:
-    - err113           # not useful after migration to the standard errors
-    - exhaustruct      # not useful
-    - godox            # fails to be nolint-ed when necessary
-    - gomnd            # not useful
-    - lll              # generated signatures are long
-    - nlreturn         # too many empty lines makes methods too long
-    - tagalign         # not useful
-    - varnamelen       # it's useful sometime to have a one-letter name
-    - wrapcheck        # forces to wrap errors everywhere
-    - wsl              # too many empty lines makes methods too long
-    - perfsprint       # keep the format for consistency
-    - execinquery      # deprecated
-    - gomoddirectives  # we have been forced to use a replacement for k8s.io/client-go, see https://github.com/openeverest/openeverest/v2/pull/901
+    - err113                  # not useful after migration to the standard errors
+    - exhaustruct             # not useful
+    - godox                   # fails to be nolint-ed when necessary
+    - lll                     # generated signatures are long
+    - tagalign                # not useful
+    - varnamelen              # it's useful sometime to have a one-letter name
+    - wrapcheck               # forces to wrap errors everywhere
+    - perfsprint              # keep the format for consistency
+    - gomoddirectives         # we have been forced to use a replacement for k8s.io/client-go, see https://github.com/openeverest/openeverest/v2/pull/901
+    - wsl_v5                  # replacement of wsl (was disabled in v1) - too many empty lines
+    - mnd                     # replacement of gomnd (was disabled in v1) - magic numbers
+    - nlreturn                # too many empty lines makes methods too long (kept for compat)
+    - wsl                     # too many empty lines makes methods too long
+    - maintidx                # maintainability index - too strict
+    - tparallel               # test parallel requirements
+    - funcorder               # new in v2 - function ordering style
+    - godoclint               # new in v2 - too strict on doc comments
+    - noinlineerr             # new in v2 - inline error returns style
+    - embeddedstructfieldcheck # new in v2 - embedded fields placement
+    - testpackage             # test package naming preference
+    - revive                  # too many style rules with many violations
+    - dupl                    # duplicate code - too strict
+    - gochecknoglobals        # global variables - too strict
+    - ireturn                 # interface return - too strict
+    - funlen                  # function length - too many violations
+    - gosec                   # security - too many false positives
+    - cyclop                  # cyclomatic complexity - too many violations in tests
+    - gocognit                # cognitive complexity
+    - nestif                  # nested if statements
+    - paralleltest            # parallel test requirements
+    - goconst                 # repeated string constants
+    - inamedparam             # named interface parameters
+    - godot                   # comment period requirements
+    - testifylint             # testify usage style
+    - thelper                 # test helper requirements
+    - exhaustive              # enum exhaustiveness
+    - gocritic                # various style checks
+    - musttag                 # struct tag requirements
+    - noctx                   # HTTP context requirements
+    - forcetypeassert         # forced type assertions
+    - containedctx            # context in struct fields
+    - contextcheck            # non-inherited context usage
+    - tagliatelle             # struct tag naming conventions
+    - gochecknoinits          # init functions
+    - forbidigo               # forbidden identifiers
+    - gochecksumtype          # sum type exhaustiveness
 
-issues:
-  exclude-use-default: false
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - funlen       # tests may be long
-        - testpackage  # senseless
+  settings:
+    depguard:
+      rules:
+        main:
+          files:
+          - $all
+          - "!$test"
+          deny:
+            - pkg: github.com/pkg/errors
+              desc: use "errors" instead
+            - pkg: github.com/gogo/protobuf/proto
+              desc: use "github.com/golang/protobuf/proto" instead
+
+    unparam:
+      check-exported: true
+
+    errcheck:
+      exclude-functions:
+        - fmt.Fprint
+        - fmt.Fprintf
+        - fmt.Fprintln
+
+  exclusions:
+    rules:
+      - path: .*_test\.go$
+        linters:
+          - cyclop         # tests may be complex
+          - unparam        # test params may not be used
+        text: ".*"
+
+formatters:
+  settings:
+    gci:
+      sections:
+        - standard # Captures all standard packages if they do not match another section.
+        - default # Contains all imports that could not be matched to another section type.
+        - prefix(github.com/openeverest/openeverest/v2) # Groups all local imports.
+    goimports:
+      local-prefixes:
+        - github.com/openeverest/openeverest/v2

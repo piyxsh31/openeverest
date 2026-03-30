@@ -25,6 +25,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"maps"
 	"strings"
 
 	everesthelmchart "github.com/openeverest/helm-charts/charts/everest"
@@ -43,7 +44,7 @@ import (
 func MergeVals(
 	helmFlagOpts values.Options,
 	helmMapOpts map[string]string,
-) (map[string]interface{}, error) {
+) (map[string]any, error) {
 	// Create helm values from helmMapOpts
 	helmOpts := make([]string, 0, len(helmMapOpts))
 	for k, v := range helmMapOpts {
@@ -52,7 +53,7 @@ func MergeVals(
 
 	helmOptsStr := strings.Join(helmOpts, ",")
 
-	helmValues := make(map[string]interface{})
+	helmValues := make(map[string]any)
 	err := strvals.ParseInto(helmOptsStr, helmValues)
 	if err != nil {
 		return nil, fmt.Errorf("error parsing helm options %q: %w", helmOptsStr, err)
@@ -70,15 +71,13 @@ func MergeVals(
 }
 
 // MergeMaps recursively merges the values of b into a copy of a, preferring the values from b.
-func MergeMaps(a, b map[string]interface{}) map[string]interface{} {
-	out := make(map[string]interface{}, len(a))
-	for k, v := range a {
-		out[k] = v
-	}
+func MergeMaps(a, b map[string]any) map[string]any {
+	out := make(map[string]any, len(a))
+	maps.Copy(out, a)
 	for k, v := range b {
-		if v, ok := v.(map[string]interface{}); ok {
+		if v, ok := v.(map[string]any); ok {
 			if bv, ok := out[k]; ok {
-				if bv, ok := bv.(map[string]interface{}); ok {
+				if bv, ok := bv.(map[string]any); ok {
 					out[k] = MergeMaps(bv, v)
 					continue
 				}
@@ -182,7 +181,7 @@ func patchChartYAMLVersion(path, version string) error {
 	if err != nil {
 		return err
 	}
-	var chart map[string]interface{}
+	var chart map[string]any
 	if err := yaml.Unmarshal(data, &chart); err != nil {
 		return err
 	}
@@ -203,7 +202,7 @@ func patchMainChartYAML(path, version string) error {
 	if err != nil {
 		return err
 	}
-	var chart map[string]interface{}
+	var chart map[string]any
 	if err := yaml.Unmarshal(data, &chart); err != nil {
 		return err
 	}
@@ -212,7 +211,7 @@ func patchMainChartYAML(path, version string) error {
 
 	if deps, ok := chart["dependencies"].([]interface{}); ok {
 		for _, dep := range deps {
-			d, ok := dep.(map[string]interface{})
+			d, ok := dep.(map[string]any)
 			if !ok {
 				continue
 			}

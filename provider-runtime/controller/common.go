@@ -17,6 +17,7 @@ package controller
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -186,7 +187,7 @@ func (c *Context) ObjectMeta(name string) metav1.ObjectMeta {
 //	if err := c.DecodeTopologyConfig(&config); err != nil {
 //	    // handle error or use defaults
 //	}
-func (c *Context) DecodeTopologyConfig(target interface{}) error {
+func (c *Context) DecodeTopologyConfig(target any) error {
 	topologyConfig := c.in.GetTopologyConfig()
 	if topologyConfig == nil || topologyConfig.Raw == nil {
 		return fmt.Errorf("topology config not set")
@@ -204,7 +205,7 @@ func (c *Context) DecodeTopologyConfig(target interface{}) error {
 //	if err := c.DecodeGlobalConfig(&config); err != nil {
 //	    // handle error or use defaults
 //	}
-func (c *Context) DecodeGlobalConfig(target interface{}) error {
+func (c *Context) DecodeGlobalConfig(target any) error {
 	globalConfig := c.in.Spec.Global
 	if globalConfig == nil || globalConfig.Raw == nil {
 		return fmt.Errorf("global config not set")
@@ -223,7 +224,7 @@ func (c *Context) DecodeGlobalConfig(target interface{}) error {
 //	if err := c.DecodeComponentCustomSpec(engine, &customSpec); err != nil {
 //	    // handle error or use defaults
 //	}
-func (c *Context) DecodeComponentCustomSpec(component v1alpha1.ComponentSpec, target interface{}) error {
+func (c *Context) DecodeComponentCustomSpec(component v1alpha1.ComponentSpec, target any) error {
 	if component.CustomSpec == nil || component.CustomSpec.Raw == nil {
 		return fmt.Errorf("component custom spec not set")
 	}
@@ -423,13 +424,14 @@ func (e *WaitError) Error() string {
 
 // IsWaitError checks if an error is a WaitError.
 func IsWaitError(err error) bool {
-	_, ok := err.(*WaitError)
-	return ok
+	var we *WaitError
+	return errors.As(err, &we)
 }
 
 // GetWaitDuration returns the wait duration from a WaitError.
 func GetWaitDuration(err error) time.Duration {
-	if we, ok := err.(*WaitError); ok {
+	var we *WaitError
+	if errors.As(err, &we) {
 		return we.Duration
 	}
 	return 10 * time.Second

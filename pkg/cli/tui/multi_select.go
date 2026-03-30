@@ -189,7 +189,7 @@ func (m MultiSelect) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m MultiSelect) View() string {
 	// The header
 	s := strings.Builder{}
-	s.WriteString(fmt.Sprintf("%s %s\n", failureStyle.Render("❓"), textStyle.Render(m.Message)))
+	fmt.Fprintf(&s, "%s %s\n", failureStyle.Render("❓"), textStyle.Render(m.Message))
 
 	// Iterate over our choices
 	for i, choice := range m.Choices {
@@ -198,7 +198,7 @@ func (m MultiSelect) View() string {
 	}
 
 	if !m.done {
-		s.WriteString(fmt.Sprintf("\n%s\n", m.help.View(m.keys)))
+		fmt.Fprintf(&s, "\n%s\n", m.help.View(m.keys))
 	}
 
 	// Send the UI for rendering

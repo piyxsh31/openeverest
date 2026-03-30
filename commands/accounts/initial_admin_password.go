@@ -43,7 +43,7 @@ var (
 
 func accountsInitAdminPasswdPreRun(cmd *cobra.Command, _ []string) { //nolint:revive
 	// Copy global flags to config
-	accountsInitAdminPasswdCfg.Pretty = !(cmd.Flag(cli.FlagVerbose).Changed || cmd.Flag(cli.FlagJSON).Changed)
+	accountsInitAdminPasswdCfg.Pretty = !cmd.Flag(cli.FlagVerbose).Changed && !cmd.Flag(cli.FlagJSON).Changed
 	accountsInitAdminPasswdCfg.KubeconfigPath = cmd.Flag(cli.FlagKubeconfig).Value.String()
 }
 

@@ -62,7 +62,7 @@ func newTokenStore(ctx context.Context, client TokenStoreClient, logger *zap.Sug
 func (ts *tokenStore) init(ctx context.Context) error {
 	_, err := ts.client.GetSecret(ctx, types.NamespacedName{Namespace: common.SystemNamespace, Name: common.EverestBlocklistSecretName})
 	if err == nil {
-		return err
+		return nil
 	}
 	if !k8serrors.IsNotFound(err) {
 		err = fmt.Errorf("failed to get %s secret in the %s namespace: %w", common.EverestBlocklistSecretName, common.SystemNamespace, err)
@@ -97,7 +97,7 @@ func (ts *tokenStore) Add(ctx context.Context, shortenedToken string) error {
 	_, updateErr := ts.client.UpdateSecret(ctx, secret)
 	if updateErr != nil {
 		ts.l.Errorf("failed to update %s secret in the %s namespace with the %s shortened token, retrying: %v", secret.Name, secret.Namespace, shortenedToken, updateErr)
-		return err
+		return updateErr
 	}
 	return nil
 }

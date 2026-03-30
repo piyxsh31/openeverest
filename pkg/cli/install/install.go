@@ -40,7 +40,7 @@ import (
 	"github.com/openeverest/openeverest/v2/pkg/common"
 	"github.com/openeverest/openeverest/v2/pkg/kubernetes"
 	"github.com/openeverest/openeverest/v2/pkg/output"
-	. "github.com/openeverest/openeverest/v2/pkg/utils/must" //nolint:revive,stylecheck
+	. "github.com/openeverest/openeverest/v2/pkg/utils/must" //nolint:revive,stylecheck,staticcheck
 	"github.com/openeverest/openeverest/v2/pkg/version"
 	versionservice "github.com/openeverest/openeverest/v2/pkg/version_service"
 )
@@ -257,7 +257,6 @@ func (o *Installer) printPostInstallMessage(out io.Writer) {
 	webURL := fmt.Sprintf("%s://localhost:%d", urlScheme, pfSrcPort)
 	portFwdCmd := fmt.Sprintf("kubectl port-forward -n everest-system svc/%s %d:%d", svcName, pfSrcPort, targetPort)
 	message += fmt.Sprintf("\n\n%s", output.Numeric(count, "%s", titleStyle.Render("ACCESS THE EVEREST UI:")))
-	count++
 	message += fmt.Sprintf("To access the web UI, set up port-forwarding and visit %s in your browser:\n\n", webURL)
 	message += fmt.Sprintf("\t%s\n", commandStyle.Render(portFwdCmd))
 

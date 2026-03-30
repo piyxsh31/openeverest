@@ -35,7 +35,7 @@ package controller
 //	    // Get the default image for a component type
 //	    image := controller.GetDefaultImage(spec, "mongod")
 //
-//	    // Or go from component name to default image
+//	    // Or look up default image by component name:
 //	    image = controller.GetDefaultImageForComponent(spec, "engine")
 //
 //	    // Apply it to your custom resource

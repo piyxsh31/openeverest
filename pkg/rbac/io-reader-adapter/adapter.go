@@ -56,8 +56,7 @@ func (a *Adapter) SetContent(content string) {
 
 // LoadPolicy loads all policy rules from the storage.
 func (a *Adapter) LoadPolicy(model model.Model) error {
-	strs := strings.Split(a.content, "\n")
-	for _, str := range strs {
+	for str := range strings.SplitSeq(a.content, "\n") {
 		if str == "" {
 			continue
 		}

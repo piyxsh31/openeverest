@@ -20,7 +20,7 @@ import (
 	"fmt"
 )
 
-// nolint:gochecknoglobals
+//nolint:gochecknoglobals
 var (
 	// ErrNamespaceNotExist appears when the namespace does not exist.
 	ErrNamespaceNotExist = errors.New("namespace does not exist")
@@ -51,7 +51,7 @@ var (
 
 	// ErrNamespaceAlreadyManagedByEverest appears when the namespace is already owned by Everest.
 	NewErrNamespaceAlreadyManagedByEverest = func(namespace string) error {
-		return fmt.Errorf("'%s': %s", namespace, ErrNamespaceAlreadyManagedByEverest)
+		return fmt.Errorf("'%s': %w", namespace, ErrNamespaceAlreadyManagedByEverest)
 	}
 
 	// ErrNamespaceListEmpty appears when the provided list of the namespaces is considered empty.

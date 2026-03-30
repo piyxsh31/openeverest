@@ -18,6 +18,8 @@ package kubernetes
 import (
 	"bytes"
 	"context"
+	"errors"
+	"io"
 	"slices"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -93,6 +95,9 @@ func (k *Kubernetes) getObjects(f []byte) ([]*unstructured.Unstructured, error) 
 		objs = append(objs, &unstructured.Unstructured{Object: unstructuredMap})
 	}
 
+	if !errors.Is(err, io.EOF) {
+		return nil, err
+	}
 	return objs, nil
 }
 

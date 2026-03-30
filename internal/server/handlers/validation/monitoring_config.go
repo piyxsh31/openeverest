@@ -19,7 +19,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/percona/everest-operator/utils"
 	operatorUtils "github.com/percona/everest-operator/utils"
 
 	monitoringv1alpha1 "github.com/openeverest/openeverest/v2/api/monitoring/v1alpha1"
@@ -33,11 +32,11 @@ func (h *validateHandler) ListMonitoringConfigs(ctx context.Context, namespace s
 
 // CreateMonitoringConfig proxies the request to the next handler.
 func (h *validateHandler) CreateMonitoringConfig(ctx context.Context, namespace string, req *api.MonitoringConfigCreateParams) (*monitoringv1alpha1.MonitoringConfig, error) {
-	if err := utils.ValidateEverestResourceName(req.Name, "name"); err != nil {
+	if err := operatorUtils.ValidateEverestResourceName(req.Name, "name"); err != nil {
 		return nil, errors.Join(ErrInvalidRequest, err)
 	}
 
-	if ok := utils.ValidateURL(req.Url); !ok {
+	if ok := operatorUtils.ValidateURL(req.Url); !ok {
 		return nil, errors.Join(ErrInvalidRequest, ErrInvalidURL("url"))
 	}
 

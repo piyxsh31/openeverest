@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	everestv1alpha1 "github.com/percona/everest-operator/api/everest/v1alpha1"
-	"github.com/percona/everest-operator/utils"
 	operatorUtils "github.com/percona/everest-operator/utils"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -24,10 +23,10 @@ func (h *validateHandler) ListMonitoringInstances(ctx context.Context, namespace
 }
 
 func (h *validateHandler) CreateMonitoringInstance(ctx context.Context, namespace string, req *api.CreateMonitoringInstanceJSONRequestBody) (*everestv1alpha1.MonitoringConfig, error) {
-	if err := utils.ValidateEverestResourceName(req.Name, "name"); err != nil {
+	if err := operatorUtils.ValidateEverestResourceName(req.Name, "name"); err != nil {
 		return nil, errors.Join(ErrInvalidRequest, err)
 	}
-	if ok := utils.ValidateURL(req.Url); !ok {
+	if ok := operatorUtils.ValidateURL(req.Url); !ok {
 		return nil, errors.Join(ErrInvalidRequest, ErrInvalidURL("url"))
 	}
 	switch req.Type {

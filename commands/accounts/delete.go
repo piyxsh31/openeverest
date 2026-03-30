@@ -48,7 +48,7 @@ func init() {
 
 func accountsDeletePreRun(cmd *cobra.Command, _ []string) { //nolint:revive
 	// Copy global flags to config
-	accountsDeleteCfg.Pretty = !(cmd.Flag(cli.FlagVerbose).Changed || cmd.Flag(cli.FlagJSON).Changed)
+	accountsDeleteCfg.Pretty = !cmd.Flag(cli.FlagVerbose).Changed && !cmd.Flag(cli.FlagJSON).Changed
 	accountsDeleteCfg.KubeconfigPath = cmd.Flag(cli.FlagKubeconfig).Value.String()
 
 	// Check username

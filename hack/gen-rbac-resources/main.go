@@ -148,7 +148,7 @@ func run(specFile, outputFile, resourceNameExt string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create output file: %w", err)
 	}
-	defer f.Close()
+	defer f.Close() //nolint:errcheck
 
 	if err := tmpl.Execute(f, data); err != nil {
 		return fmt.Errorf("failed to generate Go code: %w", err)

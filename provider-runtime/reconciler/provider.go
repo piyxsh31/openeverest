@@ -189,9 +189,7 @@ func newReconciler(ctx context.Context, p providerAdapter, opts ...ReconcilerOpt
 
 	// Setup server if configured
 	if options.serverConfig != nil {
-		if err := r.setupServer(p); err != nil {
-			return nil, fmt.Errorf("failed to setup server: %w", err)
-		}
+		r.setupServer(p)
 	}
 
 	if err := r.setup(); err != nil {
@@ -207,7 +205,7 @@ func (r *ProviderReconciler) GetManager() ctrl.Manager {
 }
 
 // setupServer initializes the HTTP server with a validation webhook.
-func (r *ProviderReconciler) setupServer(p providerAdapter) error {
+func (r *ProviderReconciler) setupServer(p providerAdapter) {
 	// Create validator function that wraps the provider's Validate method
 	validator := func(ctx context.Context, c client.Client, in *v1alpha1.Instance) error {
 		inCtx := controller.NewContext(ctx, c, in, p.Name())
@@ -215,7 +213,6 @@ func (r *ProviderReconciler) setupServer(p providerAdapter) error {
 	}
 
 	r.server = server.NewServer(*r.serverConfig, validator)
-	return nil
 }
 
 // Start starts the reconciler and server (blocking).
@@ -305,7 +302,7 @@ func (r *ProviderReconciler) Reconcile(ctx context.Context, req reconcile.Reques
 
 	// Fetch the Instance
 	in := &v1alpha1.Instance{}
-	if err := r.Client.Get(ctx, req.NamespacedName, in); err != nil {
+	if err := r.Get(ctx, req.NamespacedName, in); err != nil {
 		return reconcile.Result{}, client.IgnoreNotFound(err)
 	}
 
@@ -320,7 +317,7 @@ func (r *ProviderReconciler) Reconcile(ctx context.Context, req reconcile.Reques
 	// Ensure finalizer is present
 	if !controllerutil.ContainsFinalizer(in, finalizerName) {
 		controllerutil.AddFinalizer(in, finalizerName)
-		if err := r.Client.Update(ctx, in); err != nil {
+		if err := r.Update(ctx, in); err != nil {
 			return reconcile.Result{}, err
 		}
 		return reconcile.Result{Requeue: true}, nil
@@ -377,7 +374,7 @@ func (r *ProviderReconciler) handleDeletion(
 	ctx context.Context,
 	inCtx *controller.Context,
 	in *v1alpha1.Instance,
-	logger interface{ Info(string, ...interface{}) },
+	logger interface{ Info(string, ...any) },
 ) (reconcile.Result, error) {
 	if !controllerutil.ContainsFinalizer(in, finalizerName) {
 		return reconcile.Result{}, nil
@@ -404,7 +401,7 @@ func (r *ProviderReconciler) handleDeletion(
 
 	// Remove finalizer
 	controllerutil.RemoveFinalizer(in, finalizerName)
-	if err := r.Client.Update(ctx, in); err != nil {
+	if err := r.Update(ctx, in); err != nil {
 		return reconcile.Result{}, err
 	}
 

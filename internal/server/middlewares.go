@@ -125,7 +125,7 @@ func (e *EverestServer) securityHeaders() echo.MiddlewareFunc {
 				// the index.html template.
 				"$NONCE",
 				// @emotion adds an extra inline style with the SHA256 hash of
-				// an empty string, so we need to explicity allow it, see:
+				// an empty string, so we need to explicitly allow it, see:
 				// https://github.com/emotion-js/emotion/issues/2996
 				"'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='",
 			},

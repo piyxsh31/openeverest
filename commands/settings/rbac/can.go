@@ -17,7 +17,6 @@
 package rbac
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -76,13 +75,13 @@ func init() {
 func settingsRBACCanPreRunE(cmd *cobra.Command, args []string) error { //nolint:revive
 	// validate action
 	if !rbac.ValidateAction(args[1]) {
-		return errors.New(fmt.Sprintf("invalid action '%s'. Supported actions: %s",
+		return fmt.Errorf("invalid action '%s'. Supported actions: %s",
 			args[1], strings.Join(rbac.SupportedActions, `,`),
-		))
+		)
 	}
 
 	// Copy global flags to config
-	rbacCanPretty = !(cmd.Flag(cli.FlagVerbose).Changed || cmd.Flag(cli.FlagJSON).Changed)
+	rbacCanPretty = !cmd.Flag(cli.FlagVerbose).Changed && !cmd.Flag(cli.FlagJSON).Changed
 	rbacCanKubeconfigPath = cmd.Flag(cli.FlagKubeconfig).Value.String()
 	return nil
 }

@@ -232,13 +232,13 @@ func (s *Server) handleValidation(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) writeValidationResponse(w http.ResponseWriter, resp *ValidationResponse) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resp)
+	json.NewEncoder(w).Encode(resp) //nolint:errcheck,errchkjson
 }
 
 // handleHealth returns 200 if the server is running.
 func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("ok"))
+	w.Write([]byte("ok")) //nolint:errcheck
 }
 
 // handleReady returns 200 if the server is ready to serve traffic.
@@ -249,10 +249,10 @@ func (s *Server) handleReady(w http.ResponseWriter, r *http.Request) {
 
 	if ready {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("ok"))
+		w.Write([]byte("ok")) //nolint:errcheck
 	} else {
 		w.WriteHeader(http.StatusServiceUnavailable)
-		w.Write([]byte("not ready"))
+		w.Write([]byte("not ready")) //nolint:errcheck
 	}
 }
 

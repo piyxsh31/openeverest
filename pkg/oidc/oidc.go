@@ -99,7 +99,7 @@ func (c *ProviderConfig) NewKeyFunc(ctx context.Context) (jwt.Keyfunc, error) {
 		return nil, errors.Join(err, errors.New("failed to register jwk cache"))
 	}
 
-	return func(token *jwt.Token) (interface{}, error) {
+	return func(token *jwt.Token) (any, error) {
 		keySet, err := keyCache.Get(ctx, c.JWKSURL)
 		if err != nil {
 			return nil, err
@@ -115,7 +115,7 @@ func (c *ProviderConfig) NewKeyFunc(ctx context.Context) (jwt.Keyfunc, error) {
 			return nil, fmt.Errorf("unable to find key %q", keyID)
 		}
 
-		var pubkey interface{}
+		var pubkey any
 		if err := key.Raw(&pubkey); err != nil {
 			return nil, errors.Join(err, errors.New("failed to get the public key"))
 		}

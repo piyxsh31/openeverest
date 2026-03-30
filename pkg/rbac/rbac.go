@@ -72,12 +72,7 @@ var GlobalResources = []string{
 }
 
 func IsGlobalResource(resource string) bool {
-	for _, globalResource := range GlobalResources {
-		if resource == globalResource {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(GlobalResources, resource)
 }
 
 // RBAC actions.
@@ -287,11 +282,11 @@ func loadAdminPolicy(enf casbin.IEnforcer) error {
 
 // NewSkipper returns a new function that checks if a given request should be skipped
 // from RBAC checks.
-func NewSkipper(basePath string) (func(echo.Context) bool, error) {
+func NewSkipper(basePath string) func(echo.Context) bool {
 	skipPathsList := GetSkipPaths(basePath)
 	return func(c echo.Context) bool {
 		return slices.Contains(skipPathsList, c.Request().URL.Path)
-	}, nil
+	}
 }
 
 // Can checks if a user is allowed to perform an action on a resource.

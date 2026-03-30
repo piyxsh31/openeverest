@@ -172,8 +172,8 @@ func (h *k8sHandler) GetDatabaseClusterComponents(ctx context.Context, namespace
 		}
 
 		var started *string
-		if startTime := pod.Status.StartTime; startTime != nil && !startTime.Time.IsZero() {
-			started = pointer.ToString(pod.Status.StartTime.Time.Format(time.RFC3339))
+		if startTime := pod.Status.StartTime; startTime != nil && !startTime.IsZero() {
+			started = pointer.ToString(pod.Status.StartTime.Format(time.RFC3339))
 		}
 		res = append(res, api.DatabaseClusterComponent{
 			Status:     pointer.ToString(string(pod.Status.Phase)),
@@ -279,7 +279,7 @@ func (h *k8sHandler) ensureBackupForegroundDeletion(ctx context.Context, backup 
 	)
 }
 
-func (h *k8sHandler) connectionURL(ctx context.Context, db *everestv1alpha1.DatabaseCluster, user, password string) *string {
+func (h *k8sHandler) connectionURL(_ context.Context, db *everestv1alpha1.DatabaseCluster, user, password string) *string {
 	if db.Status.Hostname == "" {
 		return nil
 	}
@@ -289,7 +289,7 @@ func (h *k8sHandler) connectionURL(ctx context.Context, db *everestv1alpha1.Data
 	case everestv1alpha1.DatabaseEnginePXC:
 		url = queryEscapedURL("jdbc:mysql", user, password, defaultHost)
 	case everestv1alpha1.DatabaseEnginePSMDB:
-		url = queryEscapedURL("mongodb", user, password, psmdbHosts(ctx, db, h.kubeConnector.ListPods))
+		url = queryEscapedURL("mongodb", user, password, psmdbHosts(db))
 	case everestv1alpha1.DatabaseEnginePostgresql:
 		url = queryEscapedURL("postgres", user, password, defaultHost)
 	}
@@ -304,9 +304,7 @@ func queryEscapedURL(scheme, user, password, hosts string) string {
 }
 
 func psmdbHosts(
-	ctx context.Context,
 	db *everestv1alpha1.DatabaseCluster,
-	getPods func(ctx context.Context, opts ...ctrlclient.ListOption) (*corev1.PodList, error),
 ) string {
 	// for sharded clusters use a single entry point (mongos)
 	if db.Spec.Sharding != nil && db.Spec.Sharding.Enabled {

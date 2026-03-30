@@ -178,13 +178,13 @@ func (m InputPassword) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // Implements bubbletea.Model interface.
 func (m InputPassword) View() string {
 	s := strings.Builder{}
-	s.WriteString(fmt.Sprintf("%s\n", m.textInput.View()))
+	fmt.Fprintf(&s, "%s\n", m.textInput.View())
 
 	if !m.done {
 		if m.hint != "" {
-			s.WriteString(fmt.Sprintf("\n%s\n", helperTextStyle.Render(m.hint)))
+			fmt.Fprintf(&s, "\n%s\n", helperTextStyle.Render(m.hint))
 		}
-		s.WriteString(fmt.Sprintf("\n%s\n", m.help.View(m.keys)))
+		fmt.Fprintf(&s, "\n%s\n", m.help.View(m.keys))
 	}
 
 	return s.String()

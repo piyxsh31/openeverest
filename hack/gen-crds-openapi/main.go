@@ -136,7 +136,7 @@ func extractGoTypeSchemas(goFile string, schemas map[string]*openapi3.SchemaRef)
 				}
 				exportName = extractExportMarker(ts.Doc)
 				if exportName != "" {
-					if schema, err := buildSchemaFromStruct(ts, exportName, ts.Doc); err == nil {
+					if schema, err := buildSchemaFromStruct(ts, ts.Doc); err == nil {
 						schemas[exportName] = openapi3.NewSchemaRef("", schema)
 						fmt.Printf("  Extracted Go type schema for %s from %s\n", exportName, filepath.Base(goFile))
 					} else {
@@ -152,7 +152,7 @@ func extractGoTypeSchemas(goFile string, schemas map[string]*openapi3.SchemaRef)
 			if !ok {
 				continue
 			}
-			schema, err := buildSchemaFromStruct(ts, exportName, genDecl.Doc)
+			schema, err := buildSchemaFromStruct(ts, genDecl.Doc)
 			if err != nil {
 				return err
 			}
@@ -172,8 +172,8 @@ func extractExportMarker(doc *ast.CommentGroup) string {
 	const prefix = "+openapi:export="
 	for _, c := range doc.List {
 		text := strings.TrimSpace(strings.TrimPrefix(c.Text, "//"))
-		if strings.HasPrefix(text, prefix) {
-			return strings.TrimPrefix(text, prefix)
+		if after, ok := strings.CutPrefix(text, prefix); ok {
+			return after
 		}
 	}
 	return ""
@@ -201,7 +201,7 @@ func goTypeToOpenAPIType(expr ast.Expr) string {
 // an openapi3.Schema. Fields tagged with json:"-" are skipped unless they are a
 // map type, in which case they become additionalProperties on the schema.
 // If genDeclDoc is provided, it's used as a fallback for the schema description.
-func buildSchemaFromStruct(ts *ast.TypeSpec, schemaName string, genDeclDoc *ast.CommentGroup) (*openapi3.Schema, error) {
+func buildSchemaFromStruct(ts *ast.TypeSpec, genDeclDoc *ast.CommentGroup) (*openapi3.Schema, error) {
 	structType, ok := ts.Type.(*ast.StructType)
 	if !ok {
 		return nil, fmt.Errorf("type %s is not a struct", ts.Name.Name)

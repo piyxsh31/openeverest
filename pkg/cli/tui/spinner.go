@@ -224,11 +224,11 @@ func (m Spinner) View() string {
 	// Print intermediate state.
 	s := strings.Builder{}
 	// spin
-	s.WriteString(fmt.Sprintf("%s ", m.spinner.View()))
+	fmt.Fprintf(&s, "%s ", m.spinner.View())
 	// step title info
 	s.WriteString(currentStepTitleStyle.Render(m.steps[m.index].Desc))
 	// help info
-	s.WriteString(fmt.Sprintf("\n\n%s\n", m.help.View(m.keys)))
+	fmt.Fprintf(&s, "\n\n%s\n", m.help.View(m.keys))
 
 	return s.String()
 }

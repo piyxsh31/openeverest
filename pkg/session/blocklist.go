@@ -20,6 +20,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"maps"
 	"strconv"
 	"time"
 
@@ -46,7 +47,7 @@ var (
 	errExtractExp       = errors.New("could not extract exp")
 	errEmptyToken       = errors.New("token is empty")
 	errUnsupportedClaim = func(claims any) error {
-		return errors.New(fmt.Sprintf("unsupported claims type: %T", claims))
+		return fmt.Errorf("unsupported claims type: %T", claims)
 	}
 	errShortenToken = errors.New("failed to shorten token")
 )
@@ -171,9 +172,7 @@ func extractContent(token *jwt.Token) (*JWTContent, error) {
 
 	switch claims := token.Claims.(type) {
 	case jwt.MapClaims:
-		for key, val := range claims {
-			claimsMap[key] = val
-		}
+		maps.Copy(claimsMap, map[string]interface{}(claims))
 	default:
 		return nil, errUnsupportedClaim(claims)
 	}

@@ -50,7 +50,7 @@ func init() {
 
 func namespacesListPreRun(cmd *cobra.Command, _ []string) { //nolint:revive
 	// Copy global flags to config
-	namespacesListCfg.Pretty = !(cmd.Flag(cli.FlagVerbose).Changed || cmd.Flag(cli.FlagJSON).Changed)
+	namespacesListCfg.Pretty = !cmd.Flag(cli.FlagVerbose).Changed && !cmd.Flag(cli.FlagJSON).Changed
 	namespacesListCfg.KubeconfigPath = cmd.Flag(cli.FlagKubeconfig).Value.String()
 }
 
@@ -65,10 +65,7 @@ func namespacesListRun(cmd *cobra.Command, _ []string) {
 		output.PrintError(err, logger.GetLogger(), namespacesListCfg.Pretty)
 		os.Exit(1)
 	} else {
-		if err := printNamespacesTable(nsList); err != nil {
-			output.PrintError(err, logger.GetLogger(), namespacesListCfg.Pretty)
-			os.Exit(1)
-		}
+		printNamespacesTable(nsList)
 	}
 }
 
@@ -87,7 +84,7 @@ const (
 )
 
 // Print namespaces to console.
-func printNamespacesTable(nsList []namespaces.NamespaceInfo) error {
+func printNamespacesTable(nsList []namespaces.NamespaceInfo) {
 	// Prepare table headings.
 	headings := []interface{}{columnName, columnManagedByEverest, columnOperators}
 	// Prepare table header.
@@ -118,5 +115,4 @@ func printNamespacesTable(nsList []namespaces.NamespaceInfo) error {
 	}
 
 	tbl.Print()
-	return nil
 }

@@ -57,7 +57,7 @@ func (h *rbacHandler) GetUserPermissions(ctx context.Context) (*api.UserPermissi
 	result := make([][]string, len(permsMap))
 	i := 0
 	for k := range permsMap {
-		result[i] = []string(k[:])
+		result[i] = k[:]
 		i++
 	}
 

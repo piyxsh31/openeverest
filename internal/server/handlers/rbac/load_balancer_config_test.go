@@ -71,7 +71,6 @@ func TestRBAC_ListLoadBalancerConfigs(t *testing.T) {
 	type testCase struct {
 		desc   string
 		policy string
-		outLen int
 		assert func(*everestv1alpha1.LoadBalancerConfigList) bool
 	}
 	testCases := []testCase{
@@ -236,7 +235,7 @@ func TestRBAC_ListLoadBalancerConfigs(t *testing.T) {
 		},
 	}
 
-	ctx := context.WithValue(context.Background(), common.UserCtxKey, rbac.User{Subject: "bob"})
+	ctx := context.WithValue(context.Background(), common.UserCtxKey, rbac.User{Subject: "bob"}) //nolint:staticcheck
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
 			t.Parallel()
@@ -382,7 +381,7 @@ func TestRBAC_GetLoadBalancerConfig(t *testing.T) {
 		},
 	}
 
-	ctx := context.WithValue(context.Background(), common.UserCtxKey, rbac.User{Subject: "bob"})
+	ctx := context.WithValue(context.Background(), common.UserCtxKey, rbac.User{Subject: "bob"}) //nolint:staticcheck
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
 			t.Parallel()
@@ -517,7 +516,7 @@ func TestRBAC_CreateLoadBalancerConfig(t *testing.T) {
 		},
 	}
 
-	ctx := context.WithValue(context.Background(), common.UserCtxKey, rbac.User{Subject: "bob"})
+	ctx := context.WithValue(context.Background(), common.UserCtxKey, rbac.User{Subject: "bob"}) //nolint:staticcheck
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
 			t.Parallel()
@@ -656,7 +655,7 @@ func TestRBAC_UpdateLoadBalancerConfig(t *testing.T) {
 		},
 	}
 
-	ctx := context.WithValue(context.Background(), common.UserCtxKey, rbac.User{Subject: "bob"})
+	ctx := context.WithValue(context.Background(), common.UserCtxKey, rbac.User{Subject: "bob"}) //nolint:staticcheck
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
 			t.Parallel()
@@ -793,7 +792,7 @@ func TestRBAC_DeleteLoadBalancerConfig(t *testing.T) {
 		},
 	}
 
-	ctx := context.WithValue(context.Background(), common.UserCtxKey, rbac.User{Subject: "bob"})
+	ctx := context.WithValue(context.Background(), common.UserCtxKey, rbac.User{Subject: "bob"}) //nolint:staticcheck
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
 			t.Parallel()

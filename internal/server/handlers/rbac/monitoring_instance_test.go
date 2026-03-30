@@ -573,7 +573,7 @@ func TestRBAC_MonitoringInstance(t *testing.T) {
 			{
 				desc: "delete only action for 'monitoring-instance-1' in default namespace",
 				policy: newPolicy(
-					"p, role:test, monitoring-instances, delete, default/montoring-instance-1",
+					"p, role:test, monitoring-instances, delete, default/monitoring-instance-1",
 					"g, bob, role:test",
 				),
 				wantErr: ErrInsufficientPermissions,

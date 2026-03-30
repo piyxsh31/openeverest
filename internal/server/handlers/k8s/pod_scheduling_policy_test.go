@@ -153,7 +153,6 @@ func TestValidate_ListPodSchedulingPolicy(t *testing.T) {
 		objs       []ctrlclient.Object
 		listParams *api.ListPodSchedulingPolicyParams
 		assert     func(*everestv1alpha1.PodSchedulingPolicyList) bool
-		wantErr    error
 	}
 	testCases := []testCase{
 		// policies are absent

@@ -36,7 +36,6 @@ import (
 )
 
 var (
-	errFailedToGetUser         = errors.New("failed to get user from context")
 	errFailedToReadRequestBody = errors.New("failed to read request body")
 )
 
@@ -124,7 +123,7 @@ func (e *EverestServer) GetDatabaseClusterComponentLogs(c echo.Context, ns, cNam
 		if err != nil {
 			return echo.NewHTTPError(http.StatusBadGateway, "failed to open log stream: "+err.Error())
 		}
-		defer stream.Close()
+		defer stream.Close() //nolint:errcheck
 
 		return streamToResponse(ctx, c.Response(), stream)
 	}
@@ -218,7 +217,7 @@ func streamToResponse(
 			n, err := stream.Read(buf)
 			if n > 0 {
 				if _, werr := res.Write(buf[:n]); werr != nil {
-					return nil // client disconnected
+					return werr // client disconnected
 				}
 				flusher.Flush()
 			}

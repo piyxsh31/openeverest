@@ -14,12 +14,11 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go/aws"             //nolint:staticcheck
+	"github.com/aws/aws-sdk-go/aws/credentials" //nolint:staticcheck
+	"github.com/aws/aws-sdk-go/aws/session"     //nolint:staticcheck
+	"github.com/aws/aws-sdk-go/service/s3"      //nolint:staticcheck
 	everestv1alpha1 "github.com/percona/everest-operator/api/everest/v1alpha1"
-	"github.com/percona/everest-operator/utils"
 	operatorUtils "github.com/percona/everest-operator/utils"
 	"go.uber.org/zap"
 	corev1 "k8s.io/api/core/v1"
@@ -111,7 +110,7 @@ func validateCreateBackupStorageRequest(
 		return errDuplicatedBackupStorage(existingStorages.Items[0].GetNamespace())
 	}
 
-	if err := utils.ValidateEverestResourceName(params.Name, "name"); err != nil {
+	if err := operatorUtils.ValidateEverestResourceName(params.Name, "name"); err != nil {
 		return err
 	}
 
@@ -120,7 +119,7 @@ func validateCreateBackupStorageRequest(
 	}
 
 	if params.Url != nil {
-		if ok := utils.ValidateURL(*params.Url); !ok {
+		if ok := operatorUtils.ValidateURL(*params.Url); !ok {
 			err := ErrInvalidURL("url")
 			return err
 		}

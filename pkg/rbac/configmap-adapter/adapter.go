@@ -76,8 +76,7 @@ func (a *Adapter) LoadPolicy(model model.Model) error {
 		return nil
 	}
 
-	strs := strings.Split(data, "\n")
-	for _, str := range strs {
+	for str := range strings.SplitSeq(data, "\n") {
 		if str == "" {
 			continue
 		}

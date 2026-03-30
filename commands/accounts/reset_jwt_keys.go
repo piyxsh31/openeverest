@@ -42,7 +42,7 @@ var (
 
 func accountsResetJWTKeysPreRun(cmd *cobra.Command, _ []string) { //nolint:revive
 	// Copy global flags to config
-	accountsResetJWTKeysCfg.Pretty = !(cmd.Flag(cli.FlagVerbose).Changed || cmd.Flag(cli.FlagJSON).Changed)
+	accountsResetJWTKeysCfg.Pretty = !cmd.Flag(cli.FlagVerbose).Changed && !cmd.Flag(cli.FlagJSON).Changed
 	accountsResetJWTKeysCfg.KubeconfigPath = cmd.Flag(cli.FlagKubeconfig).Value.String()
 }
 
@@ -53,10 +53,7 @@ func accountsResetJWTKeysRun(cmd *cobra.Command, _ []string) { //nolint:revive
 		os.Exit(1)
 	}
 
-	if err := cliA.CreateRSAKeyPair(cmd.Context()); err != nil {
-		output.PrintError(err, logger.GetLogger(), accountsResetJWTKeysCfg.Pretty)
-		os.Exit(1)
-	}
+	cliA.CreateRSAKeyPair(cmd.Context())
 }
 
 // GetResetJWTKeysCmd returns the command to reset the JWT keys used for Everest user authentication.

@@ -264,7 +264,7 @@ func newHandlerChain(hs ...handlers.Handler) handlers.Handler { //nolint:ireturn
 	if len(hs) == 1 {
 		return hs[0]
 	}
-	for i := 0; i < len(hs)-1; i++ {
+	for i := range len(hs) - 1 {
 		hs[i].SetNext(hs[i+1])
 	}
 	return hs[0]
@@ -323,7 +323,7 @@ func (e *EverestServer) jwtMiddleWare(ctx context.Context) (echo.MiddlewareFunc,
 			// The user key exists only in the echo.Context object.
 			// We will copy it to the context.Context as well.
 			ctx := c.Request().Context()
-			newCtx := context.WithValue(ctx, common.UserCtxKey, c.Get(common.UserCtxKey))
+			newCtx := context.WithValue(ctx, common.UserCtxKey, c.Get(common.UserCtxKey)) //nolint:staticcheck
 			newReq := c.Request().WithContext(newCtx)
 			c.SetRequest(newReq)
 		},

@@ -22,7 +22,7 @@ import (
 	"github.com/openeverest/openeverest/v2/pkg/cli/utils"
 	"github.com/openeverest/openeverest/v2/pkg/common"
 	"github.com/openeverest/openeverest/v2/pkg/kubernetes"
-	. "github.com/openeverest/openeverest/v2/pkg/utils/must" //nolint:revive,stylecheck
+	. "github.com/openeverest/openeverest/v2/pkg/utils/must" //nolint:revive,stylecheck,staticcheck
 	"github.com/openeverest/openeverest/v2/pkg/version"
 )
 
@@ -243,7 +243,7 @@ func (u *Upgrade) helmAdoptDBNamespaces(ctx context.Context, namespace, version 
 }
 
 func helmValuesForDBEngines(list *everestv1alpha1.DatabaseEngineList) values.Options {
-	var vals []string
+	vals := make([]string, 0, len(list.Items)+1)
 	for _, dbEngine := range list.Items {
 		t := dbEngine.Spec.Type
 		vals = append(vals, fmt.Sprintf("%s=%t", t, dbEngine.Status.State == everestv1alpha1.DBEngineStateInstalled))
