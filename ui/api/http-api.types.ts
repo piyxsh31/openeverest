@@ -7680,11 +7680,28 @@ export interface components {
                  *     It contains `apiKey` key with the API key value.
                  */
                 credentialsSecretName: string;
+                /**
+                 * @description InstanceConstraints defines compatibility requirements and prerequisites that must be satisfied by an Instance before this monitoring config can be used.
+                 *     This allows the monitoring config to express specific requirements about the instance configuration needed for successful monitoring operations,
+                 *     such as required instance fields, or other instance properties.
+                 *     When an Instance references this monitoring config, the operator validates
+                 *     the Instance against these constraints.
+                 */
+                instanceConstraints?: {
+                    /**
+                     * @description RequiredFields contains a list of fields that must be set in the Instance spec.
+                     *     Each key is a JSON path expressions that points to a field in the Instance spec.
+                     *     For example, ".spec.components.monitoring.customSpec.monitoringConfigName".
+                     */
+                    requiredFields?: string[];
+                };
                 /** @description PMM is configuration specific for monitoring using PMM tool. */
                 pmm?: {
                     /** @description URL is url to the monitoring config. */
                     url: string;
                 };
+                /** @description SupportedProviders is the list of providers that supports monitoring config. */
+                supportedProviders?: string[];
                 /**
                  * @description Type is the name of monitoring tool (e.g., "pmm").
                  * @enum {string}

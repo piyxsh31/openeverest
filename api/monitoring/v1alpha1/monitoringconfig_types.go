@@ -30,6 +30,20 @@ type MonitoringType string
 // PMMServerVersion is the version of the PMM server.
 type PMMServerVersion string
 
+// ProviderNameList is a type alias for a list of provider names.
+type ProviderNameList []string
+
+// MonitoringConfigInstanceConstraints defines compatibility requirements
+// and prerequisites that must be satisfied by an Instance before this
+// monitoring config can be used.
+type MonitoringConfigInstanceConstraints struct {
+	// RequiredFields contains a list of fields that must be set in the Instance spec.
+	// Each key is a JSON path expressions that points to a field in the Instance spec.
+	// For example, ".spec.components.monitoring.customSpec.monitoringConfigName".
+	// +optional
+	RequiredFields []string `json:"requiredFields,omitempty"`
+}
+
 // MonitoringConfigSpec defines the desired state of MonitoringConfig.
 type MonitoringConfigSpec struct {
 	// Type is the name of monitoring tool (e.g., "pmm").
@@ -45,6 +59,15 @@ type MonitoringConfigSpec struct {
 	//
 	// +kubebuilder:default:=true
 	VerifyTLS *bool `json:"verifyTLS,omitempty"`
+	// SupportedProviders is the list of providers that supports monitoring config.
+	SupportedProviders ProviderNameList `json:"supportedProviders,omitempty"`
+	// InstanceConstraints defines compatibility requirements and prerequisites that must be satisfied by an Instance before this monitoring config can be used.
+	// This allows the monitoring config to express specific requirements about the instance configuration needed for successful monitoring operations,
+	// such as required instance fields, or other instance properties.
+	// When an Instance references this monitoring config, the operator validates
+	// the Instance against these constraints.
+	// +optional
+	InstanceConstraints MonitoringConfigInstanceConstraints `json:"instanceConstraints,omitempty"`
 }
 
 // PMMConfig is configuration of the PMM monitoring type.
