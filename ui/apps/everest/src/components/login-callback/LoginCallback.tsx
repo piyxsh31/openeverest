@@ -8,8 +8,8 @@ const LoginCallback = () => {
       try {
         const user = await userManager.signinCallback();
 
-        if (user) {
-          localStorage.setItem('everestToken', user.access_token);
+        if (user && user.id_token) {
+          localStorage.setItem('everestToken', user.id_token);
           window.location.href = '/';
         }
       } catch (error) {

@@ -136,8 +136,8 @@ const AuthProvider = ({ children, isSsoEnabled }: AuthProviderProps) => {
   const silentlyRenewToken = useCallback(async () => {
     try {
       const newLoggedUser = await userManager.signinSilent();
-      if (newLoggedUser && newLoggedUser.access_token) {
-        localStorage.setItem('everestToken', newLoggedUser.access_token);
+      if (newLoggedUser && newLoggedUser.id_token) {
+        localStorage.setItem('everestToken', newLoggedUser.id_token);
       } else {
         setLogoutStatus();
       }
@@ -149,8 +149,8 @@ const AuthProvider = ({ children, isSsoEnabled }: AuthProviderProps) => {
   useEffect(() => {
     if (isSsoEnabled) {
       userManager.events.addUserLoaded((user) => {
-        localStorage.setItem('everestToken', user.access_token || '');
-        const decoded = jwtDecode(user.access_token || '');
+        localStorage.setItem('everestToken', user.id_token || '');
+        const decoded = jwtDecode(user.id_token || '');
         setLoggedInStatus(decoded.sub || '');
       });
 
