@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - main
+      - v2
 
 env:
   NODE_OPTIONS: "--max_old_space_size=4096"
@@ -18,13 +18,13 @@ jobs:
     runs-on: ubuntu-latest
     env:
       IMAGE_PREFIX: 'ghcr.io/openeverest'
-      EVEREST_SERVER_DEV_IMAGE_NAME: 'openeverest-dev'
+      EVEREST_SERVER_DEV_IMAGE_NAME: 'openeverest-v2-dev'
     steps:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v5
         with:
           lfs: true
-          ref: "main"
+          ref: "v2"
 
       - uses: pnpm/action-setup@v4
         with:
