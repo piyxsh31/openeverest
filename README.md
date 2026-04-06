@@ -1,6 +1,16 @@
-# OpenEverest
+<p align="center">
+  <img src="https://github.com/openeverest/.github/blob/main/logo/logo-horizontal-full-color-white-min.png" alt="OpenEverest Logo" width="400"/>
+</p>
 
-![!image](logo.png)
+<h1 align="center">
+OpenEverest - Run Data Workloads on Kubernetes 
+</h1>
+
+[![CNCF Landscape](https://img.shields.io/badge/CNCF%20Landscape-5699C6)](https://landscape.cncf.io/?item=app-definition-and-development--database--openeverest) 
+[![GitHub License](https://img.shields.io/github/license/openeverest/openeverest)](LICENSE) 
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/12239/badge)](https://www.bestpractices.dev/projects/12239) 
+[![Documentation](https://img.shields.io/badge/Documentation-blue?logo=readthedocs&logoColor=white)](https://openeverest.io/documentation/current/)
+[![Join Slack](https://img.shields.io/badge/Join_Slack-blue)](https://cloud-native.slack.com/archives/C09RRGZL2UX)
 
 [OpenEverest](https://openeverest.io/) is an open source cloud-native database platform that helps developers deploy code faster, scale deployments rapidly, and reduce database administration overhead while regaining control over their data, database configuration, and DBaaS costs.
 
@@ -34,14 +44,14 @@ Helm is the recommended installation method for OpenEverest as it simplifies dep
 1. **Add the Percona Helm repository:**
 
 ```bash
-helm repo add percona https://percona.github.io/percona-helm-charts/
+helm repo add openeverest https://openeverest.github.io/helm-charts/
 helm repo update
 ```
 
 2. **Install the OpenEverest Helm Chart:**
 
 ```bash
-helm install everest-core percona/everest \
+helm install everest-core openeverest/openeverest \
 --namespace everest-system \
 --create-namespace
 ```
@@ -67,7 +77,7 @@ kubectl port-forward svc/everest 8080:8080 -n everest-system
 
 Access the UI at http://127.0.0.1:8080.
 
-For more information about our Helm charts, visit the official [OpenEverest Helm Charts repository](https://github.com/percona/percona-helm-charts/tree/main/charts/everest).
+For more information about our Helm charts, visit the official [OpenEverest Helm Charts repository](https://github.com/openeverest/helm-charts/tree/main/charts/everest).
 
 ## Install OpenEverest using CLI
 
