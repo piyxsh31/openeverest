@@ -41,6 +41,7 @@ func SetupMonitoringConfigWebhookWithManager(mgr ctrl.Manager) error {
 			Client:    mgr.GetClient(),
 			apiReader: mgr.GetAPIReader(),
 		}).
+		WithDefaulter(&MonitoringConfigCustomDefaulter{}).
 		Complete()
 }
 
@@ -106,6 +107,33 @@ func (v *MonitoringConfigCustomValidator) validateMonitoringConfig(ctx context.C
 	_, err := pmm.GetPMMServerVersion(ctx, mc.Spec.PMM.URL, string(apiKey), skipVerifyTLS)
 	if err != nil {
 		return fmt.Errorf("failed to get PMM server version: %w", err)
+	}
+
+	return nil
+}
+
+// +kubebuilder:webhook:path=/mutate-monitoring-openeverest-io-v1alpha1-monitoringconfig,mutating=true,failurePolicy=fail,sideEffects=None,groups=monitoring.openeverest.io,resources=monitoringconfigs,verbs=create;update,versions=v1alpha1,name=mmonitoringconfig-v1alpha1.kb.io,admissionReviewVersions=v1
+
+// MonitoringConfigCustomDefaulter struct is responsible for setting default values on the custom resource of the
+// Kind MonitoringConfig when those are created or updated.
+type MonitoringConfigCustomDefaulter struct{}
+
+// Default implements webhook.CustomDefaulter so a webhook will be registered for the Kind MonitoringConfig.
+func (d *MonitoringConfigCustomDefaulter) Default(ctx context.Context, obj *monitoringv1alpha1.MonitoringConfig) error {
+	monitoringconfiglog.Info("Defaulting for MonitoringConfig", "name", obj.GetName())
+
+	if obj.Spec.Type != monitoringv1alpha1.PMMMonitoringType {
+		// Not PMM monitoring type, nothing to do.
+		return nil
+	}
+
+	obj.Spec.SupportedProviders = []string{
+		"provider-percona-server-mongodb",
+		// Add other supported providers here.
+	}
+
+	obj.Spec.InstanceConstraints.RequiredFields = []string{
+		".spec.components.monitoring.customSpec.monitoringConfigName",
 	}
 
 	return nil

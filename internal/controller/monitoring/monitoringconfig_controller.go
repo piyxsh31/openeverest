@@ -169,7 +169,7 @@ func (r *MonitoringConfigReconciler) ensureInUseFinalizer(
 
 	if updated {
 		if err := r.Update(ctx, mc); err != nil {
-			return fmt.Errorf("failed toupdate finalizer: %w", err)
+			return fmt.Errorf("failed to update finalizer: %w", err)
 		}
 	}
 
