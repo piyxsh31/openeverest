@@ -12,6 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+export enum FormMode {
+  New = 'new',
+  Edit = 'edit',
+  Restore = 'restore',
+  Import = 'import',
+}
+
+export type ModeOverrides = Partial<
+  Record<FormMode, { disabled?: boolean; hidden?: boolean }>
+>;
+
 export type OpenAPIObjectProperties = {
   label?: string;
 };
@@ -145,6 +156,7 @@ export type Component = {
     techPreview?: boolean;
     validation?: ValidationMap[K];
     fieldParams: FieldParamsMap[K];
+    modes?: ModeOverrides;
     _normalized?: NormalizedPathMeta;
   } & PathOrId;
 }[keyof FieldParamsMap];

@@ -66,3 +66,19 @@ export const applyBadgesToFormData = (
 
   return result;
 };
+
+export const stripBadgeFromValue = (
+  value: unknown,
+  badge?: string
+): unknown => {
+  if (typeof value !== 'string' || !badge) {
+    return value;
+  }
+
+  const trimmedValue = value.trim();
+  if (!trimmedValue.endsWith(badge)) {
+    return value;
+  }
+
+  return trimmedValue.slice(0, -badge.length).trimEnd();
+};

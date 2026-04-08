@@ -25,6 +25,7 @@
     - [Required Field Validation](validation.md#required)
     - [Regex Validation](validation.md#regex)
   - [CEL Expression Validation](validation.md#cel-expression-validation)
+  - [Mode-Aware Validation](validation.md#mode-aware-validation)
 - [Advanced Properties](#advanced-properties)
   - [Path vs ID](#path-vs-id)
   - [Components Order](#components-order)

@@ -14,6 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { useState, useCallback } from 'react';
 import { Box, Stack } from '@mui/material';
 import { DatabaseIcon, OverviewCard } from '@percona/ui-lib';
 import { Messages } from './cluster-overview.messages';
@@ -22,6 +23,9 @@ import BasicInfoSection from './sections/basic-info-section';
 import ConnectionSection from './sections/connection-section';
 import SchemaDrivenCard from './sections/schema-driven-card';
 import OtherFieldsCard from './sections/other-fields-card';
+import { SectionEditModal } from './sections/section-edit-modal';
+import { FormMode } from 'components/ui-generator/ui-generator.types';
+import { isSectionEditable } from 'components/ui-generator/utils/section-editable';
 
 export const ClusterOverview = () => {
   const {
@@ -31,7 +35,15 @@ export const ClusterOverview = () => {
     credentials,
     schemaSectionCards,
     otherFields,
+    provider,
+    sections,
   } = useClusterOverviewData();
+
+  const [editingSectionKey, setEditingSectionKey] = useState<string | null>(
+    null
+  );
+
+  const handleCloseModal = useCallback(() => setEditingSectionKey(null), []);
 
   if (isLoading || !instance) {
     return null;
@@ -65,13 +77,38 @@ export const ClusterOverview = () => {
           </Stack>
         </OverviewCard>
       </Box>
-      {schemaSectionCards.map((card) => (
-        <SchemaDrivenCard key={card.key} card={card} loading={isLoading} />
-      ))}
+      {schemaSectionCards.map((card) => {
+        const section = sections[card.key];
+        const editable =
+          !!section && isSectionEditable(section, FormMode.Edit);
+
+        return (
+          <SchemaDrivenCard
+            key={card.key}
+            card={card}
+            loading={isLoading}
+            editable={editable}
+            onEdit={() => setEditingSectionKey(card.key)}
+          />
+        );
+      })}
 
       {/* Uncovered instance fields */}
       {otherFields.length > 0 && (
         <OtherFieldsCard fields={otherFields} loading={isLoading} />
+      )}
+
+      {/* Section edit modal */}
+      {editingSectionKey && provider && (
+        <SectionEditModal
+          sectionKey={editingSectionKey}
+          sections={sections}
+          instance={instance}
+          provider={provider}
+          namespace={namespace}
+          onClose={handleCloseModal}
+          onSuccess={handleCloseModal}
+        />
       )}
 
       {/* TODO: BackupsDetails card — re-enable once connected to new instance API */}

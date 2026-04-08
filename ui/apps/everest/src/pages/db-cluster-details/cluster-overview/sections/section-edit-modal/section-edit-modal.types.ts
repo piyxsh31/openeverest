@@ -12,11 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { SchemaSectionCard } from '../../hooks/use-cluster-overview-data';
+import type { Section } from 'components/ui-generator/ui-generator.types';
+import type { Instance, Provider } from 'types/api';
 
-export interface SchemaDrivenCardProps {
-  card: SchemaSectionCard;
-  loading: boolean;
-  editable?: boolean;
-  onEdit?: () => void;
+export interface SectionEditModalProps {
+  sectionKey: string;
+  sections: Record<string, Section>;
+  instance: Instance;
+  provider: Provider;
+  namespace: string;
+  onClose: () => void;
+  onSuccess: () => void;
 }

@@ -1,7 +1,8 @@
-export enum WizardMode {
-  New = 'new',
-  Edit = 'edit',
-  Restore = 'restore',
-}
+import { FormMode } from 'components/ui-generator/ui-generator.types';
 
-export type ScheduleWizardMode = Exclude<WizardMode, WizardMode.Restore>;
+/** @deprecated Use FormMode from ui-generator types directly */
+export const WizardMode = FormMode;
+/** @deprecated Use FormMode from ui-generator types directly */
+export type WizardMode = FormMode;
+
+export type ScheduleWizardMode = Exclude<FormMode, FormMode.Restore>;

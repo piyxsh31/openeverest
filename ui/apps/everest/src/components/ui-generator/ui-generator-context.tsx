@@ -14,10 +14,12 @@
 
 import { createContext, useContext, ReactNode } from 'react';
 import { Provider } from 'types/api';
+import type { FormMode } from './ui-generator.types';
 
 type UiGeneratorContextValue = {
   providerObject?: Provider;
   loadingDefaultsForEdition?: boolean;
+  formMode?: FormMode;
 };
 
 const UiGeneratorContext = createContext<UiGeneratorContextValue | null>(null);
@@ -25,17 +27,19 @@ const UiGeneratorContext = createContext<UiGeneratorContextValue | null>(null);
 type UiGeneratorProviderProps = {
   providerObject?: Provider;
   loadingDefaultsForEdition?: boolean;
+  formMode?: FormMode;
   children: ReactNode;
 };
 
 export const UiGeneratorProvider = ({
   providerObject,
   loadingDefaultsForEdition,
+  formMode,
   children,
 }: UiGeneratorProviderProps) => {
   return (
     <UiGeneratorContext.Provider
-      value={{ providerObject, loadingDefaultsForEdition }}
+      value={{ providerObject, loadingDefaultsForEdition, formMode }}
     >
       {children}
     </UiGeneratorContext.Provider>
@@ -46,6 +50,10 @@ export const useUiGeneratorContext = () => {
   const context = useContext(UiGeneratorContext);
   // Context might be null if used outside provider, return empty object for safety
   return (
-    context || { providerObject: undefined, loadingDefaultsForEdition: false }
+    context || {
+      providerObject: undefined,
+      loadingDefaultsForEdition: false,
+      formMode: undefined,
+    }
   );
 };

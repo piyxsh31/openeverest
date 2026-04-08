@@ -142,5 +142,8 @@ export const useClusterOverviewData = () => {
     credentials,
     schemaSectionCards,
     otherFields,
+    provider,
+    sections,
+    selectedTopology: instance?.spec?.topology?.type,
   };
 };
