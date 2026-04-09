@@ -47,8 +47,12 @@ const SectionEditModal = ({
   const section = editSections[sectionKey];
 
   const { schema: zodSchema } = useMemo(
-    () => buildSectionZodSchema(sectionKey, editSections),
-    [sectionKey, editSections]
+    () =>
+      buildSectionZodSchema(sectionKey, editSections, {
+        formMode: FormMode.Edit,
+        originalData: instance as unknown as Record<string, unknown>,
+      }),
+    [sectionKey, editSections, instance]
   );
 
   const defaultValues = useMemo(

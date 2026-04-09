@@ -40,23 +40,62 @@ describe('isSectionEditable', () => {
     expect(isSectionEditable(section, FormMode.Edit)).toBe(true);
   });
 
-  it('returns false when all fields are hidden for the mode', () => {
+  it('returns false when all fields are hidden via component.modes', () => {
     const section: Section = {
       components: {
         name: makeComponent({
-          modes: { [FormMode.Edit]: { hidden: true } },
+          modes: { [FormMode.Edit]: { uiType: 'hidden' } },
         }),
       },
     };
     expect(isSectionEditable(section, FormMode.Edit)).toBe(false);
   });
 
-  it('returns false when all fields are disabled for the mode', () => {
+  it('returns false when all fields are disabled via fieldParams.modes', () => {
     const section: Section = {
       components: {
         name: makeComponent({
-          modes: { [FormMode.Edit]: { disabled: true } },
+          fieldParams: {
+            label: 'Name',
+            modes: { [FormMode.Edit]: { disabled: true } },
+          },
         }),
+      },
+    };
+    expect(isSectionEditable(section, FormMode.Edit)).toBe(false);
+  });
+
+  it('returns false when all fields are readOnly via fieldParams.modes', () => {
+    const section: Section = {
+      components: {
+        name: makeComponent({
+          fieldParams: {
+            label: 'Name',
+            modes: { [FormMode.Edit]: { readOnly: true } },
+          },
+        } as Partial<Component>),
+      },
+    };
+    expect(isSectionEditable(section, FormMode.Edit)).toBe(false);
+  });
+
+  it('returns false when field has base disabled=true (no mode override)', () => {
+    const section: Section = {
+      components: {
+        name: makeComponent({
+          fieldParams: { label: 'Name', disabled: true },
+        }),
+      },
+    };
+    expect(isSectionEditable(section, FormMode.Edit)).toBe(false);
+  });
+
+  it('returns false when field has base readOnly=true (no mode override)', () => {
+    const section: Section = {
+      components: {
+        name: makeComponent({
+          fieldParams: { label: 'Name', readOnly: true },
+        } as Partial<Component>),
       },
     };
     expect(isSectionEditable(section, FormMode.Edit)).toBe(false);
@@ -67,7 +106,7 @@ describe('isSectionEditable', () => {
       uiType: 'group',
       components: {
         hidden: makeComponent({
-          modes: { [FormMode.Edit]: { hidden: true } },
+          modes: { [FormMode.Edit]: { uiType: 'hidden' } },
         }),
         editable: makeComponent(),
       },
@@ -82,7 +121,10 @@ describe('isSectionEditable', () => {
     const section: Section = {
       components: {
         name: makeComponent({
-          modes: { [FormMode.New]: { disabled: true } },
+          fieldParams: {
+            label: 'Name',
+            modes: { [FormMode.New]: { disabled: true } },
+          },
         }),
       },
     };

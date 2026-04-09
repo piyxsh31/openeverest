@@ -13,10 +13,15 @@
 // limitations under the License.
 
 import { z } from 'zod';
-import type { Section } from 'components/ui-generator/ui-generator.types';
+import type { FormMode, Section } from 'components/ui-generator/ui-generator.types';
 import { buildShapeFromComponents } from './build-shape-from-components';
 import { convertToNestedSchema } from './convert-to-nested-schema';
 import { applyCelValidation } from './apply-cel-validation';
+
+export type BuildSectionSchemaOptions = {
+  formMode?: FormMode;
+  originalData?: Record<string, unknown>;
+};
 
 /**
  * Builds a Zod schema scoped to a single section's fields with `.passthrough()`
@@ -26,7 +31,8 @@ import { applyCelValidation } from './apply-cel-validation';
  */
 export const buildSectionZodSchema = (
   sectionKey: string,
-  allSections: Record<string, Section>
+  allSections: Record<string, Section>,
+  options?: BuildSectionSchemaOptions
 ): { schema: z.ZodTypeAny; celDependencyGroups: string[][] } => {
   const targetSection = allSections[sectionKey];
   if (!targetSection?.components) {
@@ -39,7 +45,8 @@ export const buildSectionZodSchema = (
   // Build Zod shape only for the target section
   const { schemaShape } = buildShapeFromComponents(
     targetSection.components,
-    sectionKey
+    sectionKey,
+    options?.formMode
   );
 
   // Collect CEL from ALL sections (cross-field validation)
@@ -50,7 +57,11 @@ export const buildSectionZodSchema = (
 
   Object.entries(allSections).forEach(([secKey, section]) => {
     if (section?.components) {
-      const result = buildShapeFromComponents(section.components, secKey);
+      const result = buildShapeFromComponents(
+        section.components,
+        secKey,
+        options?.formMode
+      );
       allCelExpValidations.push(...result.celExpValidations);
       allCelDependencyGroups.push(...result.celDependencyGroups);
     }
@@ -61,7 +72,11 @@ export const buildSectionZodSchema = (
   let zodSchema: z.ZodTypeAny = z.object(nestedFields).passthrough();
 
   // Apply CEL validation from all sections
-  zodSchema = applyCelValidation(zodSchema, allCelExpValidations);
+  zodSchema = applyCelValidation(
+    zodSchema,
+    allCelExpValidations,
+    options?.originalData
+  );
 
   return {
     schema: zodSchema,

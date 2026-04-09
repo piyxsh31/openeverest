@@ -19,10 +19,6 @@ import type {
   Section,
 } from '../../ui-generator.types';
 
-/**
- * Returns true if at least one leaf field in the section is editable
- * (neither hidden nor disabled) for the given form mode.
- */
 const hasEditableComponent = (
   components: Record<string, Component | ComponentGroup>,
   mode: FormMode
@@ -39,13 +35,26 @@ const hasEditableComponent = (
     }
 
     const component = item as Component;
-    const overrides = component.modes?.[mode];
 
-    if (overrides?.hidden || overrides?.disabled) {
+    // Component-level modes: check if uiType is overridden to 'hidden'
+    const componentOverrides = component.modes?.[mode];
+    if (componentOverrides?.uiType === 'hidden') {
       continue;
     }
 
-    // A field without mode overrides is editable
+    // FieldParams-level modes: check if disabled or readOnly
+    const fpOverrides = component.fieldParams?.modes?.[mode];
+    if (fpOverrides?.disabled || fpOverrides?.readOnly) {
+      continue;
+    }
+
+    // Also check base fieldParams disabled/readOnly (without mode overrides)
+    const fp = component.fieldParams as Record<string, unknown> | undefined;
+    if (fp?.disabled || fp?.readOnly) {
+      continue;
+    }
+
+    // A field without blocking overrides is editable
     return true;
   }
 

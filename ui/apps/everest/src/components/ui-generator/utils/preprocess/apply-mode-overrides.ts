@@ -15,9 +15,35 @@
 import type {
   Component,
   ComponentGroup,
+  CommonValidation,
   FormMode,
+  ModeAwareValidation,
   Section,
 } from '../../ui-generator.types';
+
+const stripCelFromValidation = (
+  validation: ModeAwareValidation<CommonValidation>
+): ModeAwareValidation<CommonValidation> => {
+  const { modes, ...baseWithCel } = validation;
+  const { celExpressions: baseCelExpressions, ...baseRest } = baseWithCel;
+  void baseCelExpressions;
+  const result: ModeAwareValidation<CommonValidation> = {
+    ...baseRest,
+  } as ModeAwareValidation<CommonValidation>;
+
+  if (modes) {
+    result.modes = {};
+    for (const [key, branch] of Object.entries(modes)) {
+      if (branch) {
+        const { celExpressions: branchCelExpressions, ...rest } = branch;
+        void branchCelExpressions;
+        result.modes[key as FormMode] = rest;
+      }
+    }
+  }
+
+  return result;
+};
 
 const applyModeToComponent = (
   item: Component | ComponentGroup,
@@ -35,24 +61,30 @@ const applyModeToComponent = (
   }
 
   const component = item as Component;
-  const overrides = component.modes?.[mode];
-  if (!overrides) return component;
 
-  if (overrides.hidden) {
+  // 1. Apply component-level mode overrides (uiType)
+  const componentOverrides = component.modes?.[mode];
+  if (componentOverrides?.uiType === 'hidden') {
     return {
       ...component,
       uiType: 'hidden',
       // Strip CEL expressions so hidden field's own validation is excluded
       validation: component.validation
-        ? { ...component.validation, celExpressions: undefined }
+        ? stripCelFromValidation(
+            component.validation as ModeAwareValidation<CommonValidation>
+          )
         : undefined,
     } as Component;
   }
 
-  if (overrides.disabled) {
+  // 2. Apply fieldParams-level mode overrides (disabled, readOnly)
+  const fieldParamsOverrides = component.fieldParams?.modes?.[mode];
+  if (fieldParamsOverrides) {
+    const { modes: _fpModes, ...restFieldParams } = component.fieldParams as Record<string, unknown>;
+    void _fpModes;
     return {
       ...component,
-      fieldParams: { ...component.fieldParams, disabled: true },
+      fieldParams: { ...restFieldParams, ...fieldParamsOverrides },
     } as Component;
   }
 

@@ -4,7 +4,8 @@ import { validateCelExpression } from './cel-validation';
 
 export const applyCelValidation = (
   schema: z.ZodTypeAny,
-  celExpValidations: { path: string[]; celExpressions: CelExpression[] }[]
+  celExpValidations: { path: string[]; celExpressions: CelExpression[] }[],
+  originalData?: Record<string, unknown>
 ): z.ZodTypeAny => {
   if (celExpValidations.length === 0) {
     return schema;
@@ -14,7 +15,11 @@ export const applyCelValidation = (
     celExpValidations.forEach(({ path, celExpressions }) => {
       // Evaluate each CEL expression for this field
       celExpressions.forEach((celExpr) => {
-        const validationResult = validateCelExpression(celExpr, data);
+        const validationResult = validateCelExpression(
+          celExpr,
+          data,
+          originalData
+        );
 
         if (!validationResult.isValid) {
           ctx.addIssue({

@@ -23,6 +23,7 @@ import { muiComponentMap } from '../constants';
 import { renderComponentChildren } from './utils/component-renderer';
 import { useUiGeneratorContext } from '../ui-generator-context';
 import { getMappedParams, MappedFieldProps } from './utils/get-mapped-params';
+import { resolveValidationForMode } from '../utils/validation/resolve-validation-for-mode';
 
 type ComponentByType<T extends Component['uiType']> = Extract<
   Component,
@@ -62,8 +63,11 @@ const UIComponent: React.FC<ComponentProps> = ({ item, name }) => {
   const { uiType, fieldParams, validation } = item;
   const methods = useFormContext();
   const errors = methods?.formState?.errors || {};
-  const { providerObject, loadingDefaultsForEdition } = useUiGeneratorContext();
+  const { providerObject, loadingDefaultsForEdition, formMode } =
+    useUiGeneratorContext();
   const isDisabled = !!loadingDefaultsForEdition;
+
+  const resolvedValidation = resolveValidationForMode(validation, formMode);
 
   //get() is used to access nested error paths like "spec.replica.nodes"
   const errorObj = get(errors, name);
@@ -75,7 +79,7 @@ const UIComponent: React.FC<ComponentProps> = ({ item, name }) => {
 
   if (!MuiComponent) return null;
 
-  const mappedProps = getMappedParams(uiType, fieldParams, validation);
+  const mappedProps = getMappedParams(uiType, fieldParams, resolvedValidation);
 
   // Extract badge from mappedProps if present
   const { badge, textFieldProps, selectFieldProps, ...restMappedProps } =

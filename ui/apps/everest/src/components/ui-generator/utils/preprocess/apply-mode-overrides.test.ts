@@ -47,12 +47,15 @@ describe('applyModeOverrides', () => {
     expect(comp.fieldParams.disabled).toBeUndefined();
   });
 
-  it('disables a component when mode override has disabled: true', () => {
+  it('disables a component via fieldParams.modes', () => {
     const sections: Record<string, Section> = {
       basic: {
         components: {
           name: makeComponent({
-            modes: { [FormMode.Edit]: { disabled: true } },
+            fieldParams: {
+              label: 'Name',
+              modes: { [FormMode.Edit]: { disabled: true } },
+            },
           }),
         },
       },
@@ -68,7 +71,10 @@ describe('applyModeOverrides', () => {
       basic: {
         components: {
           name: makeComponent({
-            modes: { [FormMode.Edit]: { disabled: true } },
+            fieldParams: {
+              label: 'Name',
+              modes: { [FormMode.Edit]: { disabled: true } },
+            },
           }),
         },
       },
@@ -79,12 +85,12 @@ describe('applyModeOverrides', () => {
     expect(comp.fieldParams.disabled).toBeUndefined();
   });
 
-  it('hides a component by setting uiType to hidden and stripping CEL', () => {
+  it('hides a component via component.modes uiType override and strips CEL', () => {
     const sections: Record<string, Section> = {
       basic: {
         components: {
           secret: makeComponent({
-            modes: { [FormMode.Edit]: { hidden: true } },
+            modes: { [FormMode.Edit]: { uiType: 'hidden' } },
             validation: {
               required: true,
               celExpressions: [
@@ -103,13 +109,15 @@ describe('applyModeOverrides', () => {
     expect(comp.validation?.required).toBe(true);
   });
 
-  it('hidden takes precedence over disabled', () => {
+  it('component.modes uiType=hidden takes precedence over fieldParams.modes disabled', () => {
     const sections: Record<string, Section> = {
       basic: {
         components: {
           name: makeComponent({
-            modes: {
-              [FormMode.Edit]: { hidden: true, disabled: true },
+            modes: { [FormMode.Edit]: { uiType: 'hidden' } },
+            fieldParams: {
+              label: 'Name',
+              modes: { [FormMode.Edit]: { disabled: true } },
             },
           }),
         },
@@ -126,7 +134,10 @@ describe('applyModeOverrides', () => {
       uiType: 'group',
       components: {
         inner: makeComponent({
-          modes: { [FormMode.Edit]: { disabled: true } },
+          fieldParams: {
+            label: 'Inner',
+            modes: { [FormMode.Edit]: { disabled: true } },
+          },
         }),
       },
     };
@@ -138,5 +149,24 @@ describe('applyModeOverrides', () => {
     const g = result.resources.components.group as ComponentGroup;
     const inner = g.components.inner as Component;
     expect(inner.fieldParams.disabled).toBe(true);
+  });
+
+  it('applies readOnly from fieldParams.modes', () => {
+    const sections: Record<string, Section> = {
+      basic: {
+        components: {
+          name: makeComponent({
+            fieldParams: {
+              label: 'Name',
+              modes: { [FormMode.Edit]: { readOnly: true } },
+            },
+          } as Partial<Component>),
+        },
+      },
+    };
+
+    const result = applyModeOverrides(sections, FormMode.Edit);
+    const comp = result.basic.components.name as Component;
+    expect((comp.fieldParams as Record<string, unknown>).readOnly).toBe(true);
   });
 });
