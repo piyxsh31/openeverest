@@ -4,8 +4,6 @@ This document describes the high-level architecture and data flows of the
 UI Generator — the schema-driven form engine that powers the database creation
 wizard and the section-edit modals on the cluster overview page.
 
----
-
 ## 1. System Overview
 
 ```
@@ -19,11 +17,10 @@ wizard and the section-edit modals on the cluster overview page.
                          ▼
 ┌─────────────────────────────────────────────────────────┐
 │              Preprocessing Pipeline                     │
-│  1. preprocessSchema   (normalize paths, resolve opts)  │
-│  2. applyModeOverrides (hide/disable per FormMode)      │
+│  1. preprocessSchema                                    │
+│  2. applyModeOverrides                                  │
 └────────────────────────┬────────────────────────────────┘
                          │
-              preprocessed TopologyUISchemas
                          │
           ┌──────────────┼──────────────┐
           ▼              ▼              ▼
@@ -52,36 +49,9 @@ wizard and the section-edit modals on the cluster overview page.
          API PUT / POST
 ```
 
----
-
 ## 2. Schema Structure
 
-```
-TopologyUISchemas
-  ├── [topologyName]  ──────── e.g. "standalone", "ha"
-  │     ├── sections
-  │     │     ├── [sectionKey]
-  │     │     │     ├── label?
-  │     │     │     ├── description?
-  │     │     │     ├── componentsOrder?
-  │     │     │     └── components
-  │     │     │           ├── [fieldKey]: Component
-  │     │     │           └── [groupKey]: ComponentGroup
-  │     │     └── ...
-  │     └── sectionsOrder?
-  └── ...
-
-Component
-  ├── uiType:  "text" | "number" | "select" | "hidden"
-  ├── path:    string | string[]    ← API binding
-  ├── id?:     string               ← when no API binding
-  ├── fieldParams:   { label, defaultValue, disabled, ... }
-  ├── validation?:   { required, min, max, celExpressions, regex, ... }
-  ├── modes?:        { [FormMode]: { hidden?, disabled? } }
-  └── _normalized?:  { sourcePath, targetPaths[] }
-```
-
----
+//TODO add link to the types files
 
 ## 3. Preprocessing Pipeline
 
@@ -98,14 +68,10 @@ Raw UISchema (from Provider CRD)
        ▼
  (Optional) applyModeOverrides(sections, formMode)
        │
-       ├── hidden override  →  uiType = "hidden", strip own CEL
-       ├── disabled override →  fieldParams.disabled = true
        │
        ▼
  Preprocessed sections (ready for rendering + validation)
 ```
-
----
 
 ## 4. Validation Pipeline
 
@@ -113,11 +79,14 @@ Raw UISchema (from Provider CRD)
 Preprocessed sections
        │
        ▼
- buildZodSchema(schema, topology)         ← full wizard
+ buildZodSchema(schema, topology, options?) ← full wizard
    — OR —
- buildSectionZodSchema(sectionKey, sections) ← edit modal
+ buildSectionZodSchema(sectionKey, sections, options?) ← edit modal
        │
        ├── For each component:
+       │     resolveValidationForMode(validation, formMode)
+       │       ├── merge base + modes[formMode]
+       │       └── no formMode  → base only
        │     buildShapeFromComponents
        │       ├── ZOD_SCHEMA_MAP[uiType]  →  base Zod type
        │       ├── applyValidationFromSchema  →  min/max/regex/required
@@ -125,7 +94,7 @@ Preprocessed sections
        │
        ├── convertToNestedSchema (flat → nested z.object)
        │
-       └── applyCelValidation  →  .superRefine() with CEL evaluation
+       └── applyCelValidation(schema, celExprs, originalData?)
               │
               ▼
         z.ZodTypeAny  (passed to zodResolver for react-hook-form)
@@ -136,8 +105,6 @@ Preprocessed sections
 - Zod field rules are built only for the target section.
 - The root schema uses `.passthrough()` so non-section fields pass through.
 - CEL expressions are still collected from ALL sections for cross-field rules.
-
----
 
 ## 5. Rendering Pipeline
 
@@ -155,11 +122,8 @@ Preprocessed sections
                │
                └── leaf component:
                      generateFieldId(item, name)  →  form field name
-                     <NumberField />  |  <SelectField />  |  <TextField />
-                     (registered in react-hook-form via Controller)
+                     <CustomField /> → registered in react-hook-form
 ```
-
----
 
 ## 6. Postprocessing Pipeline
 
@@ -179,8 +143,6 @@ Form data (from react-hook-form)
         Clean API payload  →  PUT /instances/:ns/:name
 ```
 
----
-
 ## 7. Form Modes (FormMode)
 
 | Mode    | Value       | Description                      |
@@ -190,21 +152,33 @@ Form data (from react-hook-form)
 | Restore | `"restore"` | Restore from backup wizard       |
 | Import  | `"import"`  | Import existing database         |
 
-Modes are declared per-component in the schema:
+Modes follow a consistent pattern: **each `modes` object overrides only
+properties of the object it belongs to.**
+
+| `modes` in…         | Documented supported overrides                                 |
+| ------------------- | -------------------------------------------------------------- |
+| `component.modes`   | `uiType`                                                       |
+| `fieldParams.modes` | `disabled`, `label`, `helperText`, `defaultValue`, `autoFocus` |
+| `validation.modes`  | `required`, `min`, `celExpressions`, …                         |
 
 ```yaml
 components:
   dbName:
     uiType: text
     path: metadata.name
-    modes:
-      edit:
-        disabled: true # name can't change after creation
+    modes: # component-level: overrides uiType
+      restore:
+        uiType: hidden
     fieldParams:
       label: Database name
+      modes: # fieldParams-level: overrides documented field params
+        edit:
+          disabled: true # name can't change after creation
 ```
 
----
+Mode-aware validation is declared per-component in the `validation` block
+(see [validation.md](../../../docs/ui/ui-generator/validation.md#mode-aware-validation)
+for full documentation):
 
 ## 8. Section Edit Modal Flow
 
@@ -220,7 +194,10 @@ components:
  <SectionEditModal>
        │
        ├── applyModeOverrides(sections, Edit)
-       ├── buildSectionZodSchema(sectionKey, editSections)
+       ├── buildSectionZodSchema(sectionKey, editSections, {
+       │       formMode: Edit,
+       │       originalData: instance
+       │     })
        ├── extractInstanceValues(editSections, instance)
        │
        ├── <FormDialog schema={zodSchema} defaultValues={...}>
@@ -237,20 +214,22 @@ components:
 
 ## 9. Key Files
 
-| Area            | File                                               |
-| --------------- | -------------------------------------------------- |
-| Types           | `ui-generator/ui-generator.types.ts`               |
-| Main component  | `ui-generator/ui-generator.tsx`                    |
-| Context         | `ui-generator/ui-generator-context.tsx`            |
-| Preprocess      | `utils/preprocess/preprocess-schema.ts`            |
-| Mode overrides  | `utils/preprocess/apply-mode-overrides.ts`         |
-| Zod builder     | `utils/schema-builder/build-zod-schema.ts`         |
-| Section Zod     | `utils/schema-builder/build-section-zod-schema.ts` |
-| Defaults        | `utils/default-values/index.ts`                    |
-| Instance values | `utils/default-values/extract-instance-values.ts`  |
-| Section check   | `utils/section-editable/is-section-editable.ts`    |
-| Renderer        | `utils/component-renderer/render-component.tsx`    |
-| Postprocess     | `utils/postprocess/postprocess-schema.ts`          |
-| Schema walker   | `utils/schema-walker/schema-walker.ts`             |
-| Object path     | `utils/object-path/object-path.ts`                 |
-| Edit modal      | `cluster-overview/sections/section-edit-modal/`    |
+| Area               | File                                               |
+| ------------------ | -------------------------------------------------- |
+| Types              | `ui-generator/ui-generator.types.ts`               |
+| Main component     | `ui-generator/ui-generator.tsx`                    |
+| Context            | `ui-generator/ui-generator-context.tsx`            |
+| Preprocess         | `utils/preprocess/preprocess-schema.ts`            |
+| Mode overrides     | `utils/preprocess/apply-mode-overrides.ts`         |
+| Resolve validation | `utils/validation/resolve-validation-for-mode.ts`  |
+| Zod builder        | `utils/schema-builder/build-zod-schema.ts`         |
+| Section Zod        | `utils/schema-builder/build-section-zod-schema.ts` |
+| CEL validation     | `utils/schema-builder/cel-validation/`             |
+| Defaults           | `utils/default-values/index.ts`                    |
+| Instance values    | `utils/default-values/extract-instance-values.ts`  |
+| Section check      | `utils/section-editable/is-section-editable.ts`    |
+| Renderer           | `utils/component-renderer/render-component.tsx`    |
+| Postprocess        | `utils/postprocess/postprocess-schema.ts`          |
+| Schema walker      | `utils/schema-walker/schema-walker.ts`             |
+| Object path        | `utils/object-path/object-path.ts`                 |
+| Edit modal         | `cluster-overview/sections/section-edit-modal/`    |

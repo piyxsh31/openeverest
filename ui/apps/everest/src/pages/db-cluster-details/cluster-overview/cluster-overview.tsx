@@ -26,6 +26,7 @@ import OtherFieldsCard from './sections/other-fields-card';
 import { SectionEditModal } from './sections/section-edit-modal';
 import { FormMode } from 'components/ui-generator/ui-generator.types';
 import { isSectionEditable } from 'components/ui-generator/utils/section-editable';
+import { shouldDbActionsBeBlocked } from 'utils/db';
 
 export const ClusterOverview = () => {
   const {
@@ -48,6 +49,8 @@ export const ClusterOverview = () => {
   if (isLoading || !instance) {
     return null;
   }
+
+  const actionsBlocked = shouldDbActionsBeBlocked(instance?.status?.phase);
 
   return (
     <Box
@@ -80,7 +83,9 @@ export const ClusterOverview = () => {
       {schemaSectionCards.map((card) => {
         const section = sections[card.key];
         const editable =
-          !!section && isSectionEditable(section, FormMode.Edit);
+          !actionsBlocked &&
+          !!section &&
+          isSectionEditable(section, FormMode.Edit);
 
         return (
           <SchemaDrivenCard
