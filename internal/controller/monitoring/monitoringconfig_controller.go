@@ -415,12 +415,7 @@ func (r *MonitoringConfigReconciler) genVMAgentSpec(mcList *monitoringv1alpha1.M
 		}
 
 		// The secret name mirrors reconcileSecret's naming convention.
-		var secretName string
-		if mc.GetNamespace() != r.MonitoringNamespace {
-			secretName = mc.Spec.CredentialsSecretName + "-" + mc.GetNamespace()
-		} else {
-			secretName = mc.Spec.CredentialsSecretName
-		}
+		secretName := r.monitoringSecretName(&mc)
 
 		skipTLS := false
 		if mc.Spec.VerifyTLS != nil {
@@ -472,9 +467,11 @@ func (r *MonitoringConfigReconciler) genVMAgentSpec(mcList *monitoringv1alpha1.M
 // reconcileSecret copies the source MonitoringConfig secret onto the monitoring namespace.
 // Returns the name of the newly created/updated secret.
 func (r *MonitoringConfigReconciler) reconcileSecret(ctx context.Context, mc *monitoringv1alpha1.MonitoringConfig) (string, error) {
+	secretName := r.monitoringSecretName(mc)
+
 	// If the MonitoringConfig is already in the monitoring namespace, use it.
 	if mc.GetNamespace() == r.MonitoringNamespace {
-		return mc.Spec.CredentialsSecretName, nil
+		return secretName, nil
 	}
 
 	// Get the secret in the MonitoringConfig namespace.
@@ -487,10 +484,9 @@ func (r *MonitoringConfigReconciler) reconcileSecret(ctx context.Context, mc *mo
 	}
 
 	// Create a copy in the monitoring namespace.
-	dstSecretName := src.GetName() + "-" + src.GetNamespace()
 	dst := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      dstSecretName,
+			Name:      secretName,
 			Namespace: r.MonitoringNamespace,
 		},
 	}
@@ -513,10 +509,20 @@ func (r *MonitoringConfigReconciler) reconcileSecret(ctx context.Context, mc *mo
 
 	// Add a clean-up finalizer in the parent MonitoringConfig.
 	if controllerutil.AddFinalizer(mc, cleanupSecretsFinalizer) {
-		return dstSecretName, r.Update(ctx, mc)
+		return secretName, r.Update(ctx, mc)
 	}
 
-	return dstSecretName, nil
+	return secretName, nil
+}
+
+// monitoringSecretName returns the original or copied secret name depending
+// on whether the MonitoringConfig is in the monitoring namespace or not.
+func (r *MonitoringConfigReconciler) monitoringSecretName(mc *monitoringv1alpha1.MonitoringConfig) string {
+	if mc.GetNamespace() == r.MonitoringNamespace {
+		return mc.Spec.CredentialsSecretName
+	}
+
+	return mc.Spec.CredentialsSecretName + "-" + mc.GetNamespace()
 }
 
 // cleanupSecrets deletes all secrets in the monitoring namespace that belong to the given MonitoringConfig.
