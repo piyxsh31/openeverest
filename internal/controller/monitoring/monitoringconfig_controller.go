@@ -34,10 +34,12 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	corev1alpha1 "github.com/openeverest/openeverest/v2/api/core/v1alpha1"
@@ -87,6 +89,9 @@ func (r *MonitoringConfigReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&monitoringv1alpha1.MonitoringConfig{}).
 		Watches(&corev1.Namespace{},
 			enqueueObjectsInNamespace(r.Client, &monitoringv1alpha1.MonitoringConfigList{})).
+		Watches(&vmv1beta1.VMAgent{},
+			handler.EnqueueRequestsFromMapFunc(r.enqueueMonitoringConfigs),
+			builder.WithPredicates(predicate.GenerationChangedPredicate{})).
 		Complete(r)
 }
 
@@ -137,7 +142,7 @@ func (r *MonitoringConfigReconciler) Reconcile( //nolint:nonamedreturns
 
 	// Sync status after reconciliation completes.
 	defer func() {
-		// Nothing to reconcile on a resource that is being deleted.
+		// Do not reconcile on a resource that is being deleted.
 		if !mc.GetDeletionTimestamp().IsZero() {
 			return
 		}
@@ -203,7 +208,7 @@ func (r *MonitoringConfigReconciler) ensureInUseFinalizer(
 
 	if updated {
 		if err := r.Update(ctx, mc); err != nil {
-			return fmt.Errorf("failed toupdate finalizer: %w", err)
+			return fmt.Errorf("failed to update finalizer: %w", err)
 		}
 	}
 
@@ -289,61 +294,6 @@ func (r *MonitoringConfigReconciler) fetchPMMServerVersion(
 	}
 
 	return monitoringv1alpha1.PMMServerVersion(v), nil
-}
-
-// initIndexers registers the field indexers required by this controller.
-func (r *MonitoringConfigReconciler) initIndexers(ctx context.Context, mgr ctrl.Manager) error {
-	if err := mgr.GetFieldIndexer().IndexField(
-		ctx,
-		&monitoringv1alpha1.MonitoringConfig{},
-		".spec.credentialsSecretName",
-		func(obj client.Object) []string {
-			mc, ok := obj.(*monitoringv1alpha1.MonitoringConfig)
-			if !ok {
-				return nil
-			}
-			return []string{mc.Spec.CredentialsSecretName}
-		},
-	); err != nil {
-		return fmt.Errorf("indexing monitoringconfig by credentialsSecretName: %w", err)
-	}
-
-	if err := mgr.GetFieldIndexer().IndexField(
-		ctx,
-		&corev1alpha1.Instance{},
-		instanceMonitoringConfigField,
-		func(obj client.Object) []string {
-			instance, ok := obj.(*corev1alpha1.Instance)
-			if !ok {
-				return nil
-			}
-
-			monitoringSpec, ok := instance.Spec.Components["monitoring"]
-			if !ok {
-				return nil
-			}
-
-			if monitoringSpec.CustomSpec == nil || monitoringSpec.CustomSpec.Raw == nil {
-				return nil
-			}
-
-			m := map[string]any{}
-			if err := json.Unmarshal(monitoringSpec.CustomSpec.Raw, &m); err != nil {
-				return nil
-			}
-
-			_, ok = m["monitoringConfigName"]
-			if !ok {
-				return nil
-			}
-
-			return []string{instanceMonitoringConfigField}
-		},
-	); err != nil {
-		return fmt.Errorf("indexing instance by monitoring config name: %w", err)
-	}
-
-	return nil
 }
 
 // reconcileVMAgent ensures a VMAgent exists with remote-write entries for all PMM-type MonitoringConfigs, and is removed when no longer needed.
@@ -598,6 +548,61 @@ func (r *MonitoringConfigReconciler) cleanupSecrets(ctx context.Context, mc *mon
 	return nil
 }
 
+// initIndexers registers the field indexers required by this controller.
+func (r *MonitoringConfigReconciler) initIndexers(ctx context.Context, mgr ctrl.Manager) error {
+	if err := mgr.GetFieldIndexer().IndexField(
+		ctx,
+		&monitoringv1alpha1.MonitoringConfig{},
+		".spec.credentialsSecretName",
+		func(obj client.Object) []string {
+			mc, ok := obj.(*monitoringv1alpha1.MonitoringConfig)
+			if !ok {
+				return nil
+			}
+			return []string{mc.Spec.CredentialsSecretName}
+		},
+	); err != nil {
+		return fmt.Errorf("indexing monitoringconfig by credentialsSecretName: %w", err)
+	}
+
+	if err := mgr.GetFieldIndexer().IndexField(
+		ctx,
+		&corev1alpha1.Instance{},
+		instanceMonitoringConfigField,
+		func(obj client.Object) []string {
+			instance, ok := obj.(*corev1alpha1.Instance)
+			if !ok {
+				return nil
+			}
+
+			monitoringSpec, ok := instance.Spec.Components["monitoring"]
+			if !ok {
+				return nil
+			}
+
+			if monitoringSpec.CustomSpec == nil || monitoringSpec.CustomSpec.Raw == nil {
+				return nil
+			}
+
+			m := map[string]any{}
+			if err := json.Unmarshal(monitoringSpec.CustomSpec.Raw, &m); err != nil {
+				return nil
+			}
+
+			_, ok = m["monitoringConfigName"]
+			if !ok {
+				return nil
+			}
+
+			return []string{instanceMonitoringConfigField}
+		},
+	); err != nil {
+		return fmt.Errorf("indexing instance by monitoring config name: %w", err)
+	}
+
+	return nil
+}
+
 // enqueueObjectsInNamespace returns an event handler that, when a Namespace event
 // fires, enqueues reconcile requests for all objects of the given list type in
 // that namespace. This ensures MonitoringConfigs are re-evaluated when a namespace changes.
@@ -630,4 +635,33 @@ func enqueueObjectsInNamespace(c client.Client, list client.ObjectList) handler.
 
 		return requests
 	})
+}
+
+// enqueueMonitoringConfigs enqueues MonitoringConfig objects for reconciliation when a VMAgent is created/updated/deleted.
+func (r *MonitoringConfigReconciler) enqueueMonitoringConfigs(ctx context.Context, o client.Object) []reconcile.Request {
+	vmAgent, ok := o.(*vmv1beta1.VMAgent)
+	if !ok {
+		return nil
+	}
+
+	if vmAgent.GetNamespace() != r.MonitoringNamespace {
+		return nil
+	}
+
+	list := &monitoringv1alpha1.MonitoringConfigList{}
+	err := r.List(ctx, list)
+	if err != nil {
+		return nil
+	}
+
+	requests := make([]reconcile.Request, 0, len(list.Items))
+	for _, mc := range list.Items {
+		requests = append(requests, reconcile.Request{
+			NamespacedName: types.NamespacedName{
+				Name:      mc.GetName(),
+				Namespace: mc.GetNamespace(),
+			},
+		})
+	}
+	return requests
 }
