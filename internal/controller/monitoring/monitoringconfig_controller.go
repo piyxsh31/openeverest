@@ -58,13 +58,13 @@ const (
 	// in the monitoring namespace exists.
 	cleanupSecretsFinalizer = "openeverest.io/cleanup-secrets"
 
-	// MonitoringConfigRefNameLabel is used to reference a MonitoringConfig's name
+	// monitoringConfigRefNameLabel is used to reference a MonitoringConfig's name
 	// on copied Secrets since owner references cannot be used across namespaces.
-	MonitoringConfigRefNameLabel = "openeverest.io/monitoring-config-ref-name"
+	monitoringConfigRefNameLabel = "openeverest.io/monitoring-config-ref-name"
 
-	// MonitoringConfigRefNamespaceLabel is used to reference a MonitoringConfig's namespace
+	// monitoringConfigRefNamespaceLabel is used to reference a MonitoringConfig's namespace
 	// on copied Secrets since owner references cannot be used across namespaces.
-	MonitoringConfigRefNamespaceLabel = "openeverest.io/monitoring-config-ref-namespace"
+	monitoringConfigRefNamespaceLabel = "openeverest.io/monitoring-config-ref-namespace"
 
 	// instanceMonitoringConfigField is the field path used for indexing Instances
 	// by their monitoring config name.
@@ -503,8 +503,8 @@ func (r *MonitoringConfigReconciler) reconcileSecret(ctx context.Context, mc *mo
 			labels = make(map[string]string)
 		}
 
-		labels[MonitoringConfigRefNameLabel] = mc.GetName()
-		labels[MonitoringConfigRefNamespaceLabel] = mc.GetNamespace()
+		labels[monitoringConfigRefNameLabel] = mc.GetName()
+		labels[monitoringConfigRefNamespaceLabel] = mc.GetNamespace()
 		dst.SetLabels(labels)
 		return nil
 	}); err != nil {
@@ -526,8 +526,8 @@ func (r *MonitoringConfigReconciler) cleanupSecrets(ctx context.Context, mc *mon
 	err := r.List(ctx, secrets, &client.ListOptions{
 		Namespace: r.MonitoringNamespace,
 		LabelSelector: labels.SelectorFromSet(map[string]string{
-			MonitoringConfigRefNameLabel:      mc.GetName(),
-			MonitoringConfigRefNamespaceLabel: mc.GetNamespace(),
+			monitoringConfigRefNameLabel:      mc.GetName(),
+			monitoringConfigRefNamespaceLabel: mc.GetNamespace(),
 		}),
 	})
 	if err != nil {
