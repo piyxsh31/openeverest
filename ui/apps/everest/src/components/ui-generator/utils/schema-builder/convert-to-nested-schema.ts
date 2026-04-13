@@ -54,5 +54,9 @@ const convertToZodRecursively = (obj: unknown): z.ZodTypeAny => {
     }
   });
 
-  return z.object(shape);
+  // passthrough() preserves keys not declared in this shape.
+  // This is critical for section-edit mode where the Zod shape only covers
+  // one section's fields but CEL superRefine needs access to fields from
+  // other sections (e.g. spec.topology.config.shards).
+  return z.object(shape).passthrough();
 };

@@ -55,6 +55,8 @@ interface CommonFieldParams {
   disabled?: boolean;
   autoFocus?: boolean;
   helperText?: string;
+  // TODO support tooltip in the ui-schema for all components + documentation
+  tooltip?: string;
   badge?: string;
   badgeToApi?: boolean;
   modes?: FieldParamsModeOverrides;

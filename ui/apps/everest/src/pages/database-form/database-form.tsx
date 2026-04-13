@@ -199,16 +199,10 @@ export const DatabasePage = () => {
 
   useEffect(() => {
     validationSchemaRef.current = validationSchema;
-    trigger();
-  }, [validationSchema, trigger]);
+  }, [validationSchema]);
 
-  useEffect(() => {
-    if (engine.zodSchema && !loadingClusterValues && defaultValues) {
-      trigger();
-    }
-  }, [engine.zodSchema, defaultValues, loadingClusterValues, trigger]);
-
-  // Topology switch
+  // Topology switch — must run BEFORE the revalidation effect so that
+  // form values are reset before trigger() validates them.
   const prevTopologyTypeRef = useRef<string | undefined>(undefined);
   useEffect(() => {
     const topologyType = selectedTopology;
@@ -228,6 +222,14 @@ export const DatabasePage = () => {
     reset(merged as DbWizardType, { keepDirty: true, keepIsSubmitted: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTopology, uiSchema]);
+
+  // Revalidate after validation schema changes or defaults finish loading.
+  // Declared after the topology switch effect so that reset() runs first.
+  useEffect(() => {
+    if (validationSchemaRef.current && !loadingClusterValues) {
+      trigger();
+    }
+  }, [validationSchema, loadingClusterValues, trigger]);
 
   // Revalidate on step change
   useEffect(() => {

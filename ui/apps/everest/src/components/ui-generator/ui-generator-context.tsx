@@ -39,7 +39,11 @@ export const UiGeneratorProvider = ({
 }: UiGeneratorProviderProps) => {
   return (
     <UiGeneratorContext.Provider
-      value={{ providerObject, loadingDefaultsForEdition, formMode }}
+      value={{
+        providerObject,
+        loadingDefaultsForEdition,
+        formMode,
+      }}
     >
       {children}
     </UiGeneratorContext.Provider>

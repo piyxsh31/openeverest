@@ -17,7 +17,6 @@ import { Stack } from '@mui/material';
 import { DatabaseIcon, OverviewCard } from '@percona/ui-lib';
 import { Messages } from '../../cluster-overview.messages';
 import { DatabaseDetailsOverviewCardProps } from '../card.types';
-import { BasicInformationSection } from './basic-information/basic';
 import { ConnectionDetails } from './connection-details';
 import { MonitoringDetails } from './monitoring/monitoring';
 import { AdvancedConfiguration } from './advanced-configuration';
@@ -74,13 +73,6 @@ export const DbDetails = ({
       }}
     >
       <Stack gap={3}>
-        <BasicInformationSection
-          loading={loading}
-          type={type}
-          name={name}
-          namespace={namespace}
-          version={version}
-        />
         <ConnectionDetails
           clusterName={name}
           loading={loading}

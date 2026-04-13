@@ -49,6 +49,13 @@ export const buildShapeFromComponents = (
 
     // Get base Zod schema for this UI type
     const component = item as Component;
+
+    // Disabled fields bypass all validation — they can't be changed by the user
+    if (component.fieldParams?.disabled) {
+      schemaShape[fieldId] = z.any().optional();
+      return;
+    }
+
     const baseSchema = ZOD_SCHEMA_MAP[component.uiType] ?? z.any();
 
     // Resolve mode-aware validation to flat validation for current mode

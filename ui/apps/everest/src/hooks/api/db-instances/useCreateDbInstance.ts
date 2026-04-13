@@ -35,6 +35,34 @@ type CreateInstanceHookArgType = {
   formValue: DbWizardType;
 };
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+export const buildCreateInstanceSpec = (
+  formValue: DbWizardType
+): Record<string, unknown> => {
+  const { provider, dbName, k8sNamespace, spec, ...rest } = formValue;
+  void dbName;
+  void k8sNamespace;
+
+  const rootTopology = isRecord(rest.topology) ? rest.topology : undefined;
+  const specTopology = isRecord(spec?.topology) ? spec.topology : undefined;
+
+  return {
+    provider: provider || '',
+    ...rest,
+    ...spec,
+    ...(rootTopology || specTopology
+      ? {
+          topology: {
+            ...(rootTopology ?? {}),
+            ...(specTopology ?? {}),
+          },
+        }
+      : {}),
+  };
+};
+
 export const useCreateDbInstance = (
   options?: UseMutationOptions<
     DbWizardType,
@@ -45,13 +73,16 @@ export const useCreateDbInstance = (
 ) =>
   useMutation({
     mutationFn: ({
-      formValue: { provider, dbName, k8sNamespace, spec, ...rest },
+      formValue,
     }: CreateInstanceHookArgType) => {
-      return createDbInstanceFn('main', dbName, k8sNamespace || '', {
-        provider: provider || '',
-        ...rest,
-        ...spec,
-      });
+      const { dbName, k8sNamespace } = formValue;
+
+      return createDbInstanceFn(
+        'main',
+        dbName,
+        k8sNamespace || '',
+        buildCreateInstanceSpec(formValue)
+      );
     },
     ...options,
   });

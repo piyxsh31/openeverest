@@ -24,10 +24,19 @@ import { buildSectionZodSchema } from 'components/ui-generator/utils/schema-buil
 import { extractInstanceValues } from 'components/ui-generator/utils/default-values/extract-instance-values';
 import { applyModeOverrides } from 'components/ui-generator/utils/preprocess/apply-mode-overrides';
 import { postprocessSchemaData } from 'components/ui-generator/utils/postprocess/postprocess-schema';
-import { deepClone } from 'components/ui-generator/utils/object-path/object-path';
+import {
+  deepClone,
+  deepMerge,
+} from 'components/ui-generator/utils/object-path/object-path';
+import {
+  extractBadgeMappingsFromSections,
+  stripBadgesFromData,
+} from 'components/ui-generator/utils/badge-to-api/badge-to-api';
 import { useUpdateDbInstanceWithConflictRetry } from 'hooks/api/db-instances/useUpdateDbInstance';
+import { useKubernetesClusterInfo } from 'hooks/api/kubernetesClusters/useKubernetesClusterInfo';
 import type { Instance } from 'types/api';
 import type { SectionEditModalProps } from './section-edit-modal.types';
+import { applyRuntimeOverrides } from './section-edit-modal.utils';
 
 const SectionEditModal = ({
   sectionKey,
@@ -38,21 +47,34 @@ const SectionEditModal = ({
   onSuccess,
 }: SectionEditModalProps) => {
   const [submitting, setSubmitting] = useState(false);
+  const { data: clusterInfo } = useKubernetesClusterInfo([
+    'section-edit-cluster-info',
+  ]);
 
-  const editSections = useMemo(
-    () => applyModeOverrides(sections, FormMode.Edit),
-    [sections]
-  );
+  const editSections = useMemo(() => {
+    const modeApplied = applyModeOverrides(sections, FormMode.Edit);
+    return applyRuntimeOverrides(modeApplied, instance, clusterInfo);
+  }, [sections, instance, clusterInfo]);
 
   const section = editSections[sectionKey];
 
-  const { schema: zodSchema } = useMemo(
+  // Strip badge suffixes (e.g. "25Gi" → 25) from the original instance so that
+  // CEL numeric comparisons like `size >= original.size` work correctly.
+  const originalDataForCel = useMemo(() => {
+    const badgeMappings = extractBadgeMappingsFromSections(editSections);
+    return stripBadgesFromData(
+      instance as unknown as Record<string, unknown>,
+      badgeMappings
+    );
+  }, [editSections, instance]);
+
+  const { schema: zodSchema, celDependencyGroups } = useMemo(
     () =>
       buildSectionZodSchema(sectionKey, editSections, {
         formMode: FormMode.Edit,
-        originalData: instance as unknown as Record<string, unknown>,
+        originalData: originalDataForCel,
       }),
-    [sectionKey, editSections, instance]
+    [sectionKey, editSections, originalDataForCel]
   );
 
   const defaultValues = useMemo(
@@ -87,15 +109,14 @@ const SectionEditModal = ({
       selectedTopology: topologyType,
     });
 
-    // Deep-merge updated section values into the existing instance
     const updatedInstance = deepClone(instance) as Instance;
     const specUpdates = (processed as Record<string, unknown>).spec;
 
     if (specUpdates && typeof specUpdates === 'object') {
-      updatedInstance.spec = {
-        ...updatedInstance.spec,
-        ...(specUpdates as Record<string, unknown>),
-      } as Instance['spec'];
+      updatedInstance.spec = deepMerge(
+        updatedInstance.spec as unknown as Record<string, unknown>,
+        specUpdates as Record<string, unknown>
+      ) as Instance['spec'];
     }
 
     mutate(updatedInstance);
@@ -107,6 +128,7 @@ const SectionEditModal = ({
       closeModal={onClose}
       headerMessage={section?.label ?? sectionKey}
       schema={zodSchema}
+      celDependencyGroups={celDependencyGroups}
       defaultValues={defaultValues}
       onSubmit={handleSubmit}
       submitMessage="Save"

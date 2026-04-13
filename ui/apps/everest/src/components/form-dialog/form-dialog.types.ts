@@ -14,6 +14,7 @@ export interface FormDialogProps<T extends FieldValues> {
   closeModal: () => void;
   headerMessage: string;
   schema: z.Schema<unknown, ZodTypeDef>;
+  celDependencyGroups?: string[][];
   defaultValues?: DefaultValues<T>;
   values?: T;
   onSubmit: (data: T) => void;

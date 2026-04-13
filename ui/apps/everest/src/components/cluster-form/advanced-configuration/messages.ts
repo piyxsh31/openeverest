@@ -22,9 +22,6 @@ import {
 export const Messages = {
   enable: 'Enable',
   sourceRangePlaceholder: SOURCE_RANGE_PLACEHOLDER,
-  placeholders: {
-    storageClass: 'Storage class',
-  },
   cards: {
     storage: {
       title: 'Storage',
@@ -52,11 +49,6 @@ export const Messages = {
       description:
         'Specify trusted IP addresses to restrict access. Leaving this blank will expose the database to all IP addresses.',
     },
-    engineParameters: {
-      title: 'Set database engine parameters',
-      description:
-        'Set your database engine configuration to adjust your database system to your workload and performance needs. For configuration format and specific parameters, check your database type documentation.',
-    },
     splitHorizonDNS: {
       title: 'Split-Horizon DNS',
       description:
@@ -68,18 +60,10 @@ export const Messages = {
       invalid: INVALID_SOURCE_RANGE_ERROR,
       duplicate: DUPLICATE_SOURCE_RANGE_ERROR,
     },
-    storageClass: {
-      invalid: 'Invalid storage class',
-    },
-    engineParameters: {
-      invalid: 'Invalid',
-    },
   },
   tooltipTexts: {
-    storageClass: 'Storage can’t be changed.',
     noPolicies:
       'Seems like you don’t have permission to read any pod scheduling policy.',
-    noConfig: 'No configurations to display',
     limitations: 'Check limitations in the documentation',
     splitHorizonDNS: (domain: string) =>
       `OpenEverest will create domains using ${domain} as suffix`,

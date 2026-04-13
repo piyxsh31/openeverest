@@ -18,6 +18,7 @@ import {
   useForm,
 } from 'react-hook-form';
 import { FormDialogProps } from './form-dialog.types';
+import { useCelValidation } from 'components/ui-generator/hooks/use-cel-validation';
 
 export const FormDialog = <T extends FieldValues>({
   isOpen,
@@ -25,6 +26,7 @@ export const FormDialog = <T extends FieldValues>({
   headerMessage,
   children,
   schema,
+  celDependencyGroups = [],
   defaultValues,
   values,
   disableSubmit = false,
@@ -47,6 +49,11 @@ export const FormDialog = <T extends FieldValues>({
   const {
     formState: { isDirty, isValid },
   } = methods;
+  useCelValidation(
+    celDependencyGroups,
+    methods.control as never,
+    methods.trigger as never
+  );
   const { isMobile } = useActiveBreakpoint();
   const modalWidth = useMemo(() => {
     if (isMobile) {
