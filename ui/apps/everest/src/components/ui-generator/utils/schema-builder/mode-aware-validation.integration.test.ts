@@ -18,7 +18,7 @@ import { FormMode } from 'components/ui-generator/ui-generator.types';
 import {
   genericOriginalInstance,
   pickFixtureSections,
-} from 'api/test-fixtures/ui-generator/generic-topology.fixture';
+} from 'components/ui-generator/test-fixtures/generic-topology.fixture';
 
 //  TODO should be moved to e2e tests
 

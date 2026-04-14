@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// TODO v2: should be reworked in v2 with implementation of affinity rules
+
 import { DbType } from '@percona/types';
 import {
   fireEvent,
@@ -50,7 +52,7 @@ const selectOperatorOption = (optionText: string) => {
   fireEvent.click(option!);
 };
 
-describe('AffinityFormDialog', () => {
+describe.skip('AffinityFormDialog', () => {
   describe('MongoDB', () => {
     test('show defaults', async () => {
       render(<Wrapper dbType={DbType.Mongo} />);

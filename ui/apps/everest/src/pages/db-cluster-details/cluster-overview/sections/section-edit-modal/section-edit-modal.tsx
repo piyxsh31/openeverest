@@ -37,6 +37,7 @@ import { useKubernetesClusterInfo } from 'hooks/api/kubernetesClusters/useKubern
 import type { Instance } from 'shared-types/api.types';
 import type { SectionEditModalProps } from './section-edit-modal.types';
 import { applyRuntimeOverrides } from './section-edit-modal.utils';
+import { Messages } from './section-edit-modal.messages';
 
 const SectionEditModal = ({
   sectionKey,
@@ -89,7 +90,7 @@ const SectionEditModal = ({
   const { mutate } = useUpdateDbInstanceWithConflictRetry(instance, {
     onSuccess: () => {
       setSubmitting(false);
-      enqueueSnackbar('Section updated successfully', { variant: 'success' });
+      enqueueSnackbar(Messages.onSuccess, { variant: 'success' });
       onSuccess();
       onClose();
     },

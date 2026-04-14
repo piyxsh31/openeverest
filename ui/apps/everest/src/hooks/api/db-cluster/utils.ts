@@ -14,7 +14,6 @@
 
 import { DbType } from '@percona/types';
 import { dbTypeToProxyType } from '@percona/utils';
-import { CUSTOM_NR_UNITS_INPUT_VALUE } from 'components/cluster-form';
 import { EMPTY_LOAD_BALANCER_CONFIGURATION } from 'consts';
 import { DbWizardType } from 'pages/database-form/database-form-schema';
 import {
@@ -64,9 +63,7 @@ export const getProxySpec = (
     } as unknown as Proxy;
   }
   const proxyNr = parseInt(
-    numberOfProxies === CUSTOM_NR_UNITS_INPUT_VALUE
-      ? customNrOfProxies
-      : numberOfProxies,
+    numberOfProxies === 'custom' ? customNrOfProxies : numberOfProxies,
     10
   );
 

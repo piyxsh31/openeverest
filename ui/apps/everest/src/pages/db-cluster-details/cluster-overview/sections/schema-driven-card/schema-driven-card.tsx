@@ -37,6 +37,7 @@ const SchemaDrivenCard = ({
             data-testid={`${card.key}-edit-button`}
             size="small"
             onClick={onEdit}
+            aria-label={`Edit ${card.title}`}
           >
             <EditOutlinedIcon fontSize="small" />
           </IconButton>
