@@ -35,12 +35,7 @@ const tooltipWrapper: FieldWrapper = (element, item) => {
   const shouldCompensateMargin = shouldCompensateTooltipMargin(item);
 
   return (
-    <Tooltip
-      title={tooltip}
-      placement="top"
-      arrow
-      data-testid="field-tooltip"
-    >
+    <Tooltip title={tooltip} placement="top" arrow data-testid="field-tooltip">
       <Box
         sx={{
           display: 'block',

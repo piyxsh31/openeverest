@@ -26,7 +26,8 @@ export const resolveValidationForMode = <T extends CommonValidation>(
 
   // Separate the mode-specific branches from the base validation props
   const { modes, ...baseProps } = validation;
-  const base = Object.keys(baseProps).length > 0 ? (baseProps as unknown as T) : undefined;
+  const base =
+    Object.keys(baseProps).length > 0 ? (baseProps as unknown as T) : undefined;
   const modeBranch = formMode ? modes?.[formMode] : undefined;
 
   // No mode branch: return base as-is

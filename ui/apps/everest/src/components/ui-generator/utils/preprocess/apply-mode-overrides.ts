@@ -80,7 +80,8 @@ const applyModeToComponent = (
   // 2. Apply fieldParams-level mode overrides (disabled, readOnly)
   const fieldParamsOverrides = component.fieldParams?.modes?.[mode];
   if (fieldParamsOverrides) {
-    const { modes: _fpModes, ...restFieldParams } = component.fieldParams as Record<string, unknown>;
+    const { modes: _fpModes, ...restFieldParams } =
+      component.fieldParams as Record<string, unknown>;
     void _fpModes;
     return {
       ...component,

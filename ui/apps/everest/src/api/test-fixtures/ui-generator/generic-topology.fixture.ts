@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { FieldType, FormMode } from 'components/ui-generator/ui-generator.types';
+import {
+  FieldType,
+  FormMode,
+} from 'components/ui-generator/ui-generator.types';
 import type {
   Component,
   NumberValidation,

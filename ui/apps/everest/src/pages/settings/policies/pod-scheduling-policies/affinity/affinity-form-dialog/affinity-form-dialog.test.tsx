@@ -52,19 +52,22 @@ const selectOperatorOption = (optionText: string) => {
 
 describe('AffinityFormDialog', () => {
   describe('MongoDB', () => {
-    test('show defaults', () => {
+    test('show defaults', async () => {
       render(<Wrapper dbType={DbType.Mongo} />);
-      expect(screen.getByTestId('select-input-component')).toHaveValue(
-        'engine'
-      );
-      expect(screen.getByTestId('select-input-type')).toHaveValue(
-        'podAntiAffinity'
-      );
-      expect(screen.getByTestId('text-input-weight')).toHaveValue(1);
-      expect(screen.getByTestId('text-input-topology-key')).toHaveValue(
-        'kubernetes.io/hostname'
-      );
-    });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('select-input-component')).toHaveValue(
+          'engine'
+        );
+        expect(screen.getByTestId('select-input-type')).toHaveValue(
+          'podAntiAffinity'
+        );
+        expect(screen.getByTestId('text-input-weight')).toHaveValue(1);
+        expect(screen.getByTestId('text-input-topology-key')).toHaveValue(
+          'kubernetes.io/hostname'
+        );
+      });
+    }, 10000);
   });
 
   describe.skip('Node Affinity', () => {

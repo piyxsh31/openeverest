@@ -72,9 +72,7 @@ export const useCreateDbInstance = (
   >
 ) =>
   useMutation({
-    mutationFn: ({
-      formValue,
-    }: CreateInstanceHookArgType) => {
+    mutationFn: ({ formValue }: CreateInstanceHookArgType) => {
       const { dbName, k8sNamespace } = formValue;
 
       return createDbInstanceFn(

@@ -57,7 +57,9 @@ const enrichComponent = (
     ...component,
     fieldParams: {
       ...component.fieldParams,
-      ...(override.disabled !== undefined ? { disabled: override.disabled } : {}),
+      ...(override.disabled !== undefined
+        ? { disabled: override.disabled }
+        : {}),
       ...(override.tooltip !== undefined ? { tooltip: override.tooltip } : {}),
     },
   } as Component;

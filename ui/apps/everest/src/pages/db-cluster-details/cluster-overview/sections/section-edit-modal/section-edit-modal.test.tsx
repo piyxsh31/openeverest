@@ -14,8 +14,14 @@
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { TestWrapper } from 'utils/test';
-import type { Component, Section } from 'components/ui-generator/ui-generator.types';
-import { FieldType, FormMode } from 'components/ui-generator/ui-generator.types';
+import type {
+  Component,
+  Section,
+} from 'components/ui-generator/ui-generator.types';
+import {
+  FieldType,
+  FormMode,
+} from 'components/ui-generator/ui-generator.types';
 import type { Instance, Provider } from 'types/api';
 import SectionEditModal from './section-edit-modal';
 

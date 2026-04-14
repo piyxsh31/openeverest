@@ -14,7 +14,10 @@
 
 import { describe, it, expect } from 'vitest';
 import { buildSectionZodSchema } from './build-section-zod-schema';
-import type { Section, Component } from 'components/ui-generator/ui-generator.types';
+import type {
+  Section,
+  Component,
+} from 'components/ui-generator/ui-generator.types';
 import { FieldType } from 'components/ui-generator/ui-generator.types';
 
 const makeTextComponent = (

@@ -13,7 +13,10 @@
 // limitations under the License.
 
 import { z } from 'zod';
-import type { FormMode, Section } from 'components/ui-generator/ui-generator.types';
+import type {
+  FormMode,
+  Section,
+} from 'components/ui-generator/ui-generator.types';
 import { buildShapeFromComponents } from './build-shape-from-components';
 import { convertToNestedSchema } from './convert-to-nested-schema';
 import { applyCelValidation } from './apply-cel-validation';

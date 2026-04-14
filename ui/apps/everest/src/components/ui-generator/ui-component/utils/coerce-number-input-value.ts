@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// TODO refactoring recheck chain of number fields changes, perhaps there is a more beautiful conversion method (could potentially be changed with an upgrade to mui-7 or older) 
+// TODO refactoring recheck chain of number fields changes, perhaps there is a more beautiful conversion method (could potentially be changed with an upgrade to mui-7 or older)
 export const coerceNumberInputValue = (value: unknown): unknown => {
   if (value === undefined || value === null || value === '') {
     return '';

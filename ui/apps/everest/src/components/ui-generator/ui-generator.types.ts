@@ -19,7 +19,6 @@ export enum FormMode {
   Import = 'import',
 }
 
-
 export type ComponentModeOverrides = Partial<
   Record<FormMode, { uiType?: FieldType | 'hidden' }>
 >;

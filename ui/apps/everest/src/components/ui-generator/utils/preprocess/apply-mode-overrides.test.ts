@@ -22,9 +22,7 @@ import {
   ComponentGroup,
 } from '../../ui-generator.types';
 
-const makeComponent = (
-  overrides: Partial<Component> = {}
-): Component =>
+const makeComponent = (overrides: Partial<Component> = {}): Component =>
   ({
     uiType: FieldType.Text,
     path: 'spec.name',

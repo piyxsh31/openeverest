@@ -97,10 +97,7 @@ describe('applyRuntimeOverrides', () => {
 
   it('does not modify sections when cluster info is undefined', () => {
     const sections = makeSections();
-    const result = applyRuntimeOverrides(
-      sections,
-      makeInstance('standard')
-    );
+    const result = applyRuntimeOverrides(sections, makeInstance('standard'));
 
     expect(result).toBe(sections);
   });

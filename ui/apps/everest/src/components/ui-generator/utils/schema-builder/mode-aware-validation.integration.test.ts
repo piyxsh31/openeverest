@@ -27,11 +27,9 @@ const genericSections = pickFixtureSections(['resources']);
 describe('mode-aware validation integration', () => {
   describe('new mode — no edit constraints', () => {
     it('allows setting nodes to 1 (no descaling check)', () => {
-      const { schema } = buildSectionZodSchema(
-        'resources',
-        genericSections,
-        { formMode: FormMode.New }
-      );
+      const { schema } = buildSectionZodSchema('resources', genericSections, {
+        formMode: FormMode.New,
+      });
 
       const result = schema.safeParse({
         spec: {
@@ -47,11 +45,9 @@ describe('mode-aware validation integration', () => {
     });
 
     it('still enforces base odd-node CEL in new mode', () => {
-      const { schema } = buildSectionZodSchema(
-        'resources',
-        genericSections,
-        { formMode: FormMode.New }
-      );
+      const { schema } = buildSectionZodSchema('resources', genericSections, {
+        formMode: FormMode.New,
+      });
 
       const result = schema.safeParse({
         spec: {
@@ -71,11 +67,10 @@ describe('mode-aware validation integration', () => {
 
   describe('edit mode — disk descaling blocked', () => {
     it('rejects decreasing disk size below original', () => {
-      const { schema } = buildSectionZodSchema(
-        'resources',
-        genericSections,
-        { formMode: FormMode.Edit, originalData: genericOriginalInstance }
-      );
+      const { schema } = buildSectionZodSchema('resources', genericSections, {
+        formMode: FormMode.Edit,
+        originalData: genericOriginalInstance,
+      });
 
       const result = schema.safeParse({
         spec: {
@@ -93,11 +88,10 @@ describe('mode-aware validation integration', () => {
     });
 
     it('allows increasing disk size above original', () => {
-      const { schema } = buildSectionZodSchema(
-        'resources',
-        genericSections,
-        { formMode: FormMode.Edit, originalData: genericOriginalInstance }
-      );
+      const { schema } = buildSectionZodSchema('resources', genericSections, {
+        formMode: FormMode.Edit,
+        originalData: genericOriginalInstance,
+      });
 
       const result = schema.safeParse({
         spec: {
@@ -115,11 +109,10 @@ describe('mode-aware validation integration', () => {
 
   describe('edit mode — shard descaling blocked', () => {
     it('rejects decreasing shards below original', () => {
-      const { schema } = buildSectionZodSchema(
-        'resources',
-        genericSections,
-        { formMode: FormMode.Edit, originalData: genericOriginalInstance }
-      );
+      const { schema } = buildSectionZodSchema('resources', genericSections, {
+        formMode: FormMode.Edit,
+        originalData: genericOriginalInstance,
+      });
 
       const result = schema.safeParse({
         spec: {
@@ -137,11 +130,10 @@ describe('mode-aware validation integration', () => {
     });
 
     it('allows increasing shards above original', () => {
-      const { schema } = buildSectionZodSchema(
-        'resources',
-        genericSections,
-        { formMode: FormMode.Edit, originalData: genericOriginalInstance }
-      );
+      const { schema } = buildSectionZodSchema('resources', genericSections, {
+        formMode: FormMode.Edit,
+        originalData: genericOriginalInstance,
+      });
 
       const result = schema.safeParse({
         spec: {
@@ -159,11 +151,10 @@ describe('mode-aware validation integration', () => {
 
   describe('edit mode — node >1 to 1 blocked', () => {
     it('rejects scaling nodes from >1 down to 1', () => {
-      const { schema } = buildSectionZodSchema(
-        'resources',
-        genericSections,
-        { formMode: FormMode.Edit, originalData: genericOriginalInstance }
-      );
+      const { schema } = buildSectionZodSchema('resources', genericSections, {
+        formMode: FormMode.Edit,
+        originalData: genericOriginalInstance,
+      });
 
       const result = schema.safeParse({
         spec: {
@@ -181,11 +172,10 @@ describe('mode-aware validation integration', () => {
     });
 
     it('allows changing from 3 to 5 nodes', () => {
-      const { schema } = buildSectionZodSchema(
-        'resources',
-        genericSections,
-        { formMode: FormMode.Edit, originalData: genericOriginalInstance }
-      );
+      const { schema } = buildSectionZodSchema('resources', genericSections, {
+        formMode: FormMode.Edit,
+        originalData: genericOriginalInstance,
+      });
 
       const result = schema.safeParse({
         spec: {
@@ -203,11 +193,10 @@ describe('mode-aware validation integration', () => {
 
   describe('edit mode — base + edit CEL combined on nodes', () => {
     it('rejects even node count in edit mode too (base CEL)', () => {
-      const { schema } = buildSectionZodSchema(
-        'resources',
-        genericSections,
-        { formMode: FormMode.Edit, originalData: genericOriginalInstance }
-      );
+      const { schema } = buildSectionZodSchema('resources', genericSections, {
+        formMode: FormMode.Edit,
+        originalData: genericOriginalInstance,
+      });
 
       const result = schema.safeParse({
         spec: {
@@ -227,11 +216,9 @@ describe('mode-aware validation integration', () => {
 
   describe('base config servers CEL — works in all modes', () => {
     it('rejects 1 configServer when nodes > 1 in new mode', () => {
-      const { schema } = buildSectionZodSchema(
-        'resources',
-        genericSections,
-        { formMode: FormMode.New }
-      );
+      const { schema } = buildSectionZodSchema('resources', genericSections, {
+        formMode: FormMode.New,
+      });
 
       const result = schema.safeParse({
         spec: {
@@ -251,11 +238,9 @@ describe('mode-aware validation integration', () => {
     });
 
     it('allows 1 configServer when nodes == 1 in new mode', () => {
-      const { schema } = buildSectionZodSchema(
-        'resources',
-        genericSections,
-        { formMode: FormMode.New }
-      );
+      const { schema } = buildSectionZodSchema('resources', genericSections, {
+        formMode: FormMode.New,
+      });
 
       const result = schema.safeParse({
         spec: {
