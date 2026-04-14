@@ -14,11 +14,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { Instance } from 'types/api.ts';
+
 export type StepProps = {
   loadingDefaultsForEdition?: boolean;
 };
 
-export type DbClusterName = {
-  name: string;
-  namespace: string;
-};
+export type DbInstanceIdentity = Required<
+  Pick<NonNullable<Instance['metadata']>, 'name' | 'namespace'>
+>;

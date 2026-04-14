@@ -1,3 +1,5 @@
+//@ts-nocheck
+// TODO remove this file after release of v2
 // Copyright (C) 2026 The OpenEverest Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");

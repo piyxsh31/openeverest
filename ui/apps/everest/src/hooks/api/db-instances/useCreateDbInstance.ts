@@ -22,6 +22,7 @@ import { DbWizardType } from 'pages/database-form/database-form-schema';
 import { PerconaQueryOptions } from 'shared-types/query.types';
 import {
   InstanceConnectionDetails,
+  CreateDbInstancePayload,
   GetDbInstanceConnectionPayload,
 } from 'types/api';
 
@@ -35,31 +36,19 @@ type CreateInstanceHookArgType = {
   formValue: DbWizardType;
 };
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null && !Array.isArray(value);
+type CreateInstanceSpec = NonNullable<CreateDbInstancePayload['spec']>;
 
 export const buildCreateInstanceSpec = (
   formValue: DbWizardType
-): Record<string, unknown> => {
+): CreateInstanceSpec => {
   const { provider, dbName, k8sNamespace, spec, ...rest } = formValue;
   void dbName;
   void k8sNamespace;
 
-  const rootTopology = isRecord(rest.topology) ? rest.topology : undefined;
-  const specTopology = isRecord(spec?.topology) ? spec.topology : undefined;
-
   return {
-    provider: provider || '',
+    provider,
     ...rest,
     ...spec,
-    ...(rootTopology || specTopology
-      ? {
-          topology: {
-            ...(rootTopology ?? {}),
-            ...(specTopology ?? {}),
-          },
-        }
-      : {}),
   };
 };
 
