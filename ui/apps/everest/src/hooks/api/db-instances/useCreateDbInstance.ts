@@ -25,6 +25,7 @@ import {
   CreateDbInstancePayload,
   GetDbInstanceConnectionPayload,
 } from 'shared-types/api.types';
+import { deepMerge } from 'components/ui-generator/utils/object-path/object-path';
 
 export const getDbInstanceCredentialsQueryKey = (
   dbInstanceName: string,
@@ -47,8 +48,10 @@ export const buildCreateInstanceSpec = (
 
   return {
     provider,
-    ...rest,
-    ...spec,
+    ...(deepMerge(
+      rest as Record<string, unknown>,
+      spec as unknown as Record<string, unknown>
+    ) as Record<string, unknown>),
   };
 };
 
