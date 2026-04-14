@@ -292,6 +292,10 @@ test-crosscover: setup-envtest ## Run unit tests and collect cross-package cover
 	KUBEBUILDER_ASSETS="$$("$(ENVTEST)" use $(ENVTEST_K8S_VERSION) --bin-dir "$(LOCALBIN)" -p path)" \
 	CGO_ENABLED=1 go test -race -timeout=20m -count=1 -coverprofile=crosscover.out -covermode=atomic -p=1 -coverpkg=./... ./...
 
+.PHONY: test-integration-features
+test-integration-features:
+	. ./test/vars.sh && kubectl kuttl test --config test/integration/kuttl-features.yaml
+
 ##@ Deployment management
 
 # This target builds the docker image for Everest operator from the commit referenced in go.mod.

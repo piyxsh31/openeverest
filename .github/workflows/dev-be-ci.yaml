@@ -246,6 +246,76 @@ jobs:
           path: cli-tests/test-report
           overwrite: true
 
+  integration_tests_controller:
+    strategy:
+      fail-fast: true
+    continue-on-error: false
+    name: Controller Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v5
+
+      - name: Set up Go release
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+
+      - name: Install Kubernetes tools
+        uses: ./.github/actions/install-kubernetes-tools
+        with:
+          install-kubectl: true
+          install-k3d: true
+
+      - name: Adjust GitHub worker node
+        uses: ./.github/actions/adjust-github-node
+        with:
+          adjust-host-for-k3d: true
+          mount-docker-data: true
+
+      - name: Run K3D test cluster
+        run: |
+          make k3d-cluster-up
+
+      - name: Build Everest API Server binary
+        run: |
+          make build-debug
+
+      - name: Build Everest Controller binary
+        run: |
+          make build-controller
+
+      - name: Build Everest API server docker image
+        run: |
+          make docker-build
+
+      - name: Upload Everest API server image to K3D test cluster
+        run: |
+          make k3d-upload-server-image
+
+      - name: Build Everest operator docker image
+        run: |
+          make docker-build-operator
+
+      - name: Upload Everest operator image to K3D test cluster
+        run: |
+          make k3d-upload-operator-image
+
+      - name: Build Everest CLI binary
+        run: |
+          make build-cli-debug
+
+      - name: Deploy Everest to K3D test cluster
+        timeout-minutes: 10
+        run: |
+          make deploy
+
+      - name: Run controller integration tests
+        timeout-minutes: 20
+        run: |
+          make test-integration-features
+
   integration_tests_flows:
     strategy:
       fail-fast: false
