@@ -14,7 +14,7 @@
 
 import { UseMutationResult } from '@tanstack/react-query';
 import { DeleteDbInstanceArgType } from 'hooks';
-import { Instance } from 'types/api';
+import { Instance } from 'shared-types/api.types';
 
 export interface DbActionsModalsProps {
   dbInstance: Instance;

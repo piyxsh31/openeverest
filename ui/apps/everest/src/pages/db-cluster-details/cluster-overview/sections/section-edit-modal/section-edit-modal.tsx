@@ -34,7 +34,7 @@ import {
 } from 'components/ui-generator/utils/badge-to-api/badge-to-api';
 import { useUpdateDbInstanceWithConflictRetry } from 'hooks/api/db-instances/useUpdateDbInstance';
 import { useKubernetesClusterInfo } from 'hooks/api/kubernetesClusters/useKubernetesClusterInfo';
-import type { Instance } from 'types/api';
+import type { Instance } from 'shared-types/api.types';
 import type { SectionEditModalProps } from './section-edit-modal.types';
 import { applyRuntimeOverrides } from './section-edit-modal.utils';
 

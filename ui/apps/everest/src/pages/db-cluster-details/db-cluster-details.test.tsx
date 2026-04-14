@@ -17,7 +17,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { DbClusterDetails } from './db-cluster-details';
 import { DbInstanceContext } from './dbCluster.context';
 import type { DbInstanceContextProps } from './dbCluster.context.types';
-import type { Instance } from 'types/api';
+import type { Instance } from 'shared-types/api.types';
 
 vi.mock('components/db-actions/db-actions', () => ({
   default: () => <div data-testid="db-actions" />,

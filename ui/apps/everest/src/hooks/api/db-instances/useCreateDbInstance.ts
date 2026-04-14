@@ -24,7 +24,7 @@ import {
   InstanceConnectionDetails,
   CreateDbInstancePayload,
   GetDbInstanceConnectionPayload,
-} from 'types/api';
+} from 'shared-types/api.types';
 
 export const getDbInstanceCredentialsQueryKey = (
   dbInstanceName: string,

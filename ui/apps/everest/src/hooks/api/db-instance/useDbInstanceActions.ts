@@ -21,7 +21,7 @@ import {
   getDbInstancesQueryKey,
   useDeleteDbInstance,
 } from '../db-instances';
-import { GetDbInstancesPayload, Instance } from 'types/api';
+import { GetDbInstancesPayload, Instance } from 'shared-types/api.types';
 
 export const useDbInstanceActions = (dbInstance: Instance) => {
   const clusterName = 'main';

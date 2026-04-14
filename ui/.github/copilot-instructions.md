@@ -18,19 +18,19 @@ applyTo: "ui/**"
 ```
 ui/
   apps/everest/src/
-    api/            # API client functions (one file per resource)
-    components/     # Reusable components (kebab-case folders)
-    consts.ts       # App-wide constants
+    api/                  # API client functions (one file per resource)
+    components/           # Reusable components (kebab-case folders)
+    consts.ts             # App-wide constants
     hooks/
-      api/          # TanStack Query hooks (one folder per resource)
-      utils/        # Reusable utility hooks
-      rbac/         # Authorization hooks
-    pages/          # Route-level page components
-    shared-types/   # Shared TypeScript types
-    types/          # Generated and manually-maintained API types
-    utils/          # Pure utility functions
+      api/                # TanStack Query hooks (one folder per resource)
+      utils/              # Reusable utility hooks
+      rbac/               # Authorization hooks
+    pages/                # Route-level page components
+    shared-types/         # Shared TypeScript types
+    types-declarations/   # Type declarations for external libraries, overrides, d.ts files
+    utils/                # Pure utility functions
   packages/
-    ui-lib/         # Shared UI library (@percona/ui-lib)
+    ui-lib/               # Shared UI library (@percona/ui-lib)
     eslint-config-react/  # Shared ESLint config
     prettier-config/      # Shared Prettier config
 ```
@@ -186,5 +186,5 @@ When a field needs runtime behavior (e.g., disabled based on API data, dynamic v
 - **Don't** use `console.log` — ESLint `no-console` is set to error.
 - **Don't** add dependencies without checking if the workspace already has an equivalent.
 - **Don't** create files that aren't needed — no empty placeholder files.
-- **Don't** modify generated files (`*.gen.*`, `types/api.ts` from OpenAPI).
+- **Don't** modify generated files (`*.gen.*`, or anything in `types/` — these are OpenAPI-generated).
 - **Don't** mix concerns — API calls don't belong in UI components, styling doesn't belong in hooks.

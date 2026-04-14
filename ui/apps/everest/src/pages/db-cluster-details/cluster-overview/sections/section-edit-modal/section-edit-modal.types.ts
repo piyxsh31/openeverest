@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type { Section } from 'components/ui-generator/ui-generator.types';
-import type { Instance, Provider } from 'types/api';
+import type { Instance, Provider } from 'shared-types/api.types';
 
 export interface SectionEditModalProps {
   sectionKey: string;

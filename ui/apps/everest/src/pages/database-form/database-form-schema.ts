@@ -19,7 +19,7 @@ import { DbWizardFormFields } from 'consts.ts';
 import { rfc_123_schema } from 'utils/common-validation.ts';
 import { DbInstanceIdentity } from './database-form.types.ts';
 import { importStepSchema } from 'components/cluster-form/import/import-schema.tsx';
-import { Instance } from 'types/api.ts';
+import { Instance } from 'shared-types/api.types.ts';
 
 const basicInfoFieldsSchema = z.object({
   [DbWizardFormFields.provider]: z.string(),

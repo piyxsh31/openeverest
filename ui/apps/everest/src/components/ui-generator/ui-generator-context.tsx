@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import { createContext, useContext, ReactNode } from 'react';
-import { Provider } from 'types/api';
+import { Provider } from 'shared-types/api.types';
 import type { FormMode } from './ui-generator.types';
 
 type UiGeneratorContextValue = {

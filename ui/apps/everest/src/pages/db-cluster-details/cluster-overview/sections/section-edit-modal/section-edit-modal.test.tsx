@@ -22,7 +22,7 @@ import {
   FieldType,
   FormMode,
 } from 'components/ui-generator/ui-generator.types';
-import type { Instance, Provider } from 'types/api';
+import type { Instance, Provider } from 'shared-types/api.types';
 import SectionEditModal from './section-edit-modal';
 
 vi.mock('hooks/api/kubernetesClusters/useKubernetesClusterInfo', () => ({

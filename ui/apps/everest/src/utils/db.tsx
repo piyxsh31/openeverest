@@ -49,7 +49,7 @@ import { Path, UseFormGetFieldState } from 'react-hook-form';
 import cronConverter from './cron-converter';
 import { EMPTY_LOAD_BALANCER_CONFIGURATION } from 'consts';
 import { mapDeprecatedExposeType } from 'components/cluster-form/advanced-configuration/advanced-configuration.utils';
-import { PhaseType } from 'types/api';
+import { PhaseType } from 'shared-types/api.types';
 
 export const dbTypeToIcon = (dbType: DbType) => {
   switch (dbType) {

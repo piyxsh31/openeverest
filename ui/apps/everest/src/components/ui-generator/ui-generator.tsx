@@ -17,7 +17,7 @@ import { FormGroup, Stack, Typography } from '@mui/material';
 import { Section, FormMode } from './ui-generator.types';
 import { orderComponents, renderComponent } from './utils/component-renderer';
 import { UiGeneratorProvider } from './ui-generator-context';
-import { Provider } from 'types/api';
+import { Provider } from 'shared-types/api.types';
 
 type UIGeneratorProps = {
   /** Section key identifying which section to render. */

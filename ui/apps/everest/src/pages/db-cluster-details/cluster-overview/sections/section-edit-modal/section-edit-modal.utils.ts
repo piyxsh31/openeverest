@@ -18,7 +18,7 @@ import type {
   Section,
 } from 'components/ui-generator/ui-generator.types';
 import type { KubernetesClusterInfo } from 'shared-types/kubernetes.types';
-import type { Instance } from 'types/api';
+import type { Instance } from 'shared-types/api.types';
 import { getByPath } from 'components/ui-generator/utils/object-path/object-path';
 
 const STORAGE_SIZE_PATH = 'spec.components.engine.storage.size';

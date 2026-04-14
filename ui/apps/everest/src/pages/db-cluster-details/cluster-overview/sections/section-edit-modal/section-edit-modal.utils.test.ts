@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import { applyRuntimeOverrides } from './section-edit-modal.utils';
-import type { Instance } from 'types/api';
+import type { Instance } from 'shared-types/api.types';
 import type { KubernetesClusterInfo } from 'shared-types/kubernetes.types';
 import {
   FieldType,
