@@ -186,6 +186,60 @@ export const coerceSchemaNumbers = (
   return result;
 };
 
+export type PayloadFormatMapping = {
+  path: string;
+  format: 'string' | 'number' | 'boolean';
+};
+
+export const extractPayloadFormatMappings = (
+  schema: TopologyUISchemas,
+  selectedTopology: string
+): PayloadFormatMapping[] => {
+  const mappings: PayloadFormatMapping[] = [];
+
+  walkTopologyComponents(schema, selectedTopology, ({ component }) => {
+    const format = component.fieldParams?.payloadFormat;
+    if (!format) return;
+
+    const paths = getComponentTargetPaths(component);
+    paths.forEach((path) => mappings.push({ path, format }));
+  });
+
+  return mappings;
+};
+
+export const applyPayloadFormats = (
+  input: PostprocessInput,
+  mappings: PayloadFormatMapping[]
+): PostprocessInput => {
+  if (mappings.length === 0) return input;
+
+  const result = deepClone(input);
+
+  mappings.forEach(({ path, format }) => {
+    const value = getByPath(result, path);
+    if (value === undefined || value === null || value === '') return;
+
+    switch (format) {
+      case 'string':
+        setByPath(result, path, String(value));
+        break;
+      case 'number': {
+        const num = Number(value);
+        if (!Number.isNaN(num)) {
+          setByPath(result, path, num);
+        }
+        break;
+      }
+      case 'boolean':
+        setByPath(result, path, Boolean(value));
+        break;
+    }
+  });
+
+  return result;
+};
+
 export const postprocessSchemaData = (
   formValues: PostprocessInput,
   options?: PostprocessOptions
@@ -213,5 +267,11 @@ export const postprocessSchemaData = (
       : [];
   const withBadges = applyBadgesToFormData(coerced, badgeMappings);
 
-  return removeEmptyFieldValues(withBadges);
+  const payloadFormatMappings =
+    options?.schema && options.selectedTopology
+      ? extractPayloadFormatMappings(options.schema, options.selectedTopology)
+      : [];
+  const withFormats = applyPayloadFormats(withBadges, payloadFormatMappings);
+
+  return removeEmptyFieldValues(withFormats);
 };

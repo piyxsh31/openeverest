@@ -545,9 +545,12 @@ describe('UIGenerator - Number Field Min/Max Validation', () => {
 });
 
 describe('UIGenerator - Number Field Input Attributes from Validation', () => {
-  it('should apply min/max from validation to input attributes', () => {
+  it('should apply step from fieldParams to input attributes', () => {
     const mockSubmit = vi.fn();
     const schema = createTestSchema({
+      fieldParams: {
+        step: 0.5,
+      },
       validation: {
         min: 5,
         max: 10,
@@ -569,157 +572,9 @@ describe('UIGenerator - Number Field Input Attributes from Validation', () => {
       'Test Number Field'
     ) as HTMLInputElement;
 
-    expect(numberInput.min).toBe('5');
-    expect(numberInput.max).toBe('10');
-  });
-
-  it('should convert gt (greater than) to min attribute for integers', () => {
-    const mockSubmit = vi.fn();
-    const schema = createTestSchema({
-      validation: {
-        gt: 5,
-        int: true,
-      },
-    });
-
-    render(
-      <TestWrapper>
-        <FormWrapper schema={schema} onSubmit={mockSubmit}>
-          <UIGenerator
-            sections={schema.testTopology!.sections}
-            sectionKey="basicInfo"
-          />
-        </FormWrapper>
-      </TestWrapper>
-    );
-
-    const numberInput = screen.getByLabelText(
-      'Test Number Field'
-    ) as HTMLInputElement;
-
-    // gt: 5 with int validation should become min: 6
-    expect(numberInput.min).toBe('6');
-  });
-
-  it('should convert lt (less than) to max attribute for integers', () => {
-    const mockSubmit = vi.fn();
-    const schema = createTestSchema({
-      validation: {
-        lt: 10,
-        int: true,
-      },
-    });
-
-    render(
-      <TestWrapper>
-        <FormWrapper schema={schema} onSubmit={mockSubmit}>
-          <UIGenerator
-            sections={schema.testTopology!.sections}
-            sectionKey="basicInfo"
-          />
-        </FormWrapper>
-      </TestWrapper>
-    );
-
-    const numberInput = screen.getByLabelText(
-      'Test Number Field'
-    ) as HTMLInputElement;
-
-    // lt: 10 with int validation should become max: 9
-    expect(numberInput.max).toBe('9');
-  });
-
-  it('should convert gt/lt using step value for decimals', () => {
-    const mockSubmit = vi.fn();
-    const schema = createTestSchema({
-      fieldParams: {
-        step: 0.5,
-      },
-      validation: {
-        gt: 5,
-        lt: 10,
-      },
-    });
-
-    render(
-      <TestWrapper>
-        <FormWrapper schema={schema} onSubmit={mockSubmit}>
-          <UIGenerator
-            sections={schema.testTopology!.sections}
-            sectionKey="basicInfo"
-          />
-        </FormWrapper>
-      </TestWrapper>
-    );
-
-    const numberInput = screen.getByLabelText(
-      'Test Number Field'
-    ) as HTMLInputElement;
-
-    // gt: 5 with step: 0.5 should become min: 5.5
-    expect(numberInput.min).toBe('5.5');
-    // lt: 10 with step: 0.5 should become max: 9.5
-    expect(numberInput.max).toBe('9.5');
-  });
-
-  it('should prioritize explicit min/max over gt/lt', () => {
-    const mockSubmit = vi.fn();
-    const schema = createTestSchema({
-      validation: {
-        min: 3,
-        max: 12,
-        gt: 5,
-        lt: 10,
-      },
-    });
-
-    render(
-      <TestWrapper>
-        <FormWrapper schema={schema} onSubmit={mockSubmit}>
-          <UIGenerator
-            sections={schema.testTopology!.sections}
-            sectionKey="basicInfo"
-          />
-        </FormWrapper>
-      </TestWrapper>
-    );
-
-    const numberInput = screen.getByLabelText(
-      'Test Number Field'
-    ) as HTMLInputElement;
-
-    // Explicit min/max should take priority
-    expect(numberInput.min).toBe('3');
-    expect(numberInput.max).toBe('12');
-  });
-
-  it('should use small offset for gt/lt without int validation or step', () => {
-    const mockSubmit = vi.fn();
-    const schema = createTestSchema({
-      validation: {
-        gt: 5,
-        lt: 10,
-      },
-    });
-
-    render(
-      <TestWrapper>
-        <FormWrapper schema={schema} onSubmit={mockSubmit}>
-          <UIGenerator
-            sections={schema.testTopology!.sections}
-            sectionKey="basicInfo"
-          />
-        </FormWrapper>
-      </TestWrapper>
-    );
-
-    const numberInput = screen.getByLabelText(
-      'Test Number Field'
-    ) as HTMLInputElement;
-
-    // Should use small offset (0.000001) for arbitrary decimals
-    expect(parseFloat(numberInput.min)).toBeCloseTo(5.000001, 6);
-    expect(parseFloat(numberInput.max)).toBeCloseTo(9.999999, 6);
+    expect(numberInput.step).toBe('0.5');
+    expect(numberInput.min).toBe('');
+    expect(numberInput.max).toBe('');
   });
 });
 

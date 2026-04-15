@@ -69,6 +69,7 @@ interface CommonFieldParams {
   badge?: string;
   badgeToApi?: boolean;
   modes?: FieldParamsModeOverrides;
+  payloadFormat?: 'string' | 'number' | 'boolean';
 }
 
 export interface NumberFieldParams extends CommonFieldParams {

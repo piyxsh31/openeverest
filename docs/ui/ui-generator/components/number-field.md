@@ -4,7 +4,8 @@
 
 - [Properties](#properties)
 - [Native Validation](#native-validation)
-- [Validation Auto-Mapping](#validation-auto-mapping)
+- [Validation and HTML Input](#validation-and-html-input)
+- [Payload Format](#payload-format)
 - [Examples](#examples)
   - [Basic Number Field](#basic-number-field)
   - [Exclusive Bounds](#exclusive-bounds)
@@ -25,6 +26,7 @@ A numeric input field for integer and decimal values.
   - `autoFocus`: Automatically focus this field on render
   - `helperText`: Help text displayed below the field
   - `step`: Increment/decrement step for arrow buttons (e.g., `0.1`, `5`, `10`)
+  - `payloadFormat`: Override the type of the value sent to the API (see [Payload Format](#payload-format))
 - `validation` (optional): Validation rules object with the following properties:
   - `required`: Whether the field is required (default: `false`)
   - `min`: Minimum value (inclusive) - value must be >= specified number
@@ -41,21 +43,29 @@ A numeric input field for integer and decimal values.
 
 Validates that input is numeric
 
-## Validation Auto-Mapping:
+## Payload Format
 
-The following validation rules are automatically applied to HTML input attributes for browser-level validation:
+By default, number fields send their value to the API as a JavaScript `number`. Some APIs (e.g. Kubernetes `IntOrString` fields like CPU) require the value as a `string` instead.
 
-- `validation.min` → HTML `min` attribute (inclusive lower bound)
-- `validation.max` → HTML `max` attribute (inclusive upper bound)
-- `validation.gt` → HTML `min` attribute (converted to exclusive lower bound)
-- `validation.lt` → HTML `max` attribute (converted to exclusive upper bound)
+Use `payloadFormat` to control the type of the value in the API payload:
 
-When converting exclusive bounds (`gt`/`lt`) to HTML attributes:
+- `"string"` — convert to string (e.g. `0.6` → `"0.6"`)
+- `"number"` — keep as number (default behavior)
+- `"boolean"` — convert to boolean
 
-- For integer validation (`int: true`): offset by 1 (e.g., `gt: 5` becomes `min="6"`)
-- With `step` defined: offset by step value (e.g., `gt: 5` with `step: 0.5` becomes `min="5.5"`)
-- For arbitrary decimals: offset by 0.000001 (e.g., `gt: 5` becomes `min="5.000001"`)
-- Explicit `min`/`max` always take priority over converted `gt`/`lt`
+```yaml
+cpu:
+  uiType: number
+  path: spec.resources.cpu
+  fieldParams:
+    label: CPU
+    defaultValue: 1
+    step: 0.1
+    payloadFormat: "string"
+  validation:
+    min: 0.6
+    required: true
+```
 
 ## Examples:
 

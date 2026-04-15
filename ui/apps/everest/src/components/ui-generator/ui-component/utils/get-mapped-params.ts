@@ -65,7 +65,6 @@ export const getMappedParams = <K extends keyof FieldParamsMap>(
 
 const mapNumberFieldParams = (
   fieldParams: NumberFieldParams,
-  validation?: ValidationMap[FieldType.Number]
 ) => {
   const { disabled, helperText, badge, autoFocus, placeholder, step, ...rest } =
     fieldParams;
@@ -78,36 +77,7 @@ const mapNumberFieldParams = (
     placeholder,
   });
 
-  const getOffset = (): number => {
-    if (validation?.int) {
-      return 1;
-    }
-    if (step !== undefined) {
-      return step;
-    }
-    return 0.000001;
-  };
-
-  const offset = getOffset();
-
-  // Priority: explicit min/max > converted gt/lt
-  const minValue =
-    validation?.min !== undefined
-      ? validation.min
-      : validation?.gt !== undefined
-        ? validation.gt + offset
-        : undefined;
-
-  const maxValue =
-    validation?.max !== undefined
-      ? validation.max
-      : validation?.lt !== undefined
-        ? validation.lt - offset
-        : undefined;
-
-  const inputProps = filterDefined({
-    min: minValue,
-    max: maxValue,
+   const inputProps = filterDefined({
     step,
   });
 

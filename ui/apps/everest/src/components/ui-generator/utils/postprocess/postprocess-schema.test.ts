@@ -254,4 +254,181 @@ describe('postprocessSchemaData', () => {
       },
     });
   });
+
+  it('coerces number to string when payloadFormat is "string"', () => {
+    const schema: TopologyUISchemas = {
+      ha: {
+        sections: {
+          resources: {
+            components: {
+              cpu: {
+                uiType: FieldType.Number,
+                path: 'spec.resources.cpu',
+                fieldParams: {
+                  label: 'CPU',
+                  payloadFormat: 'string',
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    const input = {
+      spec: { resources: { cpu: 0.6 } },
+    } as Record<string, unknown>;
+
+    const result = postprocessSchemaData(input, {
+      schema,
+      selectedTopology: 'ha',
+    });
+
+    expect(result).toEqual({
+      spec: { resources: { cpu: '0.6' } },
+    });
+  });
+
+  it('coerces string to number when payloadFormat is "number"', () => {
+    const schema: TopologyUISchemas = {
+      ha: {
+        sections: {
+          resources: {
+            components: {
+              replicas: {
+                uiType: FieldType.Number,
+                path: 'spec.replicas',
+                fieldParams: {
+                  label: 'Replicas',
+                  payloadFormat: 'number',
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    const input = {
+      spec: { replicas: '3' },
+    } as Record<string, unknown>;
+
+    const result = postprocessSchemaData(input, {
+      schema,
+      selectedTopology: 'ha',
+    });
+
+    expect(result).toEqual({
+      spec: { replicas: 3 },
+    });
+  });
+
+  it('coerces value to boolean when payloadFormat is "boolean"', () => {
+    const schema: TopologyUISchemas = {
+      ha: {
+        sections: {
+          settings: {
+            components: {
+              enabled: {
+                uiType: FieldType.Text,
+                path: 'spec.enabled',
+                fieldParams: {
+                  label: 'Enabled',
+                  payloadFormat: 'boolean',
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    const input = {
+      spec: { enabled: 'true' },
+    } as Record<string, unknown>;
+
+    const result = postprocessSchemaData(input, {
+      schema,
+      selectedTopology: 'ha',
+    });
+
+    expect(result).toEqual({
+      spec: { enabled: true },
+    });
+  });
+
+  it('skips payloadFormat coercion for empty values', () => {
+    const schema: TopologyUISchemas = {
+      ha: {
+        sections: {
+          resources: {
+            components: {
+              cpu: {
+                uiType: FieldType.Number,
+                path: 'spec.resources.cpu',
+                fieldParams: {
+                  label: 'CPU',
+                  payloadFormat: 'string',
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    const input = {
+      spec: { resources: { cpu: '' } },
+    } as Record<string, unknown>;
+
+    const result = postprocessSchemaData(input, {
+      schema,
+      selectedTopology: 'ha',
+    });
+
+    expect(result).toEqual({});
+  });
+
+  it('applies payloadFormat after badge mapping', () => {
+    const schema: TopologyUISchemas = {
+      ha: {
+        sections: {
+          resources: {
+            components: {
+              cpu: {
+                uiType: FieldType.Number,
+                path: 'spec.resources.cpu',
+                fieldParams: {
+                  label: 'CPU',
+                  payloadFormat: 'string',
+                },
+              },
+              memory: {
+                uiType: FieldType.Number,
+                path: 'spec.resources.memory',
+                fieldParams: {
+                  label: 'Memory',
+                  badge: 'Gi',
+                  badgeToApi: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    const input = {
+      spec: { resources: { cpu: 1, memory: '4' } },
+    } as Record<string, unknown>;
+
+    const result = postprocessSchemaData(input, {
+      schema,
+      selectedTopology: 'ha',
+    });
+
+    expect(result).toEqual({
+      spec: { resources: { cpu: '1', memory: '4Gi' } },
+    });
+  });
 });

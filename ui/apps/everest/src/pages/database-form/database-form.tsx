@@ -19,6 +19,7 @@ import { useLocation, useBlocker, useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Stack } from '@mui/material';
 import {
+  Control,
   FormProvider,
   SubmitHandler,
   useForm,
@@ -51,6 +52,7 @@ import {
   useErrorRouting,
   StepDefinition,
 } from 'components/ui-generator/form-engine';
+import { useCelValidation } from 'components/ui-generator/hooks/use-cel-validation';
 import { BaseInfoStep } from './database-form-body/steps/base-step/base-step';
 import { ImportStep } from './database-form-body/steps-old/import/import-step';
 import { mergeTopologyDefaults } from 'components/ui-generator/utils/default-values/merge-topology-defaults';
@@ -170,6 +172,12 @@ export const DatabasePage = () => {
     staticSteps,
     providerObject,
   });
+
+  useCelValidation(
+    engine.celDependencyGroups,
+    control as unknown as Control<Record<string, unknown>>,
+    trigger as unknown as (fields?: string | string[]) => void
+  );
 
   // Navigation
   const nav = useStepNavigation(engine.steps, BASE_STEP_ID);

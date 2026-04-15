@@ -124,7 +124,7 @@ A **Component** represents a single form field with the following properties:
 
 - **`uiType`**: Type of UI control (`'number'`, `'select'`, `'hidden'`)
 - **`path`** OR **`id`**: The data path in the resulting form values (e.g., `"spec.replica.nodes"`)
-- **`fieldParams`**: Configuration for the field (label, placeholder, defaultValue, etc.). Supports `modes` for documented per-mode overrides of shared field params
+- **`fieldParams`**: Configuration for the field (label, placeholder, defaultValue, payloadFormat, etc.). Supports `modes` for documented per-mode overrides of shared field params
 - **`modes`** (optional): Per-mode component-level overrides (e.g. `uiType: hidden`)
 - **`validation`** (optional): Validation rules (min, max, etc.). Supports `modes` for per-mode overrides
 - **`techPreview`** (optional): Flag to indicate if the field is in technical preview
