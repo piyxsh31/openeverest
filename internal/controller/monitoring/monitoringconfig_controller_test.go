@@ -83,7 +83,9 @@ func newMonitoringConfig(namespace, name, secretName string) *monitoringv1alpha1
 		Spec: monitoringv1alpha1.MonitoringConfigSpec{
 			Type:                  monitoringv1alpha1.PMMMonitoringType,
 			CredentialsSecretName: secretName,
-			URL:                   pmmServer.URL,
+			PMM: monitoringv1alpha1.PMMConfig{
+				URL: pmmServer.URL,
+			},
 		},
 	}
 }
