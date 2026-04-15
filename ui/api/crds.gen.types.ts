@@ -167,13 +167,13 @@ export interface components {
             spec: {
                 /** @description CleanupJobSpec is the specification of the cleanup job. */
                 cleanupJobSpec?: {
-                    /** @description Command is the command to run the backup tool. */
+                    /** @description Command is the command to run the backup class. */
                     command?: string[];
-                    /** @description Image is the image of the backup tool. */
+                    /** @description Image is the image of the backup class. */
                     image?: string;
                 };
                 /**
-                 * @description ClusterPermissions defines the cluster-wide permissions required by the backup tool.
+                 * @description ClusterPermissions defines the cluster-wide permissions required by the backup class.
                  *     These permissions are used to generate a ClusterRole for the backup job.
                  */
                 clusterPermissions?: {
@@ -195,39 +195,39 @@ export interface components {
                     /** @description Verbs is a list of Verbs that apply to ALL the ResourceKinds contained in this rule. '*' represents all verbs. */
                     verbs: string[];
                 }[];
-                /** @description Config contains additional configuration defined for the backup tool. */
+                /** @description Config contains additional configuration defined for the backup class. */
                 config?: {
-                    /** @description OpenAPIV3Schema is the OpenAPI v3 schema of the backup tool. */
+                    /** @description OpenAPIV3Schema is the OpenAPI v3 schema of the backup class. */
                     openAPIV3Schema?: unknown;
                 };
+                /** @description Description is the description of the backup class. */
+                description?: string;
+                displayName?: string;
                 /**
-                 * @description DataStoreConstraints defines compatibility requirements and prerequisites that must be satisfied
-                 *     by a DataStore before this backup tool can be used with it. This allows the backup tool to
+                 * @description InstanceConstraints defines compatibility requirements and prerequisites that must be satisfied
+                 *     by a Instance before this backup class can be used with it. This allows the backup class to
                  *     express specific requirements about the database configuration needed for successful backup operations,
                  *     such as required database fields, specific engine configurations, or other database properties.
-                 *     When a DataStore references this backup tool, the operator will validate the DataStore
+                 *     When a Instance references this backup class, the operator will validate the Instance
                  *     against these constraints before proceeding with the backup operation.
                  */
-                dataStoreConstraints?: {
+                instanceConstraints?: {
                     /**
-                     * @description RequiredFields contains a list of fields that must be set in the DataStore spec.
-                     *     Each key is a JSON path expressions that points to a field in the DataStore spec.
+                     * @description RequiredFields contains a list of fields that must be set in the Instance spec.
+                     *     Each key is a JSON path expressions that points to a field in the Instance spec.
                      *     For example, ".spec.engine.type" or ".spec.dataSource.dataImport.config.someField".
                      */
                     requiredFields?: string[];
                 };
-                /** @description Description is the description of the backup tool. */
-                description?: string;
-                displayName?: string;
                 /** @description JobSpec is the specification of the backup job. */
                 jobSpec?: {
-                    /** @description Command is the command to run the backup tool. */
+                    /** @description Command is the command to run the backup class. */
                     command?: string[];
-                    /** @description Image is the image of the backup tool. */
+                    /** @description Image is the image of the backup class. */
                     image?: string;
                 };
                 /**
-                 * @description Permissions defines the permissions required by the backup tool.
+                 * @description Permissions defines the permissions required by the backup class.
                  *     These permissions are used to generate a Role for the backup job.
                  */
                 permissions?: {
@@ -249,7 +249,75 @@ export interface components {
                     /** @description Verbs is a list of Verbs that apply to ALL the ResourceKinds contained in this rule. '*' represents all verbs. */
                     verbs: string[];
                 }[];
-                /** @description SupportedProviders is the list of providers that the backup tool supports. */
+                /** @description RestoreCleanupJobSpec is the specification of the restore cleanup job. */
+                restoreCleanupJobSpec?: {
+                    /** @description Command is the command to run the backup class. */
+                    command?: string[];
+                    /** @description Image is the image of the backup class. */
+                    image?: string;
+                };
+                /**
+                 * @description RestoreClusterPermissions defines the cluster-wide permissions required by the restore job.
+                 *     These permissions are used to generate a ClusterRole for the restore job.
+                 */
+                restoreClusterPermissions?: {
+                    /**
+                     * @description APIGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
+                     *     the enumerated resources in any API group will be allowed. "" represents the core API group and "*" represents all API groups.
+                     */
+                    apiGroups?: string[];
+                    /**
+                     * @description NonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path
+                     *     Since non-resource URLs are not namespaced, this field is only applicable for ClusterRoles referenced from a ClusterRoleBinding.
+                     *     Rules can either apply to API resources (such as "pods" or "secrets") or non-resource URL paths (such as "/api"),  but not both.
+                     */
+                    nonResourceURLs?: string[];
+                    /** @description ResourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed. */
+                    resourceNames?: string[];
+                    /** @description Resources is a list of resources this rule applies to. '*' represents all resources. */
+                    resources?: string[];
+                    /** @description Verbs is a list of Verbs that apply to ALL the ResourceKinds contained in this rule. '*' represents all verbs. */
+                    verbs: string[];
+                }[];
+                /** @description RestoreConfig contains additional configuration defined for the restore operation. */
+                restoreConfig?: {
+                    /** @description OpenAPIV3Schema is the OpenAPI v3 schema of the backup class. */
+                    openAPIV3Schema?: unknown;
+                };
+                /**
+                 * @description RestoreJobSpec is the specification of the restore job.
+                 *     When set, this BackupClass supports restore operations.
+                 */
+                restoreJobSpec?: {
+                    /** @description Command is the command to run the backup class. */
+                    command?: string[];
+                    /** @description Image is the image of the backup class. */
+                    image?: string;
+                };
+                /**
+                 * @description RestorePermissions defines the permissions required by the restore job.
+                 *     These permissions are used to generate a Role for the restore job.
+                 */
+                restorePermissions?: {
+                    /**
+                     * @description APIGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
+                     *     the enumerated resources in any API group will be allowed. "" represents the core API group and "*" represents all API groups.
+                     */
+                    apiGroups?: string[];
+                    /**
+                     * @description NonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path
+                     *     Since non-resource URLs are not namespaced, this field is only applicable for ClusterRoles referenced from a ClusterRoleBinding.
+                     *     Rules can either apply to API resources (such as "pods" or "secrets") or non-resource URL paths (such as "/api"),  but not both.
+                     */
+                    nonResourceURLs?: string[];
+                    /** @description ResourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed. */
+                    resourceNames?: string[];
+                    /** @description Resources is a list of resources this rule applies to. '*' represents all resources. */
+                    resources?: string[];
+                    /** @description Verbs is a list of Verbs that apply to ALL the ResourceKinds contained in this rule. '*' represents all verbs. */
+                    verbs: string[];
+                }[];
+                /** @description SupportedProviders is the list of providers that the backup class supports. */
                 supportedProviders?: string[];
             };
             /** @description BackupClassStatus defines the observed state of BackupClass. */
@@ -818,6 +886,194 @@ export interface components {
             metadata?: {
                 /** @description Name must be unique within a namespace. Is required when creating resources, although some resources may allow a client to request the generation of an appropriate name automatically. Name is primarily intended for creation idempotence and configuration definition. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#names */
                 name?: string;
+            };
+        };
+        /** @description Restore is the Schema for the restores API */
+        Restore: {
+            /**
+             * @description APIVersion defines the versioned schema of this representation of an object.
+             *     Servers should convert recognized schemas to the latest internal value, and
+             *     may reject unrecognized values.
+             *     More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+             */
+            apiVersion?: string;
+            /**
+             * @description Kind is a string value representing the REST resource this object represents.
+             *     Servers may infer this from the endpoint the client submits requests to.
+             *     Cannot be updated.
+             *     In CamelCase.
+             *     More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+             */
+            kind?: string;
+            metadata?: Record<string, never>;
+            /** @description RestoreSpec defines the desired state of Restore. */
+            spec: {
+                /**
+                 * @description Config defines the configuration for the restore job.
+                 *     These options are specific to the BackupClass being used and must conform to
+                 *     the schema defined in the BackupClass's .spec.restoreConfig.openAPIV3Schema.
+                 */
+                config?: Record<string, never>;
+                /** @description DataSource defines where the backup data to restore from is located. */
+                dataSource: {
+                    /**
+                     * @description BackupName is the name of an existing Backup CR to restore from.
+                     *     The BackupClass is resolved from the referenced Backup's backupClassName field.
+                     */
+                    backupName?: string;
+                    /**
+                     * @description External defines an external backup source that does not have a corresponding Backup CR.
+                     *     This is used for restoring from backups taken outside of OpenEverest.
+                     */
+                    external?: {
+                        /** @description BackupClassName is the name of the BackupClass that defines the restore job to use. */
+                        backupClassName: string;
+                        /** @description Config defines additional configuration for the external backup source. */
+                        config?: Record<string, never>;
+                        /** @description Destination defines the location of the backup data to restore from. */
+                        destination: {
+                            /** @description BackupStorageName is the name of the BackupStorage to use for the backup. */
+                            backupStorageName?: string;
+                            /** @description S3 contains the S3 information for the backup destination. */
+                            s3?: {
+                                /**
+                                 * @description AccessKeyID allows specifying the S3 access key ID inline.
+                                 *     It is provided as a write-only input field for convenience.
+                                 *     When this field is set, a webhook writes this value in the Secret specified by `credentialsSecretName`
+                                 *     and empties this field.
+                                 *     This field is not stored in the API.
+                                 */
+                                accessKeyId?: string;
+                                /** @description Bucket is the name of the S3 bucket. */
+                                bucket: string;
+                                /**
+                                 * @description CredentialsSecreName is the reference to the secret containing the S3 credentials.
+                                 *     The Secret must contain the keys `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.
+                                 */
+                                credentialsSecretName: string;
+                                /** @description EndpointURL is an endpoint URL of backup storage. */
+                                endpointURL: string;
+                                /**
+                                 * @description ForcePathStyle is set to use path-style URLs.
+                                 *     If unspecified, the default value is false.
+                                 * @default false
+                                 */
+                                forcePathStyle: boolean;
+                                /** @description Region is the region of the S3 bucket. */
+                                region: string;
+                                /**
+                                 * @description SecretAccessKey allows specifying the S3 secret access key inline.
+                                 *     It is provided as a write-only input field for convenience.
+                                 *     When this field is set, a webhook writes this value in the Secret specified by `credentialsSecretName`
+                                 *     and empties this field.
+                                 *     This field is not stored in the API.
+                                 */
+                                secretAccessKey?: string;
+                                /**
+                                 * @description VerifyTLS is set to ensure TLS/SSL verification.
+                                 *     If unspecified, the default value is true.
+                                 * @default true
+                                 */
+                                verifyTLS: boolean;
+                            };
+                        };
+                    };
+                    /**
+                     * @description PITR defines point-in-time recovery options.
+                     *     When set, the restore job will attempt to recover the database to the specified point in time.
+                     */
+                    pitr?: {
+                        /**
+                         * Format: date-time
+                         * @description Date is the target recovery point in time.
+                         *     Required when Type is "date".
+                         */
+                        date?: string;
+                        /**
+                         * @description Type is the type of point-in-time recovery: "date" or "latest".
+                         * @enum {string}
+                         */
+                        type: "date" | "latest";
+                    };
+                };
+                /**
+                 * @description InstanceName is the name of the Instance to restore to.
+                 *     The target Instance must use a provider listed in the BackupClass's SupportedProviders.
+                 */
+                instanceName: string;
+            };
+            /** @description RestoreStatus defines the observed state of Restore. */
+            status?: {
+                /**
+                 * Format: date-time
+                 * @description CompletedAt is the time when the restore job completed successfully.
+                 */
+                completedAt?: string;
+                conditions?: {
+                    /**
+                     * Format: date-time
+                     * @description lastTransitionTime is the last time the condition transitioned from one status to another.
+                     *     This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                     */
+                    lastTransitionTime: string;
+                    /**
+                     * @description message is a human readable message indicating details about the transition.
+                     *     This may be an empty string.
+                     */
+                    message: string;
+                    /**
+                     * Format: int64
+                     * @description observedGeneration represents the .metadata.generation that the condition was set based upon.
+                     *     For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                     *     with respect to the current state of the instance.
+                     */
+                    observedGeneration?: number;
+                    /**
+                     * @description reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                     *     Producers of specific condition types may define expected values and meanings for this field,
+                     *     and whether the values are considered a guaranteed API.
+                     *     The value should be a CamelCase string.
+                     *     This field may not be empty.
+                     */
+                    reason: string;
+                    /**
+                     * @description status of the condition, one of True, False, Unknown.
+                     * @enum {string}
+                     */
+                    status: "True" | "False" | "Unknown";
+                    /** @description type of condition in CamelCase or in foo.example.com/CamelCase. */
+                    type: string;
+                }[];
+                /** @description JobName is the reference to the job that is running the restore. */
+                jobName?: string;
+                /**
+                 * Format: int64
+                 * @description LastObservedGeneration is the last observed generation of the restore.
+                 */
+                lastObservedGeneration?: number;
+                /** @description Message is a human-readable message about the restore job's current state. */
+                message?: string;
+                /**
+                 * Format: date-time
+                 * @description StartedAt is the time when the restore job started.
+                 */
+                startedAt?: string;
+                /** @description State is the current state of the restore job. */
+                state?: string;
+            };
+        };
+        /** @description RestoreList is an object that contains the list of the existing restores. */
+        RestoreList: {
+            /** @description APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources */
+            apiVersion?: string;
+            items?: components["schemas"]["Restore"][];
+            /** @description Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds */
+            kind?: string;
+            metadata?: {
+                /** @description Name must be unique within a namespace. Is required when creating resources, although some resources may allow a client to request the generation of an appropriate name automatically. Name is primarily intended for creation idempotence and configuration definition. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#names */
+                name?: string;
+                /** @description Namespace defines the space within which each name must be unique. An empty namespace is equivalent to the "default" namespace, but "default" is the canonical representation. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces */
+                namespace?: string;
             };
         };
     };

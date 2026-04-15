@@ -7432,13 +7432,13 @@ export interface components {
             spec: {
                 /** @description CleanupJobSpec is the specification of the cleanup job. */
                 cleanupJobSpec?: {
-                    /** @description Command is the command to run the backup tool. */
+                    /** @description Command is the command to run the backup class. */
                     command?: string[];
-                    /** @description Image is the image of the backup tool. */
+                    /** @description Image is the image of the backup class. */
                     image?: string;
                 };
                 /**
-                 * @description ClusterPermissions defines the cluster-wide permissions required by the backup tool.
+                 * @description ClusterPermissions defines the cluster-wide permissions required by the backup class.
                  *     These permissions are used to generate a ClusterRole for the backup job.
                  */
                 clusterPermissions?: {
@@ -7460,39 +7460,39 @@ export interface components {
                     /** @description Verbs is a list of Verbs that apply to ALL the ResourceKinds contained in this rule. '*' represents all verbs. */
                     verbs: string[];
                 }[];
-                /** @description Config contains additional configuration defined for the backup tool. */
+                /** @description Config contains additional configuration defined for the backup class. */
                 config?: {
-                    /** @description OpenAPIV3Schema is the OpenAPI v3 schema of the backup tool. */
+                    /** @description OpenAPIV3Schema is the OpenAPI v3 schema of the backup class. */
                     openAPIV3Schema?: unknown;
                 };
+                /** @description Description is the description of the backup class. */
+                description?: string;
+                displayName?: string;
                 /**
-                 * @description DataStoreConstraints defines compatibility requirements and prerequisites that must be satisfied
-                 *     by a DataStore before this backup tool can be used with it. This allows the backup tool to
+                 * @description InstanceConstraints defines compatibility requirements and prerequisites that must be satisfied
+                 *     by a Instance before this backup class can be used with it. This allows the backup class to
                  *     express specific requirements about the database configuration needed for successful backup operations,
                  *     such as required database fields, specific engine configurations, or other database properties.
-                 *     When a DataStore references this backup tool, the operator will validate the DataStore
+                 *     When a Instance references this backup class, the operator will validate the Instance
                  *     against these constraints before proceeding with the backup operation.
                  */
-                dataStoreConstraints?: {
+                instanceConstraints?: {
                     /**
-                     * @description RequiredFields contains a list of fields that must be set in the DataStore spec.
-                     *     Each key is a JSON path expressions that points to a field in the DataStore spec.
+                     * @description RequiredFields contains a list of fields that must be set in the Instance spec.
+                     *     Each key is a JSON path expressions that points to a field in the Instance spec.
                      *     For example, ".spec.engine.type" or ".spec.dataSource.dataImport.config.someField".
                      */
                     requiredFields?: string[];
                 };
-                /** @description Description is the description of the backup tool. */
-                description?: string;
-                displayName?: string;
                 /** @description JobSpec is the specification of the backup job. */
                 jobSpec?: {
-                    /** @description Command is the command to run the backup tool. */
+                    /** @description Command is the command to run the backup class. */
                     command?: string[];
-                    /** @description Image is the image of the backup tool. */
+                    /** @description Image is the image of the backup class. */
                     image?: string;
                 };
                 /**
-                 * @description Permissions defines the permissions required by the backup tool.
+                 * @description Permissions defines the permissions required by the backup class.
                  *     These permissions are used to generate a Role for the backup job.
                  */
                 permissions?: {
@@ -7514,7 +7514,75 @@ export interface components {
                     /** @description Verbs is a list of Verbs that apply to ALL the ResourceKinds contained in this rule. '*' represents all verbs. */
                     verbs: string[];
                 }[];
-                /** @description SupportedProviders is the list of providers that the backup tool supports. */
+                /** @description RestoreCleanupJobSpec is the specification of the restore cleanup job. */
+                restoreCleanupJobSpec?: {
+                    /** @description Command is the command to run the backup class. */
+                    command?: string[];
+                    /** @description Image is the image of the backup class. */
+                    image?: string;
+                };
+                /**
+                 * @description RestoreClusterPermissions defines the cluster-wide permissions required by the restore job.
+                 *     These permissions are used to generate a ClusterRole for the restore job.
+                 */
+                restoreClusterPermissions?: {
+                    /**
+                     * @description APIGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
+                     *     the enumerated resources in any API group will be allowed. "" represents the core API group and "*" represents all API groups.
+                     */
+                    apiGroups?: string[];
+                    /**
+                     * @description NonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path
+                     *     Since non-resource URLs are not namespaced, this field is only applicable for ClusterRoles referenced from a ClusterRoleBinding.
+                     *     Rules can either apply to API resources (such as "pods" or "secrets") or non-resource URL paths (such as "/api"),  but not both.
+                     */
+                    nonResourceURLs?: string[];
+                    /** @description ResourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed. */
+                    resourceNames?: string[];
+                    /** @description Resources is a list of resources this rule applies to. '*' represents all resources. */
+                    resources?: string[];
+                    /** @description Verbs is a list of Verbs that apply to ALL the ResourceKinds contained in this rule. '*' represents all verbs. */
+                    verbs: string[];
+                }[];
+                /** @description RestoreConfig contains additional configuration defined for the restore operation. */
+                restoreConfig?: {
+                    /** @description OpenAPIV3Schema is the OpenAPI v3 schema of the backup class. */
+                    openAPIV3Schema?: unknown;
+                };
+                /**
+                 * @description RestoreJobSpec is the specification of the restore job.
+                 *     When set, this BackupClass supports restore operations.
+                 */
+                restoreJobSpec?: {
+                    /** @description Command is the command to run the backup class. */
+                    command?: string[];
+                    /** @description Image is the image of the backup class. */
+                    image?: string;
+                };
+                /**
+                 * @description RestorePermissions defines the permissions required by the restore job.
+                 *     These permissions are used to generate a Role for the restore job.
+                 */
+                restorePermissions?: {
+                    /**
+                     * @description APIGroups is the name of the APIGroup that contains the resources.  If multiple API groups are specified, any action requested against one of
+                     *     the enumerated resources in any API group will be allowed. "" represents the core API group and "*" represents all API groups.
+                     */
+                    apiGroups?: string[];
+                    /**
+                     * @description NonResourceURLs is a set of partial urls that a user should have access to.  *s are allowed, but only as the full, final step in the path
+                     *     Since non-resource URLs are not namespaced, this field is only applicable for ClusterRoles referenced from a ClusterRoleBinding.
+                     *     Rules can either apply to API resources (such as "pods" or "secrets") or non-resource URL paths (such as "/api"),  but not both.
+                     */
+                    nonResourceURLs?: string[];
+                    /** @description ResourceNames is an optional white list of names that the rule applies to.  An empty set means that everything is allowed. */
+                    resourceNames?: string[];
+                    /** @description Resources is a list of resources this rule applies to. '*' represents all resources. */
+                    resources?: string[];
+                    /** @description Verbs is a list of Verbs that apply to ALL the ResourceKinds contained in this rule. '*' represents all verbs. */
+                    verbs: string[];
+                }[];
+                /** @description SupportedProviders is the list of providers that the backup class supports. */
                 supportedProviders?: string[];
             };
             /** @description BackupClassStatus defines the observed state of BackupClass. */

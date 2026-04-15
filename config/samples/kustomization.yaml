@@ -5,4 +5,5 @@ resources:
 - backup_v1alpha1_backupclass.yaml
 - backup_v1alpha1_backup.yaml
 - monitoring_v1alpha1_monitoringconfig.yaml
+- backup_v1alpha1_restore.yaml
 # +kubebuilder:scaffold:manifestskustomizesamples

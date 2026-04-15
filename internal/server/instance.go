@@ -58,11 +58,13 @@ func (e *EverestServer) CreateInstance(c echo.Context, cluster string, namespace
 		e.l.Errorf("CreateInstance: failed to read request body: %v", err)
 		return err
 	}
+	e.l.Debugf("CreateInstance request body: %s", string(body))
 	if err := json.Unmarshal(body, instance); err != nil {
 		e.l.Errorf("CreateInstance: failed to decode request body: %v", err)
 		return err
 	}
 
+	e.l.Debugf("CreateInstance decoded instance: %+v", instance)
 	// Ensure the namespace matches
 	instance.Namespace = namespace
 
