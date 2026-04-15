@@ -6,6 +6,7 @@ EVEREST_SERVER_DEV_IMAGE_NAME ?= openeverest-dev
 EVEREST_OPERATOR_DEV_IMAGE_NAME ?= openeverest-operator-dev
 EVEREST_CATALOG_DEV_IMAGE_NAME ?= openeverest-catalog-dev
 IMAGE_TAG ?= 0.0.0
+# TODO: create separate image for everest server and controller.
 IMG = $(IMAGE_PREFIX)/$(EVEREST_SERVER_DEV_IMAGE_NAME):$(IMAGE_TAG)
 EVEREST_OPERATOR_IMG = $(IMAGE_PREFIX)/$(EVEREST_OPERATOR_DEV_IMAGE_NAME):$(IMAGE_TAG)
 CONTROLLER_TOOLS_VERSION ?= v0.18.0
@@ -260,6 +261,13 @@ clean:
 	rm -rf $(LOCALBIN)/*
 	rm -rf ./dist/*
 
+.PHONY: install-cert-manager
+install-cert-manager:
+	kubectl apply -f https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml
+    kubectl wait --for=condition=Available --timeout=120s deployment/cert-manager -n cert-manager
+    kubectl wait --for=condition=Available --timeout=120s deployment/cert-manager-webhook -n cert-manager
+    kubectl wait --for=condition=Available --timeout=120s deployment/cert-manager-cainjector -n cert-manager
+
 ##@ Test
 
 .PHONY: test
@@ -292,9 +300,9 @@ test-crosscover: setup-envtest ## Run unit tests and collect cross-package cover
 	KUBEBUILDER_ASSETS="$$("$(ENVTEST)" use $(ENVTEST_K8S_VERSION) --bin-dir "$(LOCALBIN)" -p path)" \
 	CGO_ENABLED=1 go test -race -timeout=20m -count=1 -coverprofile=crosscover.out -covermode=atomic -p=1 -coverpkg=./... ./...
 
-.PHONY: test-integration-features
-test-integration-features:
-	. ./test/vars.sh && kubectl kuttl test --config test/integration/kuttl-features.yaml
+.PHONY: test-integration-monitoring
+test-integration-monitoring:
+	. ./test/vars.sh && kubectl kuttl test --config test/integration/kuttl-monitoring.yaml
 
 ##@ Deployment management
 

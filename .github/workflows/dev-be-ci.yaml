@@ -278,43 +278,32 @@ jobs:
         run: |
           make k3d-cluster-up
 
-      - name: Build Everest API Server binary
-        run: |
-          make build-debug
-
       - name: Build Everest Controller binary
         run: |
           make build-controller
 
-      - name: Build Everest API server docker image
+      - name: Build controller docker image (with dummy everest binary to speed up the build)
         run: |
+          mkdir -p bin && touch bin/everest
           make docker-build
 
-      - name: Upload Everest API server image to K3D test cluster
+      - name: Upload controller image to K3D test cluster
         run: |
           make k3d-upload-server-image
 
-      - name: Build Everest operator docker image
+      - name: Install cert-manager
         run: |
-          make docker-build-operator
+          make install-cert-manager
 
-      - name: Upload Everest operator image to K3D test cluster
+      - name: Deploy controller to K3D test cluster
+        timeout-minutes: 5
         run: |
-          make k3d-upload-operator-image
-
-      - name: Build Everest CLI binary
-        run: |
-          make build-cli-debug
-
-      - name: Deploy Everest to K3D test cluster
-        timeout-minutes: 10
-        run: |
-          make deploy
+          make deploy-controller
 
       - name: Run controller integration tests
         timeout-minutes: 20
         run: |
-          make test-integration-features
+          make test-integration-monitoring
 
   integration_tests_flows:
     strategy:
