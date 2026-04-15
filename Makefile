@@ -261,12 +261,20 @@ clean:
 	rm -rf $(LOCALBIN)/*
 	rm -rf ./dist/*
 
+PMM_HELM_CHART_VER=1.4.13
+.PHONY: deploy-monitoring
+deploy-monitoring: ## Deploy PMM monitoring instance to the test cluster.
+	$(info Deploying PMM instance to the test cluster)
+	go tool helm repo add percona https://percona.github.io/percona-helm-charts/
+	sh -c "kubectl get namespace everest-monitoring || kubectl create namespace everest-monitoring"
+	go tool helm upgrade --install pmm --set secret.pmm_password='admin',service.type=ClusterIP percona/pmm --version $(PMM_HELM_CHART_VER) --timeout 15m -n everest-monitoring --wait
+
 .PHONY: install-cert-manager
-install-cert-manager:
+install-cert-manager: ## Install cert-manager into the K8s cluster.
 	kubectl apply -f https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml
-    kubectl wait --for=condition=Available --timeout=120s deployment/cert-manager -n cert-manager
-    kubectl wait --for=condition=Available --timeout=120s deployment/cert-manager-webhook -n cert-manager
-    kubectl wait --for=condition=Available --timeout=120s deployment/cert-manager-cainjector -n cert-manager
+	kubectl wait --for=condition=Available --timeout=120s deployment/cert-manager -n cert-manager
+	kubectl wait --for=condition=Available --timeout=120s deployment/cert-manager-webhook -n cert-manager
+	kubectl wait --for=condition=Available --timeout=120s deployment/cert-manager-cainjector -n cert-manager
 
 ##@ Test
 
