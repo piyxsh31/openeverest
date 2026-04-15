@@ -37,6 +37,31 @@ export type FieldParamsModeOverrides = Partial<
   >
 >;
 
+export enum FormMode {
+  New = 'new',
+  Edit = 'edit',
+  Restore = 'restore',
+  Import = 'import',
+}
+
+export type ComponentModeOverrides = Partial<
+  Record<FormMode, { uiType?: FieldType | 'hidden' }>
+>;
+
+export type FieldParamsModeOverrides = Partial<
+  Record<
+    FormMode,
+    {
+      disabled?: boolean;
+      readOnly?: boolean;
+      label?: string;
+      helperText?: string;
+      defaultValue?: unknown;
+      autoFocus?: boolean;
+    }
+  >
+>;
+
 export type OpenAPIObjectProperties = {
   label?: string;
 };
@@ -165,9 +190,25 @@ export type NumberValidation = CommonValidation & {
 
 export type ValidationMap = {
   [FieldType.Number]: NumberValidation;
+export type NumberValidation = CommonValidation & {
+  min?: number;
+  max?: number;
+  gt?: number;
+  lt?: number;
+  int?: boolean;
+  multipleOf?: number;
+  safe?: boolean;
+};
+
+export type ValidationMap = {
+  [FieldType.Number]: NumberValidation;
   [FieldType.Text]: TextValidation;
   [FieldType.Select]: CommonValidation;
   [FieldType.Hidden]: CommonValidation;
+};
+
+export type ModeAwareValidation<T extends CommonValidation> = T & {
+  modes?: Partial<Record<FormMode, T & { inheritShared?: boolean }>>;
 };
 
 export type ModeAwareValidation<T extends CommonValidation> = T & {
@@ -179,7 +220,9 @@ export type Component = {
     uiType: K;
     techPreview?: boolean;
     validation?: ModeAwareValidation<ValidationMap[K]>;
+    validation?: ModeAwareValidation<ValidationMap[K]>;
     fieldParams: FieldParamsMap[K];
+    modes?: ComponentModeOverrides;
     modes?: ComponentModeOverrides;
     _normalized?: NormalizedPathMeta;
   } & PathOrId;
