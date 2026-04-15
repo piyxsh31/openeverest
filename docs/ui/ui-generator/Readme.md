@@ -219,39 +219,6 @@ dbName:
 Use `validation.modes` when the override belongs to validation logic.
 Validation-specific mode-aware behavior is documented in [validation.md](validation.md#mode-aware-validation).
 
-## Mode-Aware Overrides
-
-### FieldParams-level modes
-
-Use `fieldParams.modes` when the override belongs to the field presentation layer.
-
-For now, the documented and supported `fieldParams.modes` overrides are:
-
-- `disabled`
-- `readOnly`
-- `label`
-- `helperText`
-- `defaultValue`
-- `autoFocus`
-
-```yaml
-dbName:
-  uiType: text
-  path: metadata.name
-  fieldParams:
-    label: Database name
-    helperText: Must be unique
-    modes:
-      edit:
-        disabled: true
-        helperText: Name cannot be changed after creation
-```
-
-### Validation-level modes
-
-Use `validation.modes` when the override belongs to validation logic.
-Validation-specific mode-aware behavior is documented in [validation.md](validation.md#mode-aware-validation).
-
 ## Advanced Properties
 
 ### Path vs ID
