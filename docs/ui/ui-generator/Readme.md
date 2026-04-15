@@ -195,6 +195,7 @@ Use `fieldParams.modes` when the override belongs to the field presentation laye
 For now, the documented and supported `fieldParams.modes` overrides are:
 
 - `disabled`
+- `readOnly`
 - `label`
 - `helperText`
 - `defaultValue`

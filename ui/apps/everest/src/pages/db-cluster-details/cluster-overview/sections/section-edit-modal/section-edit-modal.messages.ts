@@ -14,4 +14,5 @@
 
 export const Messages = {
   onSuccess: 'Section updated successfully',
+  submitMessage: 'Save',
 };

@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { PreviewSectionFive } from './section-five.js';
 import { BackupsPreviewSection } from './backups-section.js';
 import { AdvancedConfigurationsPreviewSection } from './advanced-configurations-section.js';
 import { PreviewSectionOne } from '../../database-preview/sections/base-step.js';
@@ -37,6 +36,5 @@ export const usePreviewSections = () => {
       component: AdvancedConfigurationsPreviewSection,
       title: 'Advanced Configurations',
     },
-    { component: PreviewSectionFive, title: 'Monitoring' },
   ];
 };

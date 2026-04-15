@@ -42,10 +42,6 @@ export const extractBadgeMappings = (
   return badgeMappings;
 };
 
-/**
- * Applies badge suffixes to form data based on badge mappings
- * Converts dot-notation paths to nested object access and appends badges
- */
 export const applyBadgesToFormData = (
   formData: Record<string, unknown>,
   badgeMappings: BadgeMapping[]
@@ -83,9 +79,6 @@ export const stripBadgeFromValue = (
   return trimmedValue.slice(0, -badge.length).trimEnd();
 };
 
-/**
- * Extracts badge mappings from a flat sections map (used for edit modal context).
- */
 export const extractBadgeMappingsFromSections = (
   sections: Record<string, Section>
 ): BadgeMapping[] => {
@@ -105,11 +98,11 @@ export const extractBadgeMappingsFromSections = (
   return badgeMappings;
 };
 
-/**
- * Strips badge suffixes from fields in a nested data object and coerces the
- * resulting strings to numbers so CEL numeric comparisons work correctly.
- * e.g. { spec: { engine: { storage: { size: "25Gi" } } } } → { …size: 25 }
- */
+/*
+Strips badge suffixes from fields in a nested data object and coerces the
+resulting strings to numbers so CEL numeric comparisons work correctly.
+e.g. { spec: { engine: { storage: { size: "25Gi" } } } } → { …size: 25 }
+*/
 export const stripBadgesFromData = (
   data: Record<string, unknown>,
   badgeMappings: BadgeMapping[]

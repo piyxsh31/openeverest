@@ -20,6 +20,6 @@ export type StepProps = {
   loadingDefaultsForEdition?: boolean;
 };
 
-export type DbInstanceIdentity = Required<
+export type DbInstanceName = Required<
   Pick<NonNullable<Instance['metadata']>, 'name' | 'namespace'>
 >;

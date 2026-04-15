@@ -25,7 +25,7 @@ export interface DbActionsModalsProps {
   handleCloseRestoreDialog: () => void;
   openDeleteDialog: boolean;
   handleCloseDeleteDialog: (redirect?: string) => void;
-  handleConfirmDelete: (dataCheckbox: boolean, redirect?: string) => void;
+  handleConfirmDelete: (dataCheckbox: boolean, onSuccess?: () => void) => void;
   deleteMutation: UseMutationResult<
     unknown,
     unknown,

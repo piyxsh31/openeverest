@@ -15,11 +15,11 @@
 import { describe, it, expect } from 'vitest';
 import { applyModeOverrides } from './apply-mode-overrides';
 import {
-  FormMode,
   FieldType,
   Section,
   Component,
   ComponentGroup,
+  FormMode,
 } from '../../ui-generator.types';
 
 const makeComponent = (overrides: Partial<Component> = {}): Component =>
@@ -166,5 +166,91 @@ describe('applyModeOverrides', () => {
     const result = applyModeOverrides(sections, FormMode.Edit);
     const comp = result.basic.components.name as Component;
     expect((comp.fieldParams as Record<string, unknown>).readOnly).toBe(true);
+  });
+
+  it('applies label override from fieldParams.modes', () => {
+    const sections: Record<string, Section> = {
+      basic: {
+        components: {
+          name: makeComponent({
+            fieldParams: {
+              label: 'Name',
+              modes: { [FormMode.Edit]: { label: 'Name (read-only)' } },
+            },
+          }),
+        },
+      },
+    };
+
+    const result = applyModeOverrides(sections, FormMode.Edit);
+    const comp = result.basic.components.name as Component;
+    expect(comp.fieldParams.label).toBe('Name (read-only)');
+  });
+
+  it('applies helperText override from fieldParams.modes', () => {
+    const sections: Record<string, Section> = {
+      basic: {
+        components: {
+          name: makeComponent({
+            fieldParams: {
+              label: 'Name',
+              helperText: 'Enter a name',
+              modes: {
+                [FormMode.Edit]: {
+                  helperText: 'Name cannot be changed after creation',
+                },
+              },
+            },
+          }),
+        },
+      },
+    };
+
+    const result = applyModeOverrides(sections, FormMode.Edit);
+    const comp = result.basic.components.name as Component;
+    expect(comp.fieldParams.helperText).toBe(
+      'Name cannot be changed after creation'
+    );
+  });
+
+  it('applies defaultValue override from fieldParams.modes', () => {
+    const sections: Record<string, Section> = {
+      basic: {
+        components: {
+          name: makeComponent({
+            fieldParams: {
+              label: 'Name',
+              defaultValue: 'default-new',
+              modes: {
+                [FormMode.Edit]: { defaultValue: 'default-edit' },
+              },
+            },
+          }),
+        },
+      },
+    };
+
+    const result = applyModeOverrides(sections, FormMode.Edit);
+    const comp = result.basic.components.name as Component;
+    expect(comp.fieldParams.defaultValue).toBe('default-edit');
+  });
+
+  it('applies autoFocus override from fieldParams.modes', () => {
+    const sections: Record<string, Section> = {
+      basic: {
+        components: {
+          name: makeComponent({
+            fieldParams: {
+              label: 'Name',
+              modes: { [FormMode.Edit]: { autoFocus: true } },
+            },
+          }),
+        },
+      },
+    };
+
+    const result = applyModeOverrides(sections, FormMode.Edit);
+    const comp = result.basic.components.name as Component;
+    expect(comp.fieldParams.autoFocus).toBe(true);
   });
 });

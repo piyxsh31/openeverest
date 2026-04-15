@@ -24,6 +24,7 @@ import { getByPath } from 'components/ui-generator/utils/object-path/object-path
 const STORAGE_SIZE_PATH = 'spec.components.engine.storage.size';
 const STORAGE_CLASS_PATH = 'spec.components.engine.storage.storageClass';
 
+// TODO should be moved to ui-schema of provider with "tooltip" property or can be a part of hardcoded module of openeverest errors, needs discussions
 const DISABLED_DISK_TOOLTIP =
   "You can't change the disk size as the selected storage class doesn't support volume expansion.";
 

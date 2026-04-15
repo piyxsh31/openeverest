@@ -14,11 +14,11 @@
 
 import { useMemo } from 'react';
 import { getDBWizardSchema } from '../database-form-schema.js';
-import { DbInstanceIdentity } from '../database-form.types.js';
+import { DbInstanceName } from '../database-form.types.js';
 import { ZodTypeAny } from 'zod';
 
 export const useDbValidationSchema = (
-  dbInstances: DbInstanceIdentity[],
+  dbInstances: DbInstanceName[],
   hasImportStep: boolean,
   openApiValidationSchema?: ZodTypeAny
 ) => {

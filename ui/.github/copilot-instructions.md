@@ -84,6 +84,11 @@ component-name/
 - Use **bare imports** from `src/` root (enabled by `baseUrl: "./src"` in tsconfig):
   `import { FormDialog } from 'components/form-dialog'` — not `'../../components/form-dialog'`.
 - Group imports: React/libraries → project imports → relative imports. Separate groups with blank lines.
+- **No re-exports**: Do not re-export types/values from other modules to create "convenience" import paths.
+  Each module should import directly from the canonical source. Re-exports blur module boundaries
+  and make it unclear where a dependency actually comes from. If an import path feels inconvenient,
+  move the declaration to a better location instead of masking the problem with a re-export.
+  Exception: `index.ts` barrels for component public APIs are allowed.
 
 ### TypeScript
 

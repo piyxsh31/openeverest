@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {
+import {
   Component,
   ComponentGroup,
+  FormMode,
   Section,
 } from 'components/ui-generator/ui-generator.types';
 import { UI_TYPE_DEFAULT_VALUE } from 'components/ui-generator/constants';
@@ -24,16 +25,18 @@ import { getComponentSourcePath } from '../preprocess/normalized-component';
 import { getByPath } from '../object-path/object-path';
 import { convertToNestedObject } from './convert-to-nested-object';
 
-/**
- * Walks schema components across all sections and extracts current values
- * from an existing instance, producing form-compatible default values.
- *
- * Priority: instance value (by sourcePath) > schema defaultValue > type default.
- */
+/*
+ Walks schema components across all sections and extracts current values
+ from an existing instance, producing form-compatible default values.
+
+ In Edit mode: only instance values are used. Missing values are left undefined.
+ In New/Restore/Import modes: falls back to schema defaultValue, then type default.
+*/
 const extractFlat = (
   components: Record<string, Component | ComponentGroup>,
   instance: Record<string, unknown>,
-  basePath: string
+  basePath: string,
+  formMode?: FormMode
 ): Record<string, unknown> => {
   const result: Record<string, unknown> = {};
 
@@ -49,7 +52,8 @@ const extractFlat = (
         extractFlat(
           (item as ComponentGroup).components,
           instance,
-          generatedName
+          generatedName,
+          formMode
         )
       );
       continue;
@@ -73,6 +77,11 @@ const extractFlat = (
       }
     }
 
+    // In Edit mode, only use instance values — no schema/type defaults
+    if (formMode === FormMode.Edit) {
+      continue;
+    }
+
     // Fallback to schema default, then type default
     if (component.fieldParams?.defaultValue !== undefined) {
       result[fieldId] = component.fieldParams.defaultValue;
@@ -86,7 +95,8 @@ const extractFlat = (
 
 export const extractInstanceValues = (
   sections: Record<string, Section>,
-  instance: Record<string, unknown>
+  instance: Record<string, unknown>,
+  formMode?: FormMode
 ): Record<string, unknown> => {
   const flatValues: Record<string, unknown> = {};
 
@@ -94,7 +104,7 @@ export const extractInstanceValues = (
     if (section?.components) {
       Object.assign(
         flatValues,
-        extractFlat(section.components, instance, sectionKey)
+        extractFlat(section.components, instance, sectionKey, formMode)
       );
     }
   }

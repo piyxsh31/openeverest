@@ -26,12 +26,12 @@ export type BuildSectionSchemaOptions = {
   originalData?: Record<string, unknown>;
 };
 
-/**
- * Builds a Zod schema scoped to a single section's fields with `.passthrough()`
- * so that values from other sections (present in form state for CEL) are not stripped.
- *
- * CEL expressions are collected from ALL sections so cross-field validation still works.
- */
+/*
+ Builds a Zod schema scoped to a single section's fields with `.passthrough()`
+so that values from other sections (present in form state for CEL) are not stripped.
+
+CEL expressions are collected from ALL sections so cross-field validation still works.
+*/
 export const buildSectionZodSchema = (
   sectionKey: string,
   allSections: Record<string, Section>,

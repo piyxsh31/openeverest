@@ -24,7 +24,17 @@ export type ComponentModeOverrides = Partial<
 >;
 
 export type FieldParamsModeOverrides = Partial<
-  Record<FormMode, { disabled?: boolean; readOnly?: boolean }>
+  Record<
+    FormMode,
+    {
+      disabled?: boolean;
+      readOnly?: boolean;
+      label?: string;
+      helperText?: string;
+      defaultValue?: unknown;
+      autoFocus?: boolean;
+    }
+  >
 >;
 
 export type OpenAPIObjectProperties = {

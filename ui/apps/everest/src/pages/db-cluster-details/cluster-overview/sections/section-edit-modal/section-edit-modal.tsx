@@ -82,7 +82,8 @@ const SectionEditModal = ({
     () =>
       extractInstanceValues(
         editSections,
-        instance as unknown as Record<string, unknown>
+        instance as unknown as Record<string, unknown>,
+        FormMode.Edit
       ),
     [editSections, instance]
   );
@@ -132,7 +133,7 @@ const SectionEditModal = ({
       celDependencyGroups={celDependencyGroups}
       defaultValues={defaultValues}
       onSubmit={handleSubmit}
-      submitMessage="Save"
+      submitMessage={Messages.submitMessage}
       size="XL"
       submitting={submitting}
     >

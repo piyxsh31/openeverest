@@ -118,7 +118,7 @@ export const useDbInstanceActions = (dbInstance: Instance) => {
   const handleConfirmDelete = (
     // TODO 1942 check if needed for instance deletion API.
     _keepBackupStorageData: boolean,
-    redirect?: string
+    onSuccess?: () => void
   ) => {
     deleteDbInstance(
       {
@@ -182,7 +182,11 @@ export const useDbInstanceActions = (dbInstance: Instance) => {
                   }
                 : undefined
           );
-          handleCloseDeleteDialog(redirect);
+          if (onSuccess) {
+            onSuccess();
+          } else {
+            handleCloseDeleteDialog();
+          }
         },
       }
     );

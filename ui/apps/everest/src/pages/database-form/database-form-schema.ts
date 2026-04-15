@@ -17,7 +17,7 @@ import { MAX_DB_CLUSTER_NAME_LENGTH } from '../../consts.ts';
 import { Messages } from './database-form.messages.ts';
 import { DbWizardFormFields } from 'consts.ts';
 import { rfc_123_schema } from 'utils/common-validation.ts';
-import { DbInstanceIdentity } from './database-form.types.ts';
+import { DbInstanceName } from './database-form.types.ts';
 import { importStepSchema } from 'components/cluster-form/import/import-schema.tsx';
 import { Instance } from 'shared-types/api.types.ts';
 
@@ -32,15 +32,17 @@ const basicInfoFieldsSchema = z.object({
   topology: z.object({ type: z.string() }),
 });
 
-const basicInfoSchema = (dbInstances: DbInstanceIdentity[]) =>
+const basicInfoSchema = (dbInstances: DbInstanceName[]) =>
   basicInfoFieldsSchema
     .passthrough()
     .superRefine(({ dbName, k8sNamespace }, ctx) => {
-      const dbInstancesInNamespace = dbInstances.filter(
+      const dbInstancesInNamespaceNamesList = dbInstances.filter(
         (res) => res.namespace === k8sNamespace
       );
 
-      if (dbInstancesInNamespace.find((item) => item.name === dbName)) {
+      if (
+        dbInstancesInNamespaceNamesList.find((item) => item.name === dbName)
+      ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: [DbWizardFormFields.dbName],
@@ -109,7 +111,7 @@ const basicInfoSchema = (dbInstances: DbInstanceIdentity[]) =>
 //     });
 
 export const getDBWizardSchema = (
-  dbInstances: DbInstanceIdentity[],
+  dbInstances: DbInstanceName[],
   hasImportStep: boolean,
   openApiValidationSchema?: z.ZodTypeAny
 ) => {

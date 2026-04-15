@@ -103,7 +103,6 @@ export const ClusterOverview = () => {
         <OtherFieldsCard fields={otherFields} loading={isLoading} />
       )}
 
-      {/* Section edit modal */}
       {editingSectionKey && provider && (
         <SectionEditModal
           sectionKey={editingSectionKey}

@@ -14,12 +14,12 @@
 
 import { describe, it, expect } from 'vitest';
 import { extractInstanceValues } from './extract-instance-values';
-import type {
+import {
   Section,
   Component,
+  FieldType,
+  FormMode,
 } from 'components/ui-generator/ui-generator.types';
-import { FieldType } from 'components/ui-generator/ui-generator.types';
-
 const makeComponent = (
   path: string,
   overrides: Partial<Component> = {}
@@ -147,5 +147,73 @@ describe('extractInstanceValues', () => {
   it('returns empty object for empty sections', () => {
     const result = extractInstanceValues({}, {});
     expect(result).toEqual({});
+  });
+
+  it('skips schema defaults in Edit mode when instance value is missing', () => {
+    const sections: Record<string, Section> = {
+      basic: {
+        components: {
+          name: makeComponent('spec.name', {
+            fieldParams: { label: 'Name', defaultValue: 'default-name' },
+          }),
+          version: makeComponent('spec.version', {
+            fieldParams: { label: 'Version', defaultValue: '8.0' },
+          }),
+        },
+      },
+    };
+
+    const instance = { spec: { name: 'my-db' } };
+    const result = extractInstanceValues(
+      sections,
+      instance as unknown as Record<string, unknown>,
+      FormMode.Edit
+    );
+
+    // name comes from instance, version is missing — should NOT get default
+    expect(result).toEqual({ spec: { name: 'my-db' } });
+  });
+
+  it('still uses schema defaults in New mode', () => {
+    const sections: Record<string, Section> = {
+      basic: {
+        components: {
+          name: makeComponent('spec.name', {
+            fieldParams: { label: 'Name', defaultValue: 'default-name' },
+          }),
+        },
+      },
+    };
+
+    const instance = { spec: {} };
+    const result = extractInstanceValues(
+      sections,
+      instance as unknown as Record<string, unknown>,
+      FormMode.New
+    );
+
+    expect(result).toEqual({ spec: { name: 'default-name' } });
+  });
+
+  it('uses instance values in Edit mode when they exist', () => {
+    const sections: Record<string, Section> = {
+      basic: {
+        components: {
+          name: makeComponent('spec.name'),
+          cpu: makeComponent('spec.resources.cpu'),
+        },
+      },
+    };
+
+    const instance = { spec: { name: 'my-db', resources: { cpu: 4 } } };
+    const result = extractInstanceValues(
+      sections,
+      instance as unknown as Record<string, unknown>,
+      FormMode.Edit
+    );
+
+    expect(result).toEqual({
+      spec: { name: 'my-db', resources: { cpu: 4 } },
+    });
   });
 });
