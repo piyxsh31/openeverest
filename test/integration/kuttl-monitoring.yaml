@@ -11,9 +11,10 @@ commands:
   - command: kubectl wait --for condition=established --timeout=10s crd vmagents.operator.victoriametrics.com
   # Deploy with test overlay.
   - command: kubectl apply -k config/test
-    # Restart to pick the latest image (in case it was rebuilt).
+  # Restart to pick the latest image (in case it was rebuilt).
   - command: kubectl delete pod -n openeverest-system -l control-plane=controller-manager
-    # Wait for controller to be ready with generous timeout for CI environments.
+  # Wait for controller to be ready with generous timeout for CI environments.
   - command: kubectl wait --for=condition=available --timeout=60s deploy/openeverest-controller-manager -n openeverest-system
 testDirs:
+  # TODO: add test sub directories rather than test/integration here.
   - test/integration
