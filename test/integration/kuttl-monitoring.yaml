@@ -13,7 +13,7 @@ commands:
   - command: kubectl apply -k config/test
     # Restart to pick the latest image (in case it was rebuilt).
   - command: kubectl delete pod -n openeverest-system -l control-plane=controller-manager
-    # Wait for Controller to be ready.
-  - command: kubectl wait --for=condition=available --timeout=30s deploy/openeverest-controller-manager -n openeverest-system
+    # Wait for controller to be ready with generous timeout for CI environments.
+  - command: kubectl wait --for=condition=available --timeout=60s deploy/openeverest-controller-manager -n openeverest-system
 testDirs:
   - test/integration/monitoring
