@@ -4,10 +4,11 @@ RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
 IMAGE_PREFIX ?= ghcr.io/openeverest
 EVEREST_SERVER_DEV_IMAGE_NAME ?= openeverest-dev
 EVEREST_OPERATOR_DEV_IMAGE_NAME ?= openeverest-operator-dev
+EVEREST_CONTROLLER_DEV_IMAGE_NAME ?= openeverest-controller-dev
 EVEREST_CATALOG_DEV_IMAGE_NAME ?= openeverest-catalog-dev
 IMAGE_TAG ?= 0.0.0
-# TODO: create separate image for everest server and controller.
 IMG = $(IMAGE_PREFIX)/$(EVEREST_SERVER_DEV_IMAGE_NAME):$(IMAGE_TAG)
+EVEREST_CONTROLLER_IMG = $(IMAGE_PREFIX)/$(EVEREST_CONTROLLER_DEV_IMAGE_NAME):$(IMAGE_TAG)
 EVEREST_OPERATOR_IMG = $(IMAGE_PREFIX)/$(EVEREST_OPERATOR_DEV_IMAGE_NAME):$(IMAGE_TAG)
 CONTROLLER_TOOLS_VERSION ?= v0.18.0
 
@@ -249,8 +250,12 @@ vet: ## Run go vet against code.
 	go vet ./...
 
 .PHONY: docker-build
-docker-build: ## Build docker image with Everest API server and controller.
-	docker build -f build/package/server/Dockerfile -t ${IMG} .
+docker-build: ## Build docker image with Everest API server.
+	docker build -f build/package/server/Dockerfile --target server -t ${IMG} .
+
+.PHONY: docker-build-controller
+docker-build-controller: ## Build docker image with Everest controller.
+	docker build -f build/package/server/Dockerfile --target controller -t ${EVEREST_CONTROLLER_IMG} .
 
 .PHONY: docker-push
 docker-push: ## Push docker image with Everest API server and controller.
@@ -413,6 +418,11 @@ k3d-upload-server-image: ## Upload the Everest API server image to the testing k
 	$(info Uploading Everest API server image=$(IMG) to K3D testing cluster)
 	k3d image import -c everest-server-test $(IMG)
 
+.PHONY: k3d-upload-controller-image
+k3d-upload-controller-image: ## Upload the Everest controller image to the testing k3d cluster.
+	$(info Uploading Everest controller image=$(EVEREST_CONTROLLER_IMG) to K3D testing cluster)
+	k3d image import -c everest-server-test $(EVEREST_CONTROLLER_IMG)
+
 .PHONY: k3d-upload-operator-image
 k3d-upload-operator-image: ## Upload the Everest operator image to the testing k3d cluster.
 	$(info Uploading Everest operator image=$(EVEREST_OPERATOR_IMG) to K3D testing cluster)
@@ -499,7 +509,7 @@ uninstall: gen-crds-manifests kustomize ## Uninstall CRDs from the K8s cluster s
 
 .PHONY: deploy-controller
 deploy-controller: gen-crds-manifests kustomize ## Deploy controller to the K8s cluster specified in ~/.kube/config.
-	cd config/manager && "$(KUSTOMIZE)" edit set image controller=${IMG}
+	cd config/manager && "$(KUSTOMIZE)" edit set image controller=${EVEREST_CONTROLLER_IMG}
 	"$(KUSTOMIZE)" build config/default | "$(KUBECTL)" apply -f -
 
 .PHONY: undeploy-controller

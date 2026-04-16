@@ -282,14 +282,13 @@ jobs:
         run: |
           make build-controller
 
-      - name: Build controller docker image (with dummy everest binary to speed up the build)
+      - name: Build controller docker image
         run: |
-          mkdir -p bin && touch bin/everest
-          make docker-build
+          make docker-build-controller
 
       - name: Upload controller image to K3D test cluster
         run: |
-          make k3d-upload-server-image
+          make k3d-upload-controller-image
 
       - name: Install cert-manager
         run: |
@@ -305,6 +304,11 @@ jobs:
         run: |
           make test-integration-monitoring
 
+      - name: Run debug commands on failure
+        if: ${{ failure() }}
+        run: |
+          kubectl describe pod -n openeverest-system -l control-plane=controller-manager
+          kubectl get events -n openeverest-system --sort-by='.lastTimestamp'
   integration_tests_flows:
     strategy:
       fail-fast: false
