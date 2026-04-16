@@ -298,7 +298,7 @@ func (r *MonitoringConfigReconciler) fetchPMMServerVersion(
 
 // reconcileVMAgent ensures a VMAgent exists with remote-write entries for all PMM-type MonitoringConfigs, and is removed when no longer needed.
 func (r *MonitoringConfigReconciler) reconcileVMAgent(ctx context.Context) error {
-	list := &monitoringv1alpha1.MonitoringConfigList{}
+	list := &monitoringv1alpha2.MonitoringConfigList{}
 	if err := r.List(ctx, list, &client.ListOptions{}); err != nil {
 		return fmt.Errorf("could not list monitoringconfigs: %w", err)
 	}
@@ -353,8 +353,8 @@ func (r *MonitoringConfigReconciler) reconcileVMAgent(ctx context.Context) error
 // is in the monitoring namespace.
 // - on deletion: removes the mirrored secret and the vmagent finalizer.
 // - otherwise: adds the vmagent finalizer and mirrors the credentials secret.
-func (r *MonitoringConfigReconciler) ensureVMAgentResources(ctx context.Context, mc *monitoringv1alpha1.MonitoringConfig) error {
-	if mc.Spec.Type != monitoringv1alpha1.PMMMonitoringType {
+func (r *MonitoringConfigReconciler) ensureVMAgentResources(ctx context.Context, mc *monitoringv1alpha2.MonitoringConfig) error {
+	if mc.Spec.Type != monitoringv1alpha2.PMMMonitoringType {
 		return nil
 	}
 
@@ -388,10 +388,10 @@ func (r *MonitoringConfigReconciler) ensureVMAgentResources(ctx context.Context,
 }
 
 // genVMAgentSpec builds a VMAgentSpec from the current state of all MonitoringConfigs.
-func (r *MonitoringConfigReconciler) genVMAgentSpec(mcList *monitoringv1alpha1.MonitoringConfigList, k8sClusterID string) (*vmv1beta1.VMAgentSpec, error) {
+func (r *MonitoringConfigReconciler) genVMAgentSpec(mcList *monitoringv1alpha2.MonitoringConfigList, k8sClusterID string) (*vmv1beta1.VMAgentSpec, error) {
 	remoteWrites := make([]vmv1beta1.VMAgentRemoteWriteSpec, 0, len(mcList.Items))
 	for _, mc := range mcList.Items {
-		if mc.Spec.Type != monitoringv1alpha1.PMMMonitoringType {
+		if mc.Spec.Type != monitoringv1alpha2.PMMMonitoringType {
 			continue
 		}
 
@@ -400,7 +400,7 @@ func (r *MonitoringConfigReconciler) genVMAgentSpec(mcList *monitoringv1alpha1.M
 			continue
 		}
 
-		u, err := url.Parse(mc.Spec.PMM.URL)
+		u, err := url.Parse(mc.Spec.URL)
 		if err != nil {
 			return nil, fmt.Errorf("failed to parse PMM URL for %q: %w", mc.GetName(), err)
 		}
@@ -466,7 +466,7 @@ func (r *MonitoringConfigReconciler) genVMAgentSpec(mcList *monitoringv1alpha1.M
 
 // reconcileSecret copies the source MonitoringConfig secret onto the monitoring namespace.
 // Returns the name of the newly created/updated secret.
-func (r *MonitoringConfigReconciler) reconcileSecret(ctx context.Context, mc *monitoringv1alpha1.MonitoringConfig) (string, error) {
+func (r *MonitoringConfigReconciler) reconcileSecret(ctx context.Context, mc *monitoringv1alpha2.MonitoringConfig) (string, error) {
 	secretName := r.monitoringSecretName(mc)
 
 	// If the MonitoringConfig is already in the monitoring namespace, use it.
@@ -517,7 +517,7 @@ func (r *MonitoringConfigReconciler) reconcileSecret(ctx context.Context, mc *mo
 
 // monitoringSecretName returns the original or copied secret name depending
 // on whether the MonitoringConfig is in the monitoring namespace or not.
-func (r *MonitoringConfigReconciler) monitoringSecretName(mc *monitoringv1alpha1.MonitoringConfig) string {
+func (r *MonitoringConfigReconciler) monitoringSecretName(mc *monitoringv1alpha2.MonitoringConfig) string {
 	if mc.GetNamespace() == r.MonitoringNamespace {
 		return mc.Spec.CredentialsSecretName
 	}
@@ -526,7 +526,7 @@ func (r *MonitoringConfigReconciler) monitoringSecretName(mc *monitoringv1alpha1
 }
 
 // cleanupSecrets deletes all secrets in the monitoring namespace that belong to the given MonitoringConfig.
-func (r *MonitoringConfigReconciler) cleanupSecrets(ctx context.Context, mc *monitoringv1alpha1.MonitoringConfig) error {
+func (r *MonitoringConfigReconciler) cleanupSecrets(ctx context.Context, mc *monitoringv1alpha2.MonitoringConfig) error {
 	// List secrets in the monitoring namespace that belong to this MonitoringConfig.
 	secrets := &corev1.SecretList{}
 	err := r.List(ctx, secrets, &client.ListOptions{
@@ -654,7 +654,7 @@ func (r *MonitoringConfigReconciler) enqueueMonitoringConfigs(ctx context.Contex
 		return nil
 	}
 
-	list := &monitoringv1alpha1.MonitoringConfigList{}
+	list := &monitoringv1alpha2.MonitoringConfigList{}
 	err := r.List(ctx, list)
 	if err != nil {
 		return nil

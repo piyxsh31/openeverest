@@ -1,0 +1,9 @@
+# Kustomize overlay for integration tests.
+# Applies test-specific patches on top of the default configuration.
+resources:
+- ../default
+
+patches:
+- path: manager_deployment_patch.yaml
+  target:
+    kind: Deployment
