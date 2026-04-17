@@ -305,8 +305,8 @@ func (r *MonitoringConfigReconciler) reconcileVMAgent(ctx context.Context) error
 
 	// Ensure each MonitoringConfig has the vmagent finalizer and its mirrored secret
 	// in the monitoring namespace before building the VMAgent spec.
-	for i := range list.Items {
-		if err := r.ensureVMAgentResources(ctx, &list.Items[i]); err != nil {
+	for _, mc := range list.Items {
+		if err := r.ensureVMAgentResources(ctx, &mc); err != nil {
 			return fmt.Errorf("could not ensure vmagent resources: %w", err)
 		}
 	}
@@ -339,7 +339,7 @@ func (r *MonitoringConfigReconciler) reconcileVMAgent(ctx context.Context) error
 
 	_, err = controllerutil.CreateOrUpdate(ctx, r.Client, vmAgent, func() error {
 		vmAgent.SetLabels(map[string]string{
-			"app.kubernetes.io/managed-by": "everest",
+			"app.kubernetes.io/managed-by": "openeverest",
 			"openeverest.io/type":          "monitoring",
 		})
 		vmAgent.Spec = *spec
@@ -349,10 +349,10 @@ func (r *MonitoringConfigReconciler) reconcileVMAgent(ctx context.Context) error
 	return err
 }
 
-// ensureVMAgentResources ensures the vmagent finalizer, and mirrored secret
+// ensureVMAgentResources ensures the vmagent finalizer, and copied secret
 // is in the monitoring namespace.
-// - on deletion: removes the mirrored secret and the vmagent finalizer.
-// - otherwise: adds the vmagent finalizer and mirrors the credentials secret.
+// - on deletion: removes the copied secret and the vmagent finalizer.
+// - otherwise: adds the vmagent finalizer and copies the credentials secret.
 func (r *MonitoringConfigReconciler) ensureVMAgentResources(ctx context.Context, mc *monitoringv1alpha2.MonitoringConfig) error {
 	if mc.Spec.Type != monitoringv1alpha2.PMMMonitoringType {
 		return nil

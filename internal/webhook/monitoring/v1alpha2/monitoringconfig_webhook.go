@@ -77,7 +77,7 @@ func (v *MonitoringConfigCustomValidator) ValidateDelete(_ context.Context, obj 
 // validateMonitoringConfig performs checks secret contains valid PMM API key
 // by sening a request to PMM server.
 func (v *MonitoringConfigCustomValidator) validateMonitoringConfig(ctx context.Context, mc *monitoringv1alpha2.MonitoringConfig) error {
-	if os.Getenv("SKIP_PMM_VALIDATION") == "true" {
+	if os.Getenv("SKIP_PMM") == "true" {
 		monitoringconfiglog.Info("Skipping PMM validation", "name", mc.GetName())
 
 		return nil

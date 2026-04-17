@@ -7,9 +7,11 @@ collectors:
   - command: kubectl get monitoringconfig/mc-2 -n ${NAMESPACE} -o yaml
   - command: kubectl get secret/mc-2-secret -n ${NAMESPACE} -o yaml
   - command: kubectl get vmagent/everest-monitoring -n everest-monitoring -o yaml
-  - command: kubectl get deploy/everest-controller-manager -n everest-system -o yaml
+  # - command: kubectl get deploy/everest-controller-manager -n everest-system -o yaml
+  - command: kubectl get deploy/openeverest-controller-manager -n openeverest-system -o yaml
   - type: pod
-    namespace: everest-system
+    # namespace: everest-system
+    namespace: openeverest-system
     selector: control-plane=controller-manager
     tail: 100
 resourceRefs:
@@ -111,7 +113,5 @@ metadata:
   name: everest-monitoring
   namespace: everest-monitoring
   labels:
-    app.kubernetes.io/managed-by: everest
+    app.kubernetes.io/managed-by: openeverest
     openeverest.io/type: monitoring
-
-
