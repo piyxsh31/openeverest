@@ -494,7 +494,7 @@ build-installer: gen-crds-manifests kustomize ## Generate a consolidated YAML wi
 
 .PHONY: deploy-test-controller
 deploy-test-controller: gen-crds-manifests kustomize
-	cd config/test && "$(KUSTOMIZE)" edit set image controller=${EVEREST_CONTROLLER_IMG}
+	cd config/test && "$(KUSTOMIZE)" edit set image controller=${IMG}
 	$(KUSTOMIZE) build config/test | kubectl apply -f -
 
 ##@ Dependencies
