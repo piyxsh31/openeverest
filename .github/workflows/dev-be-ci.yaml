@@ -249,6 +249,9 @@ jobs:
   integration_tests_controller:
     strategy:
       fail-fast: true
+      matrix:
+        make_target:
+          - test-integration-monitoring
     continue-on-error: false
     name: Controller Integration Tests
     runs-on: ubuntu-latest
@@ -279,37 +282,17 @@ jobs:
         run: |
           make k3d-cluster-up
 
-      - name: Build Everest Controller binary
-        run: |
-          make build-controller
-
-      - name: Build controller docker image
-        run: |
-          make docker-build-controller
-
-      - name: Upload controller image to K3D test cluster
-        run: |
-          make k3d-upload-controller-image
-
-      - name: Install cert-manager
-        run: |
-          make install-cert-manager
-
-      - name: Deploy controller to K3D test cluster
-        timeout-minutes: 5
-        run: |
-          make deploy-controller
-
       - name: Run controller integration tests
         timeout-minutes: 20
         run: |
-          make test-integration-monitoring
+          make ${{ matrix.make_target }}
 
       - name: Run debug commands on failure
         if: ${{ failure() }}
         run: |
           kubectl describe pod -n openeverest-system -l control-plane=controller-manager
           kubectl get events -n openeverest-system --sort-by='.lastTimestamp'
+
   integration_tests_flows:
     strategy:
       fail-fast: false

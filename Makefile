@@ -250,8 +250,8 @@ vet: ## Run go vet against code.
 	go vet ./...
 
 .PHONY: docker-build
-docker-build: ## Build docker image with Everest API server.
-	docker build -f build/package/server/Dockerfile --target server -t ${IMG} .
+docker-build: ## Build docker image with Everest API server and controller.
+	docker build -f build/package/server/Dockerfile --target openeverest -t ${IMG} .
 
 .PHONY: docker-build-controller
 docker-build-controller: ## Build docker image with Everest controller.
@@ -273,13 +273,6 @@ deploy-monitoring: ## Deploy PMM monitoring instance to the test cluster.
 	go tool helm repo add percona https://percona.github.io/percona-helm-charts/
 	sh -c "kubectl get namespace everest-monitoring || kubectl create namespace everest-monitoring"
 	go tool helm upgrade --install pmm --set secret.pmm_password='admin',service.type=ClusterIP percona/pmm --version $(PMM_HELM_CHART_VER) --timeout 15m -n everest-monitoring --wait
-
-.PHONY: install-cert-manager
-install-cert-manager: ## Install cert-manager into the K8s cluster.
-	kubectl apply -f https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml
-	kubectl wait --for=condition=Available --timeout=120s deployment/cert-manager -n cert-manager
-	kubectl wait --for=condition=Available --timeout=120s deployment/cert-manager-webhook -n cert-manager
-	kubectl wait --for=condition=Available --timeout=120s deployment/cert-manager-cainjector -n cert-manager
 
 ##@ Test
 
@@ -314,7 +307,7 @@ test-crosscover: setup-envtest ## Run unit tests and collect cross-package cover
 	CGO_ENABLED=1 go test -race -timeout=20m -count=1 -coverprofile=crosscover.out -covermode=atomic -p=1 -coverpkg=./... ./...
 
 .PHONY: test-integration-monitoring
-test-integration-monitoring:
+test-integration-monitoring: build-controller docker-build-controller k3d-upload-controller-image
 	. ./test/vars.sh && kubectl kuttl test --config test/integration/kuttl-monitoring.yaml
 
 ##@ Deployment management
@@ -521,6 +514,11 @@ build-installer: gen-crds-manifests kustomize ## Generate a consolidated YAML wi
 	mkdir -p dist
 	cd config/manager && "$(KUSTOMIZE)" edit set image controller=${IMG}
 	"$(KUSTOMIZE)" build config/default > dist/install.yaml
+
+.PHONY: deploy-test-controller
+deploy-test-controller: gen-crds-manifests kustomize
+	cd config/test && "$(KUSTOMIZE)" edit set image controller=${EVEREST_CONTROLLER_IMG}
+	$(KUSTOMIZE) build config/test | kubectl apply -f -
 
 ##@ Dependencies
 
