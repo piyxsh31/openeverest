@@ -270,7 +270,7 @@ jobs:
         with:
           install-kubectl: true
           install-k3d: true
-          install-kuttl: true
+          install-chainsaw: true
 
       - name: Adjust GitHub worker node
         uses: ./.github/actions/adjust-github-node
