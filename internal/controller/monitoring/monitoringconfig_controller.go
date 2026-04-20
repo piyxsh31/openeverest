@@ -37,6 +37,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
@@ -89,6 +90,9 @@ func (r *MonitoringConfigReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&monitoringv1alpha2.MonitoringConfig{}).
 		Watches(&corev1.Namespace{},
 			enqueueObjectsInNamespace(r.Client, &monitoringv1alpha2.MonitoringConfigList{})).
+		Watches(&corev1alpha1.Instance{},
+			handler.EnqueueRequestsFromMapFunc(r.enqueueInstances),
+			builder.WithPredicates(predicate.GenerationChangedPredicate{}, instancePredicate())).
 		Watches(&vmv1beta1.VMAgent{},
 			handler.EnqueueRequestsFromMapFunc(r.enqueueMonitoringConfigs),
 			builder.WithPredicates(predicate.GenerationChangedPredicate{})).
@@ -576,37 +580,81 @@ func (r *MonitoringConfigReconciler) initIndexers(ctx context.Context, mgr ctrl.
 		&corev1alpha1.Instance{},
 		instanceMonitoringConfigField,
 		func(obj client.Object) []string {
-			instance, ok := obj.(*corev1alpha1.Instance)
-			if !ok {
+			monitoringConfigName := instanceMonitoringConfigName(obj)
+			if monitoringConfigName == "" {
 				return nil
 			}
 
-			monitoringSpec, ok := instance.Spec.Components["monitoring"]
-			if !ok {
-				return nil
-			}
-
-			if monitoringSpec.CustomSpec == nil || monitoringSpec.CustomSpec.Raw == nil {
-				return nil
-			}
-
-			m := map[string]any{}
-			if err := json.Unmarshal(monitoringSpec.CustomSpec.Raw, &m); err != nil {
-				return nil
-			}
-
-			_, ok = m["monitoringConfigName"]
-			if !ok {
-				return nil
-			}
-
-			return []string{instanceMonitoringConfigField}
+			return []string{monitoringConfigName}
 		},
 	); err != nil {
 		return fmt.Errorf("indexing instance by monitoring config name: %w", err)
 	}
 
 	return nil
+}
+
+// instanceMonitoringConfigName extracts the monitoringConfigName value from an Instance's
+// .spec.components.monitoring.customSpec.monitoringConfigName.
+// Returns "" if not set.
+func instanceMonitoringConfigName(obj client.Object) string {
+	instance, ok := obj.(*corev1alpha1.Instance)
+	if !ok {
+		return ""
+	}
+
+	monitoringSpec, ok := instance.Spec.Components["monitoring"]
+	if !ok {
+		return ""
+	}
+
+	if monitoringSpec.CustomSpec == nil || monitoringSpec.CustomSpec.Raw == nil {
+		return ""
+	}
+
+	m := map[string]any{}
+	if err := json.Unmarshal(monitoringSpec.CustomSpec.Raw, &m); err != nil {
+		return ""
+	}
+
+	name, _ := m["monitoringConfigName"].(string)
+	return name
+}
+
+// enqueueInstances maps an Instance to a reconcile.Request for the MonitoringConfig
+// referenced in .spec.components.monitoring.customSpec.monitoringConfigName.
+func (r *MonitoringConfigReconciler) enqueueInstances(_ context.Context, obj client.Object) []reconcile.Request {
+	name := instanceMonitoringConfigName(obj)
+	if name == "" {
+		return nil
+	}
+
+	return []reconcile.Request{
+		{NamespacedName: types.NamespacedName{Name: name, Namespace: obj.GetNamespace()}},
+	}
+}
+
+// instancePredicate returns a Predicate that passes only when the Instance's
+// .spec.components.monitoring.customSpec.monitoringConfigName field is relevant:
+//   - Create: the field is set on the new Instance.
+//   - Update: the field is set on either the old or the new Instance, covering
+//     the cases where the value is added, changed, or removed.
+//   - Delete: the field is set on the deleted Instance.
+func instancePredicate() predicate.Predicate { //nolint:ireturn
+	return predicate.Funcs{
+		CreateFunc: func(e event.CreateEvent) bool {
+			return instanceMonitoringConfigName(e.Object) != ""
+		},
+		UpdateFunc: func(e event.UpdateEvent) bool {
+			return instanceMonitoringConfigName(e.ObjectOld) != instanceMonitoringConfigName(e.ObjectNew)
+		},
+		DeleteFunc: func(e event.DeleteEvent) bool {
+			return instanceMonitoringConfigName(e.Object) != ""
+		},
+		GenericFunc: func(event.GenericEvent) bool {
+			return false
+		},
+	}
 }
 
 // enqueueObjectsInNamespace returns an event handler that, when a Namespace event
