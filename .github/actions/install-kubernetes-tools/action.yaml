@@ -29,7 +29,7 @@ inputs:
   chainsaw-version:
     description: 'Chainsaw version (without the leading v)'
     required: false
-    default: '0.2.3'
+    default: '0.2.14'
 runs:
   using: "composite"
   steps:
@@ -56,7 +56,7 @@ runs:
       shell: bash
 
     - name: Install Chainsaw
-      if: inputs.install-chainsaw == 'true'
-      uses: kyverno/action-install-chainsaw@v0.1.0
+      if: ${{ inputs.install-chainsaw == 'true' }}
+      uses: kyverno/action-install-chainsaw@v0.2.14
       with:
         release: v${{ inputs.chainsaw-version }}
