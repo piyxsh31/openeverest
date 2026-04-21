@@ -11,7 +11,7 @@ IMG = $(IMAGE_PREFIX)/$(EVEREST_SERVER_DEV_IMAGE_NAME):$(IMAGE_TAG)
 EVEREST_CONTROLLER_IMG = $(IMAGE_PREFIX)/$(EVEREST_CONTROLLER_DEV_IMAGE_NAME):$(IMAGE_TAG)
 EVEREST_OPERATOR_IMG = $(IMAGE_PREFIX)/$(EVEREST_OPERATOR_DEV_IMAGE_NAME):$(IMAGE_TAG)
 CONTROLLER_TOOLS_VERSION ?= v0.18.0
-
+VICTORIAMETRICS_OPERATOR_VERSION ?= 0.66.1
 
 .PHONY: default
 default: help
@@ -301,6 +301,16 @@ test-crosscover: setup-envtest ## Run unit tests and collect cross-package cover
 .PHONY: test-integration-monitoring
 test-integration-monitoring: docker-build-controller k3d-upload-controller-image
 	. ./test/vars.sh && kubectl kuttl test --config test/integration/kuttl-monitoring.yaml
+
+.PHONY: test-integration-monitoring-chainsaw
+test-integration-monitoring-chainsaw: docker-build-controller k3d-upload-controller-image ## Run monitoring integration tests with chainsaw
+	kubectl get namespace everest-monitoring || kubectl create namespace everest-monitoring
+	$(MAKE) deploy-test-controller
+	kubectl apply -f https://raw.githubusercontent.com/VictoriaMetrics/operator/v$(VICTORIAMETRICS_OPERATOR_VERSION)/config/crd/overlay/crd.yaml
+	kubectl wait --for condition=established --timeout=10s crd vmagents.operator.victoriametrics.com
+	kubectl delete pod -n openeverest-system -l control-plane=controller-manager
+	kubectl wait --for=condition=available --timeout=60s deploy/openeverest-controller-manager -n openeverest-system
+	chainsaw test --config test/integration/.monitoring.yaml test/integration/monitoring
 
 ##@ Deployment management
 
