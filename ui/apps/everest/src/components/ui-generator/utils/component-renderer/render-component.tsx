@@ -22,6 +22,11 @@ import UIComponent from 'components/ui-generator/ui-component/ui-component';
 import UIGroup from 'components/ui-generator/ui-group/ui-group';
 import { generateFieldId } from './generate-field-id';
 import { orderComponents } from './order-components';
+import {
+  DataSourceField,
+  hasDataSource,
+  type ComponentWithDataSource,
+} from 'components/ui-generator/api-providers';
 
 export type RenderComponentProps = {
   item: Component | ComponentGroup;
@@ -51,6 +56,12 @@ export const renderComponent = ({
         </React.Fragment>
       );
     })
+  ) : hasDataSource(item as Component) ? (
+    <DataSourceField key={fieldName} item={item as ComponentWithDataSource}>
+      {(patchedItem: Component) => (
+        <UIComponent key={fieldName} item={patchedItem} name={fieldName} />
+      )}
+    </DataSourceField>
   ) : (
     <UIComponent key={fieldName} item={item as Component} name={fieldName} />
   );
