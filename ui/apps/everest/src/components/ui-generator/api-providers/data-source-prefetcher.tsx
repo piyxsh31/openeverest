@@ -70,9 +70,6 @@ const collectDataSources = (
   return results;
 };
 
-// Each data source gets its own component so hook rules are satisfied.
-// Also sets the default form value when options arrive so the preview
-// panel shows the value before the user navigates to the field's step.
 const PrefetchItem = ({
   provider,
   namespace,

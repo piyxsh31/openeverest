@@ -37,8 +37,6 @@ export const DataSourceField: React.FC<DataSourceFieldProps> = ({
     }
   );
 
-  // Set form value to first option when options arrive and the field is empty.
-  // Mirrors the optionsPath behavior in preprocess-schema.ts.
   useEffect(() => {
     if (isLoading || options.length === 0 || !name) return;
 

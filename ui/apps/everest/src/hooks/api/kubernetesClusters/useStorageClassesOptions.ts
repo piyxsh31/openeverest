@@ -12,10 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {
-  ProviderParams,
-  ProviderOptions,
-} from 'components/ui-generator/api-providers/types';
+import type { ProviderOptions } from 'components/ui-generator/api-providers/types';
 import { useKubernetesClusterInfo } from './useKubernetesClusterInfo';
 
 // TODO: useKubernetesClusterInfo currently requires queryKey as a parameter
