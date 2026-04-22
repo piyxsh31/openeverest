@@ -32,13 +32,17 @@ export class ErrorBoundary extends Component<
     this.state = initialState;
   }
 
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
   componentDidCatch(error: Error) {
     this.context.updateError(true);
     this.context.updateErrorObject(error);
   }
 
   render() {
-    if (this.context.hasError) {
+    if (this.state.hasError || this.context.hasError) {
       return this.props.fallback;
     }
 

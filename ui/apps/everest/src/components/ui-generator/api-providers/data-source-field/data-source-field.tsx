@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
+import { useFormContext } from 'react-hook-form';
 import type { Component } from '../../ui-generator.types';
 import { useProviderOptions } from '../registry';
 import { useUiGeneratorContext } from '../../ui-generator-context';
@@ -20,9 +21,11 @@ import type { DataSourceFieldProps } from './data-source-field.types';
 
 export const DataSourceField: React.FC<DataSourceFieldProps> = ({
   item,
+  name,
   children,
 }) => {
   const { namespace, cluster } = useUiGeneratorContext();
+  const { getValues, setValue } = useFormContext();
   const { dataSource, ...baseComponent } = item;
 
   const { options, isLoading, error, isEmpty } = useProviderOptions(
@@ -33,6 +36,17 @@ export const DataSourceField: React.FC<DataSourceFieldProps> = ({
       config: dataSource.config,
     }
   );
+
+  // Set form value to first option when options arrive and the field is empty.
+  // Mirrors the optionsPath behavior in preprocess-schema.ts.
+  useEffect(() => {
+    if (isLoading || options.length === 0 || !name) return;
+
+    const current = getValues(name);
+    if (current === '' || current === undefined || current === null) {
+      setValue(name, options[0].value, { shouldValidate: true });
+    }
+  }, [isLoading, options, name, getValues, setValue]);
 
   const patchedItem = useMemo(() => {
     const originalHelperText = (

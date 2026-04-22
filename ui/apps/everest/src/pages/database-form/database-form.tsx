@@ -310,13 +310,13 @@ export const DatabasePage = () => {
         providerObject,
       }}
     >
-      <DataSourcePrefetcher
-        sections={engine.sections}
-        namespace={selectedNamespace || namespaces[0]}
-        cluster="main"
-      />
       <Stack direction={isDesktop ? 'row' : 'column'}>
         <FormProvider {...methods}>
+          <DataSourcePrefetcher
+            sections={engine.sections}
+            namespace={selectedNamespace || namespaces[0]}
+            cluster="main"
+          />
           <DatabaseFormBody
             steps={engine.steps}
             activeStep={nav.activeStepIndex}

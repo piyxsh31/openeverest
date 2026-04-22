@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Provider } from "shared-types/api.types";
+import { Provider } from 'shared-types/api.types';
 
 export enum FormMode {
   New = 'new',

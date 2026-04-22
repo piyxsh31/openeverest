@@ -31,7 +31,7 @@ vi.mock('../../api-providers/registry', async () => {
     providerRegistry: {
       ...actual.providerRegistry,
       has: () => true,
-      getAvailableKeys: () => ['monitoringConfigs'],
+      getAvailableKeys: () => ['monitoringConfigs', 'storageClasses'],
     },
   };
 });

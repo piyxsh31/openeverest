@@ -19,5 +19,6 @@ export type ComponentWithDataSource = Component & { dataSource: DataSource };
 
 export interface DataSourceFieldProps {
   item: ComponentWithDataSource;
+  name: string;
   children: (patchedItem: Component) => React.ReactNode;
 }

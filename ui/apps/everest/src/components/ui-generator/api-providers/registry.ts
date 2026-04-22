@@ -22,11 +22,12 @@ class ApiProviderRegistry {
   private entries = new Map<string, ProviderRegistryEntry>();
 
   register(key: string, entry: ProviderRegistryEntry): void {
-    if (this.entries.has(key)) {
+    if (this.entries.has(key) && !import.meta.hot) {
       throw new Error(
         `ApiProviderRegistry: provider "${key}" is already registered.`
       );
     }
+    // Vite HMR re-runs providers.ts while this singleton survives — allow overwrite.
     this.entries.set(key, entry);
   }
 
@@ -45,8 +46,6 @@ class ApiProviderRegistry {
   getAvailableKeys(): string[] {
     return Array.from(this.entries.keys());
   }
-
-  // TODO: unregister(key) — if hot-reloading of providers is needed
 }
 
 // Singleton registry instance

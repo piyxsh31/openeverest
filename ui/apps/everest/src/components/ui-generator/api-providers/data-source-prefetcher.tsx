@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
+import { useFormContext } from 'react-hook-form';
 import type {
   Component,
   ComponentGroup,
@@ -21,17 +22,20 @@ import type {
 } from '../ui-generator.types';
 import { hasDataSource } from './data-source-field';
 import { useProviderOptions } from './registry';
+import { ComponentErrorBoundary } from '../component-error-boundary';
+import { getComponentSourcePath } from '../utils/preprocess/normalized-component';
 
 type DataSourceDeclaration = {
   provider: string;
   config?: DataSourceConfig;
+  fieldPaths: string[];
 };
 
 const collectDataSources = (
   sections: Record<string, Section>
 ): DataSourceDeclaration[] => {
   const results: DataSourceDeclaration[] = [];
-  const seen = new Set<string>();
+  const byProvider = new Map<string, DataSourceDeclaration>();
 
   const walk = (components: Record<string, Component | ComponentGroup>) => {
     for (const comp of Object.values(components)) {
@@ -40,12 +44,18 @@ const collectDataSources = (
       }
       const asComponent = comp as Component;
       if (hasDataSource(asComponent)) {
-        if (!seen.has(asComponent.dataSource.provider)) {
-          seen.add(asComponent.dataSource.provider);
-          results.push({
+        const fieldPath = getComponentSourcePath(asComponent);
+        const existing = byProvider.get(asComponent.dataSource.provider);
+        if (existing) {
+          if (fieldPath) existing.fieldPaths.push(fieldPath);
+        } else {
+          const decl: DataSourceDeclaration = {
             provider: asComponent.dataSource.provider,
             config: asComponent.dataSource.config,
-          });
+            fieldPaths: fieldPath ? [fieldPath] : [],
+          };
+          byProvider.set(asComponent.dataSource.provider, decl);
+          results.push(decl);
         }
       }
     }
@@ -60,19 +70,40 @@ const collectDataSources = (
   return results;
 };
 
-// Each data source gets its own component so hook rules are satisfied
+// Each data source gets its own component so hook rules are satisfied.
+// Also sets the default form value when options arrive so the preview
+// panel shows the value before the user navigates to the field's step.
 const PrefetchItem = ({
   provider,
   namespace,
   cluster,
   config,
+  fieldPaths,
 }: {
   provider: string;
   namespace: string;
   cluster: string;
   config?: DataSourceConfig;
+  fieldPaths: string[];
 }) => {
-  useProviderOptions(provider, { namespace, cluster, config });
+  const { options, isLoading } = useProviderOptions(provider, {
+    namespace,
+    cluster,
+    config,
+  });
+  const { getValues, setValue } = useFormContext();
+
+  useEffect(() => {
+    if (isLoading || options.length === 0) return;
+
+    for (const path of fieldPaths) {
+      const current = getValues(path);
+      if (current === '' || current === undefined || current === null) {
+        setValue(path, options[0].value, { shouldValidate: true });
+      }
+    }
+  }, [isLoading, options, fieldPaths, getValues, setValue]);
+
   return null;
 };
 
@@ -100,13 +131,18 @@ export const DataSourcePrefetcher = ({
   return (
     <>
       {dataSources.map((ds) => (
-        <PrefetchItem
+        <ComponentErrorBoundary
           key={ds.provider}
-          provider={ds.provider}
-          namespace={namespace}
-          cluster={cluster}
-          config={ds.config}
-        />
+          componentName={`prefetch:${ds.provider}`}
+        >
+          <PrefetchItem
+            provider={ds.provider}
+            namespace={namespace}
+            cluster={cluster}
+            config={ds.config}
+            fieldPaths={ds.fieldPaths}
+          />
+        </ComponentErrorBoundary>
       ))}
     </>
   );

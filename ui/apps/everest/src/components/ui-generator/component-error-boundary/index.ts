@@ -12,16 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { providerRegistry } from './registry';
-import { useMonitoringConfigsOptions } from 'hooks/api/monitoring/useMonitoringConfigsOptions';
-import { useStorageClassesOptions } from 'hooks/api/kubernetesClusters/useStorageClassesOptions';
-
-providerRegistry.register('monitoringConfigs', {
-  description: 'MonitoringConfig names in the current namespace.',
-  useOptions: useMonitoringConfigsOptions,
-});
-
-providerRegistry.register('storageClasses', {
-  description: 'StorageClass names available on the cluster.',
-  useOptions: useStorageClassesOptions,
-});
+export { ComponentErrorBoundary } from './component-error-boundary';
