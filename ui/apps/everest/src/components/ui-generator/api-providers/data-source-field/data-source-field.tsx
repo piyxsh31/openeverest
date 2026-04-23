@@ -38,10 +38,20 @@ export const DataSourceField: React.FC<DataSourceFieldProps> = ({
   );
 
   useEffect(() => {
-    if (isLoading || options.length === 0 || !name) return;
+    if (isLoading || !name) return;
 
     const current = getValues(name);
-    if (current === '' || current === undefined || current === null) {
+    const validValues = options.map((o) => o.value);
+
+    if (current && !validValues.includes(current as string)) {
+      // Current value is no longer in the options list (e.g. namespace changed) — reset
+      setValue(name, options.length > 0 ? options[0].value : '', {
+        shouldValidate: true,
+      });
+    } else if (
+      (current === '' || current === undefined || current === null) &&
+      options.length > 0
+    ) {
       setValue(name, options[0].value, { shouldValidate: true });
     }
   }, [isLoading, options, name, getValues, setValue]);

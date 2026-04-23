@@ -103,4 +103,71 @@ describe('DataSourceField', () => {
       expect(getValues('spec.storageClass')).toBe('premium');
     });
   });
+
+  it('resets form value when current value is no longer in options', async () => {
+    const { rerender } = render(<></>);
+
+    mockUseProviderOptions.mockReturnValue({
+      options: [
+        { label: 'standard', value: 'standard' },
+        { label: 'premium', value: 'premium' },
+      ],
+      isLoading: false,
+      error: null,
+      isEmpty: false,
+    });
+
+    let getValues: (name: string) => unknown = () => undefined;
+
+    const Harness = () => {
+      const methods = useForm({
+        defaultValues: { spec: { storageClass: 'old-value' } },
+      });
+      getValues = methods.getValues;
+      return (
+        <FormProvider {...methods}>
+          <DataSourceField item={makeItem()} name="spec.storageClass">
+            {() => <div />}
+          </DataSourceField>
+        </FormProvider>
+      );
+    };
+
+    rerender(<Harness />);
+
+    await waitFor(() => {
+      expect(getValues('spec.storageClass')).toBe('standard');
+    });
+  });
+
+  it('clears form value when options become empty', async () => {
+    mockUseProviderOptions.mockReturnValue({
+      options: [],
+      isLoading: false,
+      error: null,
+      isEmpty: true,
+    });
+
+    let getValues: (name: string) => unknown = () => undefined;
+
+    const Harness = () => {
+      const methods = useForm({
+        defaultValues: { spec: { storageClass: 'stale-value' } },
+      });
+      getValues = methods.getValues;
+      return (
+        <FormProvider {...methods}>
+          <DataSourceField item={makeItem()} name="spec.storageClass">
+            {() => <div />}
+          </DataSourceField>
+        </FormProvider>
+      );
+    };
+
+    render(<Harness />);
+
+    await waitFor(() => {
+      expect(getValues('spec.storageClass')).toBe('');
+    });
+  });
 });

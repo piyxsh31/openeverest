@@ -91,11 +91,22 @@ const PrefetchItem = ({
   const { getValues, setValue } = useFormContext();
 
   useEffect(() => {
-    if (isLoading || options.length === 0) return;
+    if (isLoading) return;
+
+    const validValues = options.map((o) => o.value);
 
     for (const path of fieldPaths) {
       const current = getValues(path);
-      if (current === '' || current === undefined || current === null) {
+
+      // this block checks if the current form value is not in the valid options list (can happen during namespace change)
+      if (current && !validValues.includes(current as string)) {
+        setValue(path, options.length > 0 ? options[0].value : '', {
+          shouldValidate: true,
+        });
+      } else if (
+        (current === '' || current === undefined || current === null) &&
+        options.length > 0
+      ) {
         setValue(path, options[0].value, { shouldValidate: true });
       }
     }
