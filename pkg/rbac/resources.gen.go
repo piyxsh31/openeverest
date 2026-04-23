@@ -33,6 +33,7 @@ var resourcePathMap = map[string]string{
 	"/clusters/:cluster/namespaces/:namespace/backups/:backup":                       "backups",
 	"/clusters/:cluster/namespaces/:namespace/instances":                             "instances",
 	"/clusters/:cluster/namespaces/:namespace/instances/:instance":                   "instances",
+	"/clusters/:cluster/namespaces/:namespace/instances/:instance/backups":           "backups",
 	"/clusters/:cluster/namespaces/:namespace/instances/:instance/connection":        "instances",
 	"/clusters/:cluster/namespaces/:namespace/monitoring-configs":                    "monitoring-configs",
 	"/clusters/:cluster/namespaces/:namespace/monitoring-configs/:name":              "monitoring-configs",

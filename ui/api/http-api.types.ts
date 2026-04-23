@@ -1065,6 +1065,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/clusters/{cluster}/namespaces/{namespace}/instances/{instance}/backups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List backups for an instance
+         * @description This API lists all backups for the database instance specified by the `instance` name
+         *     in the specified `namespace` and `cluster`.
+         */
+        get: operations["listInstanceBackups"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/clusters/{cluster}/backup-classes": {
         parameters: {
             query?: never;
@@ -7410,6 +7431,158 @@ export interface components {
         } & {
             [key: string]: string;
         };
+        /** @description Backup is the Schema for the backups API */
+        Backup: {
+            /**
+             * @description APIVersion defines the versioned schema of this representation of an object.
+             *     Servers should convert recognized schemas to the latest internal value, and
+             *     may reject unrecognized values.
+             *     More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+             */
+            apiVersion?: string;
+            /**
+             * @description Kind is a string value representing the REST resource this object represents.
+             *     Servers may infer this from the endpoint the client submits requests to.
+             *     Cannot be updated.
+             *     In CamelCase.
+             *     More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+             */
+            kind?: string;
+            metadata?: Record<string, never>;
+            /** @description BackupSpec defines the desired state of Backup */
+            spec: {
+                /** @description BackupClassName is the backup tool to use for the backup. */
+                backupClassName: string;
+                /**
+                 * @description Config defines the configuration for the backup job.
+                 *     These options are specific to the BackupClass being used and must conform to
+                 *     the schema defined in the BackupClass's .spec.config.openAPIV3Schema.
+                 */
+                config?: Record<string, never>;
+                /** @description Destination is the destination for the backup data. */
+                destination: {
+                    /** @description BackupStorageName is the name of the BackupStorage to use for the backup. */
+                    backupStorageName?: string;
+                    /** @description S3 contains the S3 information for the backup destination. */
+                    s3?: {
+                        /**
+                         * @description AccessKeyID allows specifying the S3 access key ID inline.
+                         *     It is provided as a write-only input field for convenience.
+                         *     When this field is set, a webhook writes this value in the Secret specified by `credentialsSecretName`
+                         *     and empties this field.
+                         *     This field is not stored in the API.
+                         */
+                        accessKeyId?: string;
+                        /** @description Bucket is the name of the S3 bucket. */
+                        bucket: string;
+                        /**
+                         * @description CredentialsSecreName is the reference to the secret containing the S3 credentials.
+                         *     The Secret must contain the keys `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.
+                         */
+                        credentialsSecretName: string;
+                        /** @description EndpointURL is an endpoint URL of backup storage. */
+                        endpointURL: string;
+                        /**
+                         * @description ForcePathStyle is set to use path-style URLs.
+                         *     If unspecified, the default value is false.
+                         * @default false
+                         */
+                        forcePathStyle: boolean;
+                        /** @description Region is the region of the S3 bucket. */
+                        region: string;
+                        /**
+                         * @description SecretAccessKey allows specifying the S3 secret access key inline.
+                         *     It is provided as a write-only input field for convenience.
+                         *     When this field is set, a webhook writes this value in the Secret specified by `credentialsSecretName`
+                         *     and empties this field.
+                         *     This field is not stored in the API.
+                         */
+                        secretAccessKey?: string;
+                        /**
+                         * @description VerifyTLS is set to ensure TLS/SSL verification.
+                         *     If unspecified, the default value is true.
+                         * @default true
+                         */
+                        verifyTLS: boolean;
+                    };
+                };
+                /** @description InstanceName is the name of the Instance to back up. */
+                instanceName: string;
+            };
+            /** @description BackupStatus defines the observed state of Backup. */
+            status?: {
+                /**
+                 * Format: date-time
+                 * @description CompletedAt is the time when the backup job completed successfully.
+                 */
+                completedAt?: string;
+                conditions?: {
+                    /**
+                     * Format: date-time
+                     * @description lastTransitionTime is the last time the condition transitioned from one status to another.
+                     *     This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                     */
+                    lastTransitionTime: string;
+                    /**
+                     * @description message is a human readable message indicating details about the transition.
+                     *     This may be an empty string.
+                     */
+                    message: string;
+                    /**
+                     * Format: int64
+                     * @description observedGeneration represents the .metadata.generation that the condition was set based upon.
+                     *     For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                     *     with respect to the current state of the instance.
+                     */
+                    observedGeneration?: number;
+                    /**
+                     * @description reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                     *     Producers of specific condition types may define expected values and meanings for this field,
+                     *     and whether the values are considered a guaranteed API.
+                     *     The value should be a CamelCase string.
+                     *     This field may not be empty.
+                     */
+                    reason: string;
+                    /**
+                     * @description status of the condition, one of True, False, Unknown.
+                     * @enum {string}
+                     */
+                    status: "True" | "False" | "Unknown";
+                    /** @description type of condition in CamelCase or in foo.example.com/CamelCase. */
+                    type: string;
+                }[];
+                /** @description JobName is the reference to the job that is running the backup. */
+                jobName?: string;
+                /**
+                 * Format: int64
+                 * @description LastObservedGeneration is the last observed generation of the backup job.
+                 */
+                lastObservedGeneration?: number;
+                /** @description Message is the message of the backup job. */
+                message?: string;
+                /**
+                 * Format: date-time
+                 * @description StartedAt is the time when the backup job started.
+                 */
+                startedAt?: string;
+                /** @description State is the current state of the backup job. */
+                state?: string;
+            };
+        };
+        /** @description BackupList is an object that contains the list of the existing backups. */
+        BackupList: {
+            /** @description APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources */
+            apiVersion?: string;
+            items?: components["schemas"]["Backup"][];
+            /** @description Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds */
+            kind?: string;
+            metadata?: {
+                /** @description Name must be unique within a namespace. Is required when creating resources, although some resources may allow a client to request the generation of an appropriate name automatically. Name is primarily intended for creation idempotence and configuration definition. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#names */
+                name?: string;
+                /** @description Namespace defines the space within which each name must be unique. An empty namespace is equivalent to the "default" namespace, but "default" is the canonical representation. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces */
+                namespace?: string;
+            };
+        };
         /** @description BackupClass is the Schema for the backupclasses API */
         BackupClass: {
             /**
@@ -7566,144 +7739,6 @@ export interface components {
             metadata?: {
                 /** @description Name must be unique within a namespace. Is required when creating resources, although some resources may allow a client to request the generation of an appropriate name automatically. Name is primarily intended for creation idempotence and configuration definition. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#names */
                 name?: string;
-            };
-        };
-        /** @description Backup is the Schema for the backups API */
-        Backup: {
-            /**
-             * @description APIVersion defines the versioned schema of this representation of an object.
-             *     Servers should convert recognized schemas to the latest internal value, and
-             *     may reject unrecognized values.
-             *     More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-             */
-            apiVersion?: string;
-            /**
-             * @description Kind is a string value representing the REST resource this object represents.
-             *     Servers may infer this from the endpoint the client submits requests to.
-             *     Cannot be updated.
-             *     In CamelCase.
-             *     More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-             */
-            kind?: string;
-            metadata?: Record<string, never>;
-            /** @description BackupSpec defines the desired state of Backup */
-            spec: {
-                /** @description BackupClassName is the backup tool to use for the backup. */
-                backupClassName: string;
-                /**
-                 * @description Config defines the configuration for the backup job.
-                 *     These options are specific to the BackupClass being used and must conform to
-                 *     the schema defined in the BackupClass's .spec.config.openAPIV3Schema.
-                 */
-                config?: Record<string, never>;
-                /** @description Destination is the destination for the backup data. */
-                destination: {
-                    /** @description BackupStorageName is the name of the BackupStorage to use for the backup. */
-                    backupStorageName?: string;
-                    /** @description S3 contains the S3 information for the backup destination. */
-                    s3?: {
-                        /**
-                         * @description AccessKeyID allows specifying the S3 access key ID inline.
-                         *     It is provided as a write-only input field for convenience.
-                         *     When this field is set, a webhook writes this value in the Secret specified by `credentialsSecretName`
-                         *     and empties this field.
-                         *     This field is not stored in the API.
-                         */
-                        accessKeyId?: string;
-                        /** @description Bucket is the name of the S3 bucket. */
-                        bucket: string;
-                        /**
-                         * @description CredentialsSecreName is the reference to the secret containing the S3 credentials.
-                         *     The Secret must contain the keys `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.
-                         */
-                        credentialsSecretName: string;
-                        /** @description EndpointURL is an endpoint URL of backup storage. */
-                        endpointURL: string;
-                        /**
-                         * @description ForcePathStyle is set to use path-style URLs.
-                         *     If unspecified, the default value is false.
-                         * @default false
-                         */
-                        forcePathStyle: boolean;
-                        /** @description Region is the region of the S3 bucket. */
-                        region: string;
-                        /**
-                         * @description SecretAccessKey allows specifying the S3 secret access key inline.
-                         *     It is provided as a write-only input field for convenience.
-                         *     When this field is set, a webhook writes this value in the Secret specified by `credentialsSecretName`
-                         *     and empties this field.
-                         *     This field is not stored in the API.
-                         */
-                        secretAccessKey?: string;
-                        /**
-                         * @description VerifyTLS is set to ensure TLS/SSL verification.
-                         *     If unspecified, the default value is true.
-                         * @default true
-                         */
-                        verifyTLS: boolean;
-                    };
-                };
-                /** @description InstanceName is the name of the Instance to back up. */
-                instanceName: string;
-            };
-            /** @description BackupStatus defines the observed state of Backup. */
-            status?: {
-                /**
-                 * Format: date-time
-                 * @description CompletedAt is the time when the backup job completed successfully.
-                 */
-                completedAt?: string;
-                conditions?: {
-                    /**
-                     * Format: date-time
-                     * @description lastTransitionTime is the last time the condition transitioned from one status to another.
-                     *     This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
-                     */
-                    lastTransitionTime: string;
-                    /**
-                     * @description message is a human readable message indicating details about the transition.
-                     *     This may be an empty string.
-                     */
-                    message: string;
-                    /**
-                     * Format: int64
-                     * @description observedGeneration represents the .metadata.generation that the condition was set based upon.
-                     *     For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
-                     *     with respect to the current state of the instance.
-                     */
-                    observedGeneration?: number;
-                    /**
-                     * @description reason contains a programmatic identifier indicating the reason for the condition's last transition.
-                     *     Producers of specific condition types may define expected values and meanings for this field,
-                     *     and whether the values are considered a guaranteed API.
-                     *     The value should be a CamelCase string.
-                     *     This field may not be empty.
-                     */
-                    reason: string;
-                    /**
-                     * @description status of the condition, one of True, False, Unknown.
-                     * @enum {string}
-                     */
-                    status: "True" | "False" | "Unknown";
-                    /** @description type of condition in CamelCase or in foo.example.com/CamelCase. */
-                    type: string;
-                }[];
-                /** @description JobName is the reference to the job that is running the backup. */
-                jobName?: string;
-                /**
-                 * Format: int64
-                 * @description LastObservedGeneration is the last observed generation of the backup job.
-                 */
-                lastObservedGeneration?: number;
-                /** @description Message is the message of the backup job. */
-                message?: string;
-                /**
-                 * Format: date-time
-                 * @description StartedAt is the time when the backup job started.
-                 */
-                startedAt?: string;
-                /** @description State is the current state of the backup job. */
-                state?: string;
             };
         };
         /** @description MonitoringConfig is the Schema for the monitoringconfigs API. */
@@ -10809,6 +10844,51 @@ export interface operations {
                 };
             };
             /** @description Instance or connection details not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    listInstanceBackups: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The name of the cluster */
+                cluster: string;
+                /** @description The namespace where the instance is located */
+                namespace: string;
+                /** @description The name of the instance */
+                instance: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List of backups for the instance */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BackupList"];
+                };
+            };
+            /** @description Instance not found */
             404: {
                 headers: {
                     [name: string]: unknown;

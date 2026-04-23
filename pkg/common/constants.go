@@ -95,6 +95,8 @@ const (
 	KubernetesManagedByLabel = "app.kubernetes.io/managed-by"
 	// DatabaseClusterNameLabel is the label used to identify resources by DB cluster name.
 	DatabaseClusterNameLabel = "clusterName"
+	// InstanceNameLabel is the label used to identify resources by instance name.
+	InstanceNameLabel = "instanceName"
 	// ForegroundDeletionFinalizer is the finalizer used to delete resources in foreground.
 	ForegroundDeletionFinalizer = "foregroundDeletion"
 	// UserCtxKey is the key used to store the user in the context.
