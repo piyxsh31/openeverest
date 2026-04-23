@@ -1,22 +1,24 @@
-import { MonitoringInstanceForNamespaceResult } from 'hooks/api/monitoring/useMonitoringInstancesList';
-import { MonitoringInstanceTableElement } from './monitoring-endpoints.types';
+import { MonitoringConfigForNamespaceResult } from 'hooks/api/monitoring/useMonitoringConfigsList';
+import { MonitoringConfigTableElement } from './monitoring-endpoints.types';
 
-export const convertMonitoringInstancesPayloadToTableFormat = (
-  data: MonitoringInstanceForNamespaceResult[]
-): MonitoringInstanceTableElement[] => {
-  const result: MonitoringInstanceTableElement[] = [];
+export const convertMonitoringConfigsToTableFormat = (
+  data: MonitoringConfigForNamespaceResult[]
+): MonitoringConfigTableElement[] => {
+  const result: MonitoringConfigTableElement[] = [];
   data.forEach((item) => {
-    const tableDataForNamespace: MonitoringInstanceTableElement[] = item
-      ?.queryResult?.isSuccess
-      ? item.queryResult?.data.map((monitoring) => ({
-          namespace: item.namespace,
-          name: monitoring.name,
-          type: monitoring.type,
-          url: monitoring.url,
-          raw: monitoring,
-        }))
-      : [];
-    result.push(...tableDataForNamespace);
+    if (!item.queryResult.isSuccess) return;
+    const rows = item.queryResult.data.map(
+      (config): MonitoringConfigTableElement => ({
+        name: config.metadata?.name ?? '',
+        namespace: item.namespace,
+        type: config.spec.type,
+        url: config.spec.url,
+        inUse: config.status?.inUse ?? false,
+        pmmServerVersion: config.status?.pmmServerVersion ?? '-',
+        raw: config,
+      })
+    );
+    result.push(...rows);
   });
   return result;
 };

@@ -1,1 +1,2 @@
-export * from './useMonitoringInstancesList';
+export * from './useMonitoringConfigsList';
+export * from './useMonitoringConfigsOptions';

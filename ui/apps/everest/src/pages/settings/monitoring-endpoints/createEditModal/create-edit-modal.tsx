@@ -20,20 +20,26 @@ export const CreateEditEndpointModal = ({
   isLoading = false,
   handleSubmit,
   selectedEndpoint,
+  selectedNamespace,
 }: CreateEditEndpointModalProps) => {
   const isEditMode = !!selectedEndpoint;
 
-  const { canCreate } = useNamespacePermissionsForResource(
-    'monitoring-instances'
-  );
+  const { canCreate } =
+    useNamespacePermissionsForResource('monitoring-configs');
   const endpointSchema = getEndpointSchema(isEditMode);
 
   const defaultValues = useMemo(
     () =>
       selectedEndpoint
-        ? { ...endpointDefaultValues, ...selectedEndpoint }
+        ? {
+            ...endpointDefaultValues,
+            name: selectedEndpoint.metadata?.name ?? '',
+            namespace: selectedNamespace ?? '',
+            url: selectedEndpoint.spec.url,
+            verifyTLS: selectedEndpoint.spec.verifyTLS ?? true,
+          }
         : endpointDefaultValues,
-    [selectedEndpoint]
+    [selectedEndpoint, selectedNamespace]
   );
 
   const onSubmit = (data: EndpointFormType) => {

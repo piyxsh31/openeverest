@@ -1,9 +1,11 @@
-import { MonitoringInstance } from 'shared-types/monitoring.types';
+import { MonitoringConfig } from 'shared-types/api.types';
 
-export interface MonitoringInstanceTableElement {
-  type: string;
-  url: string;
+export interface MonitoringConfigTableElement {
   name: string;
   namespace: string;
-  raw: MonitoringInstance;
+  type: string;
+  url: string;
+  inUse: boolean;
+  pmmServerVersion: string;
+  raw: MonitoringConfig;
 }

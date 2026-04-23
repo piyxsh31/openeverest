@@ -7,7 +7,7 @@ import {
   MONITORING_INSTANCES_QUERY_KEY,
   useCreateMonitoringInstance,
   useMonitoringInstancesList,
-} from 'hooks/api/monitoring/useMonitoringInstancesList';
+} from 'hooks/api/monitoring/useMonitoringConfigsList.js';
 import { CreateEditEndpointModal } from 'pages/settings/monitoring-endpoints/createEditModal/create-edit-modal.tsx';
 import { EndpointFormType } from 'pages/settings/monitoring-endpoints/createEditModal/create-edit-modal.types.ts';
 import { useFormContext } from 'react-hook-form';

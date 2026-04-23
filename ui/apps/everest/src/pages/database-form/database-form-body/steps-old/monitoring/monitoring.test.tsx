@@ -62,7 +62,7 @@ const queryClient = new QueryClient({
   },
 });
 
-vi.mock('hooks/api/monitoring/useMonitoringInstancesList', () => ({
+vi.mock('hooks/api/monitoring/useMonitoringConfigsList', () => ({
   useMonitoringInstancesList: mocks.useMonitoringInstancesList,
   useCreateMonitoringInstance: mocks.useCreateMonitoringInstance,
 }));

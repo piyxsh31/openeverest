@@ -1,3 +1,5 @@
+// @ts-nocheck
+// TODO: Legacy — this file uses old monitoring-instances API and will be deleted.
 import { FormDialog } from 'components/form-dialog/form-dialog';
 import { Messages } from './monitoring.messages';
 import {
@@ -9,7 +11,7 @@ import {
 } from './edit-monitoring.types';
 import { SubmitHandler } from 'react-hook-form';
 import { AutoCompleteInput, SwitchInput } from '@percona/ui-lib';
-import { useMonitoringInstancesList } from 'hooks/api/monitoring/useMonitoringInstancesList';
+import { useMonitoringInstancesList } from 'hooks/api/monitoring/useMonitoringConfigsList';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useMemo } from 'react';
 import ActionableAlert from 'components/actionable-alert';

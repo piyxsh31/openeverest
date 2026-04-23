@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { MonitoringInstance } from 'shared-types/monitoring.types';
+import { MonitoringConfig } from 'shared-types/api.types';
 import { rfc_123_schema } from 'utils/common-validation';
 import { Messages } from '../monitoring-endpoints.messages';
 
@@ -16,7 +16,8 @@ export interface CreateEditEndpointModalProps {
   open: boolean;
   handleClose: () => void;
   handleSubmit: (isEditMode: boolean, data: EndpointFormType) => void;
-  selectedEndpoint?: MonitoringInstance;
+  selectedEndpoint?: MonitoringConfig;
+  selectedNamespace?: string;
   isLoading?: boolean;
 }
 
@@ -30,6 +31,8 @@ export const getEndpointSchema = (isEditMode: boolean) =>
       [EndpointFormFields.namespace]: z.string().nonempty(),
       [EndpointFormFields.verifyTLS]: z.boolean(),
       [EndpointFormFields.url]: z.string().min(1).url(),
+      // Credentials are stored in a K8s Secret and are not returned by the GET API.
+      // In create mode they are required; in edit mode they are optional (leave empty to keep existing).
       ...(isEditMode
         ? {
             [EndpointFormFields.user]: z.string(),
