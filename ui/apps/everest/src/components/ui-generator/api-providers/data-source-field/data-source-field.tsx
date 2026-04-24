@@ -17,6 +17,7 @@ import { useFormContext } from 'react-hook-form';
 import type { Component } from '../../ui-generator.types';
 import { useProviderOptions } from '../registry';
 import { useUiGeneratorContext } from '../../ui-generator-context';
+import { useClusterName } from 'hooks/useClusterName';
 import type { DataSourceFieldProps } from './data-source-field.types';
 
 export const DataSourceField: React.FC<DataSourceFieldProps> = ({
@@ -24,7 +25,8 @@ export const DataSourceField: React.FC<DataSourceFieldProps> = ({
   name,
   children,
 }) => {
-  const { namespace, cluster } = useUiGeneratorContext();
+  const { namespace } = useUiGeneratorContext();
+  const cluster = useClusterName();
   const { getValues, setValue } = useFormContext();
   const { dataSource, ...baseComponent } = item;
 
@@ -32,7 +34,7 @@ export const DataSourceField: React.FC<DataSourceFieldProps> = ({
     dataSource.provider,
     {
       namespace: namespace ?? '',
-      cluster: cluster ?? '',
+      cluster,
       config: dataSource.config,
     }
   );

@@ -12,14 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { MonitoringConfig } from 'shared-types/api.types';
+// TODO: Replace hardcoded cluster name when multi-cluster support is implemented.
+// This hook centralizes the cluster name so it can be swapped out in one place.
+const CLUSTER_NAME = 'main';
 
-export interface MonitoringConfigTableElement {
-  name: string;
-  namespace: string;
-  type: string;
-  url: string;
-  inUse: boolean;
-  pmmServerVersion: string;
-  raw: MonitoringConfig;
-}
+export const useClusterName = (): string => {
+  return CLUSTER_NAME;
+};

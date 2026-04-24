@@ -25,7 +25,11 @@ vi.mock('../registry', () => ({
 }));
 
 vi.mock('../../ui-generator-context', () => ({
-  useUiGeneratorContext: () => ({ namespace: 'ns', cluster: 'cl' }),
+  useUiGeneratorContext: () => ({ namespace: 'ns' }),
+}));
+
+vi.mock('hooks/useClusterName', () => ({
+  useClusterName: () => 'main',
 }));
 
 const makeItem = (): ComponentWithDataSource => ({

@@ -235,5 +235,4 @@ export type UIGeneratorProps = {
   loadingDefaultsForEdition?: boolean;
   formMode?: FormMode;
   namespace?: string;
-  cluster?: string;
 };
