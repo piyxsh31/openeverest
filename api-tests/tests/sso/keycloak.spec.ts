@@ -40,14 +40,10 @@ test.describe('SSO with Keycloak', () => {
   });
 
   test('SSO token can access authenticated endpoints', async ({request}) => {
-    const tokens = await keycloakLogin(request, KEYCLOAK_URL);
-
-    // Access database-engines endpoint (requires auth)
-    const resp = await request.get('/v1/namespaces', {
-      headers: {
-        Authorization: `Bearer ${tokens.access_token}`,
-      },
-    });
+    // Use the project-level Authorization header (set from API_SSO_TOKEN in
+    // playwright.config.ts).  No need for a fresh keycloakLogin — this test
+    // verifies a protected endpoint works, not that keycloakLogin works.
+    const resp = await request.get('/v1/namespaces');
     expect(resp.ok(), `Namespaces request failed: ${resp.status()}`).toBeTruthy();
   });
 
