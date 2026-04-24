@@ -48,13 +48,8 @@ export type NormalizedPathMeta = {
   targetPaths: string[];
 };
 
-export interface DataSourceConfig {
-  refetchInterval?: number;
-}
-
 export interface DataSource {
   provider: string;
-  config?: DataSourceConfig;
 }
 
 export enum FieldType {

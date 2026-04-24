@@ -30,13 +30,15 @@ export const DataSourceField: React.FC<DataSourceFieldProps> = ({
   const { getValues, setValue } = useFormContext();
   const { dataSource, ...baseComponent } = item;
 
+  const hasValidContext = !!namespace && !!cluster;
+
   const { options, isLoading, error, isEmpty } = useProviderOptions(
     dataSource.provider,
     {
       namespace: namespace ?? '',
       cluster,
-      config: dataSource.config,
-    }
+    },
+    { enabled: hasValidContext }
   );
 
   useEffect(() => {

@@ -14,12 +14,7 @@
 
 import { useEffect, useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
-import type {
-  Component,
-  ComponentGroup,
-  DataSourceConfig,
-  Section,
-} from '../ui-generator.types';
+import type { Component, ComponentGroup, Section } from '../ui-generator.types';
 import { hasDataSource } from './data-source-field';
 import { useProviderOptions } from './registry';
 import { ComponentErrorBoundary } from '../component-error-boundary';
@@ -28,7 +23,6 @@ import { useClusterName } from 'hooks/useClusterName';
 
 type DataSourceDeclaration = {
   provider: string;
-  config?: DataSourceConfig;
   fieldPaths: string[];
 };
 
@@ -36,7 +30,7 @@ const collectDataSources = (
   sections: Record<string, Section>
 ): DataSourceDeclaration[] => {
   const results: DataSourceDeclaration[] = [];
-  const byProvider = new Map<string, DataSourceDeclaration>();
+  const byKey = new Map<string, DataSourceDeclaration>();
 
   const walk = (components: Record<string, Component | ComponentGroup>) => {
     for (const comp of Object.values(components)) {
@@ -46,16 +40,15 @@ const collectDataSources = (
       const asComponent = comp as Component;
       if (hasDataSource(asComponent)) {
         const fieldPath = getComponentSourcePath(asComponent);
-        const existing = byProvider.get(asComponent.dataSource.provider);
+        const existing = byKey.get(asComponent.dataSource.provider);
         if (existing) {
           if (fieldPath) existing.fieldPaths.push(fieldPath);
         } else {
           const decl: DataSourceDeclaration = {
             provider: asComponent.dataSource.provider,
-            config: asComponent.dataSource.config,
             fieldPaths: fieldPath ? [fieldPath] : [],
           };
-          byProvider.set(asComponent.dataSource.provider, decl);
+          byKey.set(asComponent.dataSource.provider, decl);
           results.push(decl);
         }
       }
@@ -74,19 +67,16 @@ const collectDataSources = (
 const PrefetchItem = ({
   provider,
   namespace,
-  config,
   fieldPaths,
 }: {
   provider: string;
   namespace: string;
-  config?: DataSourceConfig;
   fieldPaths: string[];
 }) => {
   const cluster = useClusterName();
   const { options, isLoading } = useProviderOptions(provider, {
     namespace,
     cluster,
-    config,
   });
   const { getValues, setValue } = useFormContext();
 
@@ -144,7 +134,6 @@ export const DataSourcePrefetcher = ({
           <PrefetchItem
             provider={ds.provider}
             namespace={namespace}
-            config={ds.config}
             fieldPaths={ds.fieldPaths}
           />
         </ComponentErrorBoundary>

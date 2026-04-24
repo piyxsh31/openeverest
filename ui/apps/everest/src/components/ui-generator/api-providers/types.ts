@@ -12,12 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type { DataSourceConfig } from '../ui-generator.types';
-
 export interface ProviderParams {
   namespace: string;
   cluster: string;
-  config?: DataSourceConfig;
   // TODO: Add currentValue?: string for filtering out unavailable options at edit time
 }
 

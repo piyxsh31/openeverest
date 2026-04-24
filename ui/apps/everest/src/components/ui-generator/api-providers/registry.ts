@@ -53,7 +53,8 @@ export const providerRegistry = new ApiProviderRegistry();
 
 export const useProviderOptions = (
   providerKey: string,
-  params: ProviderParams
+  params: ProviderParams,
+  options?: { enabled?: boolean }
 ): ProviderOptions => {
   const entry = providerRegistry.get(providerKey);
 
@@ -64,5 +65,18 @@ export const useProviderOptions = (
     );
   }
 
-  return entry.useOptions(params);
+  const result = entry.useOptions(params);
+
+  // When disabled (e.g. namespace not yet available), return empty options
+  if (options?.enabled === false) {
+    return {
+      options: [],
+      isLoading: false,
+      error: null,
+      isEmpty: true,
+      rawData: undefined,
+    };
+  }
+
+  return result;
 };
