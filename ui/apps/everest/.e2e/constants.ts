@@ -21,6 +21,8 @@ export const SESSION_USER_STORAGE_STATE_FILE = path.join(
   'session_user.json'
 );
 
+export const EVEREST_CI_CLUSTER = 'main';
+
 export enum EVEREST_CI_NAMESPACES {
   EVEREST_UI = 'everest',
   PSMDB_ONLY = 'psmdb-only',
