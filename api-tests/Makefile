@@ -179,3 +179,33 @@ test-sso:           ## Run SSO tests with Keycloak (requires deploy-keycloak fir
 	export CI_PASSWORD="password" ;\
 	npx playwright test --config=./playwright.config.ts --project=sso $${FLAGS};\
 	}
+
+AUTHENTIK_RESOURCE=$(TEST_ROOT)/manifests/authentik.yaml
+.PHONY: deploy-authentik
+deploy-authentik: ## Deploy Authentik to K3D test cluster for SSO tests.
+	$(info Deploying Authentik to K3D cluster)
+	kubectl apply -f $(AUTHENTIK_RESOURCE)
+	if ! kubectl wait deploy/authentik-postgresql --for=condition=Available -n everest-system --timeout=120s; then \
+		echo "❌ Authentik PostgreSQL did not become ready in time"; \
+		kubectl get pods -n everest-system -l app=authentik-postgresql -o wide || true; \
+		exit 1; \
+	fi
+	if ! kubectl wait deploy/authentik-server --for=condition=Available -n everest-system --timeout=300s; then \
+		echo "❌ Authentik server did not become ready in time"; \
+		kubectl get pods -n everest-system -l app=authentik-server -o wide || true; \
+		kubectl logs -n everest-system -l app=authentik-server --tail=50 || true; \
+		exit 1; \
+	fi
+	$(info Port-forwarding Authentik to localhost:9000)
+	kubectl port-forward -n everest-system svc/authentik 9000:9000 &
+
+.PHONY: test-sso-authentik
+test-sso-authentik: ## Run SSO tests with Authentik (requires deploy-authentik first).
+	@{ \
+	set -xe ;\
+	export AUTHENTIK_ENABLED="true" ;\
+	export AUTHENTIK_URL="http://localhost:9000" ;\
+	export CI_USER="everest_ci" ;\
+	export CI_PASSWORD="password" ;\
+	npx playwright test --config=./playwright.config.ts --project=sso-authentik $${FLAGS};\
+	}

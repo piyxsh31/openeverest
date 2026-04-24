@@ -1,0 +1,192 @@
+# PostgreSQL for Authentik
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authentik-postgresql
+  namespace: everest-system
+  labels:
+    app: authentik-postgresql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: authentik-postgresql
+  template:
+    metadata:
+      labels:
+        app: authentik-postgresql
+    spec:
+      containers:
+        - name: postgresql
+          image: docker.io/library/postgres:16-alpine
+          env:
+            - name: POSTGRES_DB
+              value: authentik
+            - name: POSTGRES_USER
+              value: authentik
+            - name: POSTGRES_PASSWORD
+              value: authentik-test-password
+          ports:
+            - containerPort: 5432
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -d
+                - authentik
+                - -U
+                - authentik
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            limits:
+              memory: 256Mi
+              cpu: 250m
+            requests:
+              memory: 128Mi
+              cpu: 100m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: authentik-postgresql
+  namespace: everest-system
+spec:
+  type: ClusterIP
+  selector:
+    app: authentik-postgresql
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+---
+# Authentik Server
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authentik-server
+  namespace: everest-system
+  labels:
+    app: authentik-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: authentik-server
+  template:
+    metadata:
+      labels:
+        app: authentik-server
+    spec:
+      containers:
+        - name: server
+          image: ghcr.io/goauthentik/server:2026.2.2
+          args:
+            - server
+          env:
+            - name: AUTHENTIK_SECRET_KEY
+              value: "authentik-test-secret-key-not-for-production"
+            - name: AUTHENTIK_POSTGRESQL__HOST
+              value: "authentik-postgresql"
+            - name: AUTHENTIK_POSTGRESQL__NAME
+              value: "authentik"
+            - name: AUTHENTIK_POSTGRESQL__USER
+              value: "authentik"
+            - name: AUTHENTIK_POSTGRESQL__PASSWORD
+              value: "authentik-test-password"
+            - name: AUTHENTIK_POSTGRESQL__SSLMODE
+              value: "disable"
+            - name: AUTHENTIK_BOOTSTRAP_PASSWORD
+              value: "admin"
+            - name: AUTHENTIK_BOOTSTRAP_EMAIL
+              value: "admin@example.com"
+            - name: AUTHENTIK_LOG_LEVEL
+              value: "info"
+            - name: AUTHENTIK_DISABLE_UPDATE_CHECK
+              value: "true"
+            - name: AUTHENTIK_ERROR_REPORTING__ENABLED
+              value: "false"
+          ports:
+            - containerPort: 9000
+              name: http
+            - containerPort: 9443
+              name: https
+          readinessProbe:
+            httpGet:
+              path: /-/health/ready/
+              port: 9000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            limits:
+              memory: 1Gi
+              cpu: "1"
+            requests:
+              memory: 512Mi
+              cpu: 250m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: authentik
+  namespace: everest-system
+spec:
+  type: ClusterIP
+  selector:
+    app: authentik-server
+  ports:
+    - protocol: TCP
+      port: 9000
+      targetPort: 9000
+      name: http
+---
+# Authentik Worker (needed for background tasks like user creation)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authentik-worker
+  namespace: everest-system
+  labels:
+    app: authentik-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: authentik-worker
+  template:
+    metadata:
+      labels:
+        app: authentik-worker
+    spec:
+      containers:
+        - name: worker
+          image: ghcr.io/goauthentik/server:2026.2.2
+          args:
+            - worker
+          env:
+            - name: AUTHENTIK_SECRET_KEY
+              value: "authentik-test-secret-key-not-for-production"
+            - name: AUTHENTIK_POSTGRESQL__HOST
+              value: "authentik-postgresql"
+            - name: AUTHENTIK_POSTGRESQL__NAME
+              value: "authentik"
+            - name: AUTHENTIK_POSTGRESQL__USER
+              value: "authentik"
+            - name: AUTHENTIK_POSTGRESQL__PASSWORD
+              value: "authentik-test-password"
+            - name: AUTHENTIK_POSTGRESQL__SSLMODE
+              value: "disable"
+            - name: AUTHENTIK_LOG_LEVEL
+              value: "info"
+            - name: AUTHENTIK_DISABLE_UPDATE_CHECK
+              value: "true"
+            - name: AUTHENTIK_ERROR_REPORTING__ENABLED
+              value: "false"
+          resources:
+            limits:
+              memory: 1Gi
+              cpu: "1"
+            requests:
+              memory: 512Mi
+              cpu: 250m

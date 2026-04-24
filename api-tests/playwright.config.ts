@@ -2,7 +2,7 @@ import {defineConfig} from '@playwright/test';
 import path from 'path';
 import {dirname} from 'path';
 import {fileURLToPath} from 'url';
-import {API_CI_TOKEN, API_TEST_TOKEN, API_SSO_TOKEN} from '@root/constants';
+import {API_CI_TOKEN, API_TEST_TOKEN, API_SSO_TOKEN, API_SSO_AUTHENTIK_TOKEN} from '@root/constants';
 import {TIMEOUTS} from "./constants";
 
 // Convert 'import.meta.url' to the equivalent __dirname
@@ -127,6 +127,22 @@ export default defineConfig({
             name: 'global:keycloak:teardown',
             testDir: 'tests/teardown/keycloak',
             testMatch: /keycloak\.teardown\.ts/,
+          },
+        ]
+      : []),
+    // global:authentik (optional — only when AUTHENTIK_ENABLED=true)
+    ...(process.env.AUTHENTIK_ENABLED === 'true'
+      ? [
+          {
+            name: 'global:authentik:setup',
+            testDir: 'tests/setup/authentik',
+            testMatch: /authentik\.setup\.ts/,
+            teardown: 'global:authentik:teardown',
+          },
+          {
+            name: 'global:authentik:teardown',
+            testDir: 'tests/teardown/authentik',
+            testMatch: /authentik\.teardown\.ts/,
           },
         ]
       : []),
@@ -259,6 +275,21 @@ export default defineConfig({
             use: {
               extraHTTPHeaders: {
                 'Authorization': `Bearer ${process.env[API_SSO_TOKEN]}`,
+              },
+            },
+          },
+        ]
+      : []),
+    ...(process.env.AUTHENTIK_ENABLED === 'true'
+      ? [
+          {
+            name: 'sso-authentik',
+            testDir: 'tests/sso',
+            testMatch: /authentik\.spec\.ts/,
+            dependencies: ['global:authentik:setup'],
+            use: {
+              extraHTTPHeaders: {
+                'Authorization': `Bearer ${process.env[API_SSO_AUTHENTIK_TOKEN]}`,
               },
             },
           },
