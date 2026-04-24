@@ -68,17 +68,17 @@ setup.describe.serial('Authentik SSO setup', () => {
     );
     expect(patchResult.code, `ConfigMap patch failed: ${patchResult.stderr}`).toEqual(0);
 
-    // Delete Everest pod to pick up the new OIDC config
-    const deleteResult = await cli.execute(
-      'kubectl delete pod -n everest-system -l app.kubernetes.io/name=everest-server --wait=false',
+    // Restart Everest so it picks up the new OIDC config.
+    const restartResult = await cli.execute(
+      'kubectl rollout restart deployment/everest-server -n everest-system',
     );
-    expect(deleteResult.code, `Pod delete failed: ${deleteResult.stderr}`).toEqual(0);
+    expect(restartResult.code, `Restart failed: ${restartResult.stderr}`).toEqual(0);
 
-    // Wait for the new pod to become ready
+    // Wait for Everest to be ready again.
     const waitResult = await cli.execute(
-      'kubectl wait pod -n everest-system -l app.kubernetes.io/name=everest-server --for=condition=Ready --timeout=120s',
+      'kubectl rollout status deployment/everest-server -n everest-system --timeout=120s',
     );
-    expect(waitResult.code, `Everest pod did not become ready: ${waitResult.stderr}`).toEqual(0);
+    expect(waitResult.code, `Everest did not become ready: ${waitResult.stderr}`).toEqual(0);
   });
 
   setup('Wait for Everest API to be reachable', async ({request}) => {
@@ -109,13 +109,13 @@ setup.describe.serial('Authentik SSO setup', () => {
     expect(reachable, `Everest API at ${everestURL} did not become reachable within ${timeoutMs}ms`).toBeTruthy();
   });
 
-  setup('Login via Authentik and obtain SSO token', async ({request}) => {
+  setup('Login via Authentik and obtain SSO token', async ({page, request}) => {
     const clientId = process.env.AUTHENTIK_CLIENT_ID!;
-    const tokens = await authentikLogin(request, AUTHENTIK_URL, clientId);
+    const redirectUri = `${process.env.EVEREST_URL || 'http://localhost:8080'}/login/callback`;
+    const tokens = await authentikLogin(page, request, AUTHENTIK_URL, clientId, redirectUri);
 
-    // Store the access token for the SSO test project.
-    // NOTE: This is an OPAQUE token — not a JWT. This is the key difference
-    // from Keycloak and the root cause of Issue #1904.
+    // Store the access token — will be exchanged via POST /v1/session/sso
+    // during tests to obtain an Everest-signed JWT.
     process.env[API_SSO_AUTHENTIK_TOKEN] = tokens.access_token;
   });
 

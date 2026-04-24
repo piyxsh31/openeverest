@@ -13,10 +13,9 @@
 // limitations under the License.
 
 import {expect, test} from '@playwright/test';
-import {authentikLogin} from '@tests/utils/authentik';
-import {AUTHENTIK_URL, API_SSO_AUTHENTIK_TOKEN} from '@root/constants';
+import {API_SSO_AUTHENTIK_TOKEN} from '@root/constants';
 
-test.describe('SSO with Authentik (opaque tokens)', () => {
+test.describe('SSO with Authentik', () => {
   test('OIDC settings are configured', async ({request}) => {
     const resp = await request.get('/v1/settings');
     expect(resp.ok()).toBeTruthy();
@@ -27,26 +26,12 @@ test.describe('SSO with Authentik (opaque tokens)', () => {
     expect(settings.oidcConfig.clientId).toBeTruthy();
   });
 
-  test('Authentik access token is opaque (not a JWT)', async () => {
-    // Verify the fundamental assumption: Authentik issues opaque tokens.
-    // If this test fails, the Authentik version or config has changed to
-    // issue JWTs, and the test suite premise is invalid.
-    const token = process.env[API_SSO_AUTHENTIK_TOKEN];
-    expect(token, 'API_SSO_AUTHENTIK_TOKEN must be set by setup').toBeTruthy();
-
-    const parts = token!.split('.');
-    // A JWT always has exactly 3 base64-encoded parts separated by dots.
-    // An opaque token does not follow this structure.
-    expect(
-      parts.length,
-      `Expected opaque token but got what looks like a JWT (${parts.length} parts)`,
-    ).not.toEqual(3);
-  });
-
-  test('opaque access token is rejected by Everest without SSO exchange', async ({request}) => {
-    // This is the exact bug from Issue #1904: sending an opaque token
-    // directly as Bearer to Everest should fail because echojwt middleware
-    // cannot parse it as a JWT.
+  test('raw OIDC token is not directly usable (must exchange via /session/sso)', async ({request}) => {
+    // Authentik may issue JWTs or opaque tokens depending on version/config.
+    // Either way, the raw OIDC token should NOT work directly against Everest
+    // because it was not signed by Everest. It must first be exchanged via
+    // POST /v1/session/sso, which validates the token against the IdP's
+    // UserInfo endpoint and returns an Everest-signed JWT.
     const token = process.env[API_SSO_AUTHENTIK_TOKEN];
     expect(token, 'API_SSO_AUTHENTIK_TOKEN must be set by setup').toBeTruthy();
 
@@ -55,17 +40,18 @@ test.describe('SSO with Authentik (opaque tokens)', () => {
         Authorization: `Bearer ${token!}`,
       },
     });
-    // Without the SSO token exchange, opaque tokens get 400 (malformed JWT)
-    // or 401 from the JWT middleware.
+    // The raw OIDC token is not signed by Everest, so the JWT middleware
+    // rejects it with 400 (bad JWT) or 401 (signature mismatch).
     expect(
       [400, 401].includes(resp.status()),
-      `Expected 400 or 401 but got ${resp.status()} — opaque token should be rejected by JWT middleware`,
+      `Expected 400 or 401 but got ${resp.status()} — raw OIDC token should be rejected`,
     ).toBeTruthy();
   });
 
-  test('SSO token exchange converts opaque token to Everest JWT', async ({request}) => {
-    // This tests the fix for Issue #1904: POST /v1/session/sso exchanges
-    // the opaque OIDC token for an Everest-signed JWT via the UserInfo endpoint.
+  test('SSO token exchange returns Everest JWT', async ({request}) => {
+    // POST /v1/session/sso validates the OIDC token via the IdP's UserInfo
+    // endpoint and issues an Everest-signed JWT — works for both opaque and
+    // JWT OIDC tokens.
     const token = process.env[API_SSO_AUTHENTIK_TOKEN];
     expect(token, 'API_SSO_AUTHENTIK_TOKEN must be set by setup').toBeTruthy();
 
@@ -80,7 +66,7 @@ test.describe('SSO with Authentik (opaque tokens)', () => {
     const body = await exchangeResp.json();
     expect(body.token, 'Exchange response should contain a token').toBeTruthy();
 
-    // The returned token should be a proper JWT (3 parts)
+    // The returned token must be a proper JWT (3 dot-separated parts)
     const jwtParts = body.token.split('.');
     expect(jwtParts.length, 'Exchanged token should be a JWT').toEqual(3);
 
@@ -95,14 +81,12 @@ test.describe('SSO with Authentik (opaque tokens)', () => {
     const token = process.env[API_SSO_AUTHENTIK_TOKEN];
     expect(token).toBeTruthy();
 
-    // Exchange the opaque token
     const exchangeResp = await request.post('/v1/session/sso', {
       data: {token: token!},
     });
     expect(exchangeResp.status()).toEqual(200);
     const {token: everestToken} = await exchangeResp.json();
 
-    // Access a protected endpoint
     const resp = await request.get('/v1/namespaces', {
       headers: {Authorization: `Bearer ${everestToken}`},
     });
@@ -136,9 +120,8 @@ test.describe('SSO with Authentik (opaque tokens)', () => {
 
   test('invalid token exchange is rejected', async ({request}) => {
     const resp = await request.post('/v1/session/sso', {
-      data: {token: 'completely-invalid-opaque-token'},
+      data: {token: 'completely-invalid-token'},
     });
-    // The UserInfo call will fail → 401
     expect(resp.status()).toEqual(401);
   });
 });

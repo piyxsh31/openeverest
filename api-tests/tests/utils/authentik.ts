@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {APIRequestContext, expect} from '@playwright/test';
+import {APIRequestContext, expect, Page} from '@playwright/test';
+import {createHash, randomBytes, randomUUID} from 'crypto';
 
 const AUTHENTIK_ADMIN_USERNAME = 'akadmin';
 const AUTHENTIK_ADMIN_PASSWORD = 'admin';
@@ -95,17 +96,18 @@ export const bootstrapAuthentik = async (
   request: APIRequestContext,
   authentikBaseURL: string,
 ): Promise<void> => {
-  const flowURL = `${authentikBaseURL}/api/v3/flows/executor/initial-setup/`;
+  const {execSync} = await import('child_process');
+  const {randomUUID} = await import('crypto');
 
-  // 1. Try the initial-setup flow.  If AUTHENTIK_BOOTSTRAP_PASSWORD worked
-  //    (PostgreSQL was ready before the server started), the flow will return
-  //    "ak-stage-access-denied" — that is fine, the password is already set.
-  //    Otherwise it returns "ak-stage-prompt" and we complete it.
+  // 1. Complete initial-setup flow if needed.
+  //    If AUTHENTIK_BOOTSTRAP_PASSWORD worked, the flow returns
+  //    "ak-stage-access-denied" and we skip it.
+  //    Otherwise we set the admin password via the prompt stage.
+  const flowURL = `${authentikBaseURL}/api/v3/flows/executor/initial-setup/`;
   const getResp = await request.get(flowURL);
   const stage = await getResp.json();
 
   if (stage.component === 'ak-stage-prompt') {
-    // Complete the prompt stage with admin email + password.
     await request.post(flowURL, {
       data: {
         email: 'admin@example.com',
@@ -113,82 +115,32 @@ export const bootstrapAuthentik = async (
         password_repeat: AUTHENTIK_ADMIN_PASSWORD,
       },
     });
-    // Follow redirect to complete the flow.
     await request.get(flowURL);
   }
-  // If component is "ak-stage-access-denied" or "xak-flow-redirect", the
-  // password was already set by AUTHENTIK_BOOTSTRAP_PASSWORD — move on.
 
-  // 2. Authenticate through the default login flow to get a session.
-  const loginFlowURL = `${authentikBaseURL}/api/v3/flows/executor/default-authentication-flow/`;
+  // 2. Create a non-expiring API token directly in the database.
+  //    This avoids the fragile flow-based session auth + CSRF dance
+  //    that Playwright's APIRequestContext doesn't handle reliably.
+  const tokenKey = randomUUID().replace(/-/g, '') + randomUUID().replace(/-/g, '');
+  const tokenUUID = randomUUID();
+  const sql = `INSERT INTO authentik_core_token (token_uuid, identifier, key, intent, expiring, description, managed, user_id) SELECT '${tokenUUID}', 'everest-test-api-token', '${tokenKey}', 'api', false, 'Auto-created for tests', NULL, id FROM authentik_core_user WHERE username = '${AUTHENTIK_ADMIN_USERNAME}' ON CONFLICT (identifier) DO UPDATE SET key = '${tokenKey}'`;
 
-  // GET the flow to receive the identification stage.
-  await request.get(loginFlowURL);
-
-  // POST identification.
-  await request.post(loginFlowURL, {
-    data: {
-      component: 'ak-stage-identification',
-      uid_field: AUTHENTIK_ADMIN_USERNAME,
-    },
-  });
-
-  // POST password.
-  const pwResp = await request.post(loginFlowURL, {
-    data: {
-      component: 'ak-stage-password',
-      password: AUTHENTIK_ADMIN_PASSWORD,
-    },
-  });
-
-  // Authentik may return an empty redirect body, then the user-login stage.
-  // Follow through until we get an authenticated session.
-  if (pwResp.status() === 302 || (await pwResp.text()).length === 0) {
-    await request.get(loginFlowURL);
-  }
-
-  // 3. Create a non-expiring API token via the admin endpoint.
-  //    The session cookies from the login flow authenticate us.
-  const csrfResp = await request.get(
-    `${authentikBaseURL}/api/v3/core/tokens/`,
+  execSync(
+    `kubectl exec -n everest-system deploy/authentik-postgresql -- psql -U authentik -d authentik -c "${sql}"`,
+    {stdio: 'pipe'},
   );
-  expect(csrfResp.ok(), 'Session not authenticated after login flow').toBeTruthy();
 
-  // Extract the CSRF token from the Set-Cookie header.
-  const cookies = await request.storageState();
-  const csrfCookie = cookies.cookies.find(c => c.name === 'authentik_csrf');
-
-  const tokenResp = await request.post(
-    `${authentikBaseURL}/api/v3/core/tokens/`,
-    {
-      headers: {
-        ...(csrfCookie ? {'X-authentik-CSRF': csrfCookie.value} : {}),
-      },
-      data: {
-        identifier: 'everest-test-api-token',
-        intent: 'api',
-        expiring: false,
-      },
-    },
+  // 3. Verify the token works
+  const verifyResp = await request.get(
+    `${authentikBaseURL}/api/v3/core/users/?page_size=1`,
+    {headers: {Authorization: `Bearer ${tokenKey}`}},
   );
   expect(
-    tokenResp.ok(),
-    `Failed to create API token: ${tokenResp.status()} — ${await tokenResp.text()}`,
+    verifyResp.ok(),
+    `Bootstrap API token rejected: ${verifyResp.status()}`,
   ).toBeTruthy();
 
-  // 4. Retrieve the actual token key.
-  const keyResp = await request.get(
-    `${authentikBaseURL}/api/v3/core/tokens/everest-test-api-token/view_key/`,
-    {
-      headers: {
-        ...(csrfCookie ? {'X-authentik-CSRF': csrfCookie.value} : {}),
-      },
-    },
-  );
-  expect(keyResp.ok(), 'Failed to retrieve API token key').toBeTruthy();
-  const {key} = await keyResp.json();
-
-  authentikAdminToken = key;
+  authentikAdminToken = tokenKey;
 };
 
 /**
@@ -275,15 +227,20 @@ export const configureAuthentik = async (
   everestURL: string,
 ): Promise<AuthentikConfig> => {
   // 1. Look up required flows
-  const authFlowPk = await getFlowByDesignation(request, authentikBaseURL, 'authorization');
-  expect(authFlowPk, 'Could not find a default authorization flow').toBeTruthy();
+  // Use _implicit_ consent so the browser-based auth code flow
+  // doesn't pause for user consent — the test user auto-consents.
+  const authFlowResp = await adminApi(request, 'get', authentikBaseURL,
+    '/flows/instances/?designation=authorization&ordering=slug');
+  expect(authFlowResp.ok()).toBeTruthy();
+  const authFlows = (await authFlowResp.json()).results ?? [];
+  const implicitFlow = authFlows.find(
+    (f: {slug: string}) => f.slug.includes('implicit'),
+  );
+  const authFlowPk = implicitFlow?.pk ?? authFlows[0]?.pk;
+  expect(authFlowPk, 'Could not find an authorization flow').toBeTruthy();
 
   const invalidationFlowPk = await getFlowByDesignation(request, authentikBaseURL, 'invalidation');
   expect(invalidationFlowPk, 'Could not find a default invalidation flow').toBeTruthy();
-
-  // The authentication flow enables ROPC (password grant) — needed for tests.
-  const authenticationFlowPk = await getFlowByDesignation(request, authentikBaseURL, 'authentication');
-  expect(authenticationFlowPk, 'Could not find a default authentication flow').toBeTruthy();
 
   // 2. Look up OIDC scope mappings
   const scopeMappings = await getOIDCScopeMappings(request, authentikBaseURL);
@@ -299,8 +256,6 @@ export const configureAuthentik = async (
         name: 'everest-provider',
         authorization_flow: authFlowPk,
         invalidation_flow: invalidationFlowPk,
-        // authentication_flow enables ROPC (grant_type=password) for the token endpoint
-        authentication_flow: authenticationFlowPk,
         client_type: 'public',
         // Authentik 2026.x requires redirect_uris as a list of objects
         redirect_uris: [{matching_mode: 'regex', url: `${everestURL}/.*`}],
@@ -390,34 +345,109 @@ export const configureAuthentik = async (
 };
 
 /**
- * Perform OIDC Resource Owner Password Credentials login against Authentik.
+ * Perform OIDC Authorization Code flow via browser automation.
  *
- * IMPORTANT: Authentik issues **opaque** (non-JWT) access tokens by default.
- * This is the exact behavior that caused Issue #1904 — Everest's echojwt
- * middleware cannot parse opaque tokens as JWT.
+ * Unlike Keycloak, Authentik issues **opaque** access tokens from the
+ * authorization code flow.  The M2M/client_credentials grant returns JWTs,
+ * so we MUST use the browser-based auth code flow to get a real opaque token
+ * — which is the exact scenario that caused Issue #1904.
  */
 export const authentikLogin = async (
+  page: Page,
   request: APIRequestContext,
   authentikBaseURL: string,
   clientId: string,
+  redirectUri: string,
   username?: string,
   password?: string,
 ): Promise<{access_token: string; id_token: string; refresh_token: string}> => {
-  const tokenURL = `${authentikBaseURL}/application/o/token/`;
-  const resp = await request.post(tokenURL, {
-    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-    form: {
-      grant_type: 'password',
-      client_id: clientId,
-      username: username ?? AUTHENTIK_TEST_USER,
-      password: password ?? AUTHENTIK_TEST_PASSWORD,
-      scope: 'openid profile email',
+  const user = username ?? AUTHENTIK_TEST_USER;
+  const pass = password ?? AUTHENTIK_TEST_PASSWORD;
+
+  // Generate PKCE pair (required for public client)
+  const codeVerifier = randomBytes(32).toString('base64url');
+  const codeChallenge = createHash('sha256').update(codeVerifier).digest('base64url');
+  const state = randomUUID();
+
+  // Build authorization URL
+  const authorizeURL = new URL(`${authentikBaseURL}/application/o/authorize/`);
+  authorizeURL.searchParams.set('client_id', clientId);
+  authorizeURL.searchParams.set('response_type', 'code');
+  authorizeURL.searchParams.set('redirect_uri', redirectUri);
+  authorizeURL.searchParams.set('scope', 'openid profile email');
+  authorizeURL.searchParams.set('state', state);
+  authorizeURL.searchParams.set('code_challenge', codeChallenge);
+  authorizeURL.searchParams.set('code_challenge_method', 'S256');
+
+  // Navigate — Authentik will show the login form, then redirect to redirect_uri
+  await page.goto(authorizeURL.toString());
+
+  // Fill the identification stage
+  await page.locator('[name="uidField"]').fill(user);
+  await page.locator('button[type="submit"]').click();
+
+  // Authentik transitions between flow stages via page reload/re-render.
+  // Wait for the password field to be stable before filling it — otherwise
+  // we could fill a transient element that gets replaced during the transition.
+  await page.waitForLoadState('networkidle');
+  const passwordInput = page.locator('[name="password"]');
+  await passwordInput.waitFor({state: 'visible', timeout: 10_000});
+  await passwordInput.fill(pass);
+
+  // Intercept the OAuth callback redirect: fulfill with 200 so the browser
+  // doesn't hang trying to connect to localhost:8080 (frontend not running).
+  await page.route(
+    url => url.toString().startsWith(redirectUri),
+    route => route.fulfill({status: 200, contentType: 'text/html', body: '<html><body>OK</body></html>'}),
+    {times: 1},
+  );
+
+  const callbackReqPromise = page.waitForRequest(
+    req => req.url().startsWith(redirectUri),
+    {timeout: 30_000},
+  );
+
+  // Submit the password stage
+  await page.locator('button[type="submit"]').click();
+
+  // After password, Authentik may show a consent page (if the authorization
+  // flow is not "implicit consent").  Wait for the page to settle, then click
+  // through any consent form that appears.
+  await page.waitForLoadState('networkidle').catch(() => {});
+  const stillOnPasswordPage = await passwordInput.isVisible().catch(() => false);
+  if (!stillOnPasswordPage) {
+    const consentBtn = page.locator('button[type="submit"]');
+    if (await consentBtn.isVisible().catch(() => false)) {
+      await consentBtn.click();
+    }
+  }
+
+  const callbackReq = await callbackReqPromise;
+
+  // Extract the authorization code from the callback URL
+  const finalURL = new URL(callbackReq.url());
+  const code = finalURL.searchParams.get('code');
+  expect(code, `Authorization code not found in URL: ${page.url()}`).toBeTruthy();
+  expect(finalURL.searchParams.get('state')).toEqual(state);
+
+  // Exchange the code for tokens at the token endpoint
+  const tokenResp = await request.post(
+    `${authentikBaseURL}/application/o/token/`,
+    {
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      form: {
+        grant_type: 'authorization_code',
+        code: code!,
+        redirect_uri: redirectUri,
+        client_id: clientId,
+        code_verifier: codeVerifier,
+      },
     },
-  });
-  const body = await resp.text();
+  );
+  const body = await tokenResp.text();
   expect(
-    resp.ok(),
-    `Authentik login failed: HTTP ${resp.status()} — ${body}`,
+    tokenResp.ok(),
+    `Authentik token exchange failed: HTTP ${tokenResp.status()} — ${body}`,
   ).toBeTruthy();
   return JSON.parse(body);
 };
