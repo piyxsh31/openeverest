@@ -15,7 +15,11 @@
 
 import { expect, test } from '@playwright/test';
 import { findRowAndClickActions, waitForDelete } from '@e2e/utils/table';
-import { EVEREST_CI_CLUSTER, EVEREST_CI_NAMESPACES, TIMEOUTS } from '@e2e/constants';
+import {
+  EVEREST_CI_CLUSTER,
+  EVEREST_CI_NAMESPACES,
+  TIMEOUTS,
+} from '@e2e/constants';
 import { goToUrl, limitedSuffixedName } from '@e2e/utils/generic';
 import { getCITokenFromLocalStorage } from '@e2e/utils/localStorage';
 import {
