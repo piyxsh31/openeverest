@@ -2866,8 +2866,8 @@ paths:
             application/json:
               schema:
                 $ref: 'crds.gen.yaml#/components/schemas/InstanceConnectionDetails'
-        '404':
-          description: Instance or connection details not found
+        '400':
+          description: Unsuccessful operation
           content:
             application/json:
               schema:
