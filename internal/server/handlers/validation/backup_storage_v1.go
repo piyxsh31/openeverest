@@ -48,27 +48,27 @@ var (
 	}
 )
 
-func (h *validateHandler) ListBackupStorages(ctx context.Context, namespace string) (*everestv1alpha1.BackupStorageList, error) {
-	return h.next.ListBackupStorages(ctx, namespace)
+func (h *validateHandler) ListBackupStoragesV1(ctx context.Context, namespace string) (*everestv1alpha1.BackupStorageList, error) {
+	return h.next.ListBackupStoragesV1(ctx, namespace)
 }
 
-func (h *validateHandler) GetBackupStorage(ctx context.Context, namespace, name string) (*everestv1alpha1.BackupStorage, error) {
-	return h.next.GetBackupStorage(ctx, namespace, name)
+func (h *validateHandler) GetBackupStorageV1(ctx context.Context, namespace, name string) (*everestv1alpha1.BackupStorage, error) {
+	return h.next.GetBackupStorageV1(ctx, namespace, name)
 }
 
-func (h *validateHandler) CreateBackupStorage(ctx context.Context, namespace string, req *api.CreateBackupStorageParams) (*everestv1alpha1.BackupStorage, error) {
-	bsList, err := h.kubeConnector.ListBackupStorages(ctx, ctrlclient.InNamespace(namespace))
+func (h *validateHandler) CreateBackupStorageV1(ctx context.Context, namespace string, req *api.CreateBackupStorageParams) (*everestv1alpha1.BackupStorage, error) {
+	bsList, err := h.kubeConnector.ListBackupStoragesV1(ctx, ctrlclient.InNamespace(namespace))
 	if err != nil {
 		return nil, fmt.Errorf("failed to ListBackupStorages: %w", err)
 	}
 	if err := validateCreateBackupStorageRequest(ctx, h.log, req, bsList); err != nil {
 		return nil, errors.Join(ErrInvalidRequest, err)
 	}
-	return h.next.CreateBackupStorage(ctx, namespace, req)
+	return h.next.CreateBackupStorageV1(ctx, namespace, req)
 }
 
-func (h *validateHandler) UpdateBackupStorage(ctx context.Context, namespace, name string, req *api.UpdateBackupStorageParams) (*everestv1alpha1.BackupStorage, error) {
-	bs, err := h.kubeConnector.GetBackupStorage(ctx, types.NamespacedName{Namespace: namespace, Name: name})
+func (h *validateHandler) UpdateBackupStorageV1(ctx context.Context, namespace, name string, req *api.UpdateBackupStorageParams) (*everestv1alpha1.BackupStorage, error) {
+	bs, err := h.kubeConnector.GetBackupStorageV1(ctx, types.NamespacedName{Namespace: namespace, Name: name})
 	if err != nil {
 		return nil, fmt.Errorf("failed to GetBackupStorage: %w", err)
 	}
@@ -79,13 +79,13 @@ func (h *validateHandler) UpdateBackupStorage(ctx context.Context, namespace, na
 	if err := h.validateUpdateBackupStorageRequest(ctx, h.log, req, bs, secret); err != nil {
 		return nil, errors.Join(ErrInvalidRequest, err)
 	}
-	return h.next.UpdateBackupStorage(ctx, namespace, name, req)
+	return h.next.UpdateBackupStorageV1(ctx, namespace, name, req)
 }
 
-func (h *validateHandler) DeleteBackupStorage(ctx context.Context, namespace, name string) error {
+func (h *validateHandler) DeleteBackupStorageV1(ctx context.Context, namespace, name string) error {
 	var bs *metav1.PartialObjectMetadata
 	var err error
-	if bs, err = h.kubeConnector.GetBackupStorageMeta(ctx, types.NamespacedName{Namespace: namespace, Name: name}); err != nil {
+	if bs, err = h.kubeConnector.GetBackupStorageMetaV1(ctx, types.NamespacedName{Namespace: namespace, Name: name}); err != nil {
 		return err
 	}
 
@@ -93,7 +93,7 @@ func (h *validateHandler) DeleteBackupStorage(ctx context.Context, namespace, na
 		// backup storage is used by some DB cluster
 		return errors.Join(ErrInvalidRequest, errDeleteInUseBackupStorage(namespace, name))
 	}
-	return h.next.DeleteBackupStorage(ctx, namespace, name)
+	return h.next.DeleteBackupStorageV1(ctx, namespace, name)
 }
 
 func validateCreateBackupStorageRequest(
@@ -174,14 +174,14 @@ func validateBackupStorageAccess(
 	l *zap.SugaredLogger,
 ) error {
 	switch sType {
-	case string(api.BackupStorageTypeS3):
+	case string(api.BackupStorageV1TypeS3):
 		if region == "" {
 			return errors.New("region is required when using S3 storage type")
 		}
 		if err := s3Access(l, url, accessKey, secretKey, bucketName, region, verifyTLS, forcePathStyle); err != nil {
 			return err
 		}
-	case string(api.BackupStorageTypeAzure):
+	case string(api.BackupStorageV1TypeAzure):
 		if err := azureAccess(ctx, l, accessKey, secretKey, bucketName); err != nil {
 			return err
 		}
@@ -342,7 +342,7 @@ func (h *validateHandler) validateUpdateBackupStorageRequest(
 		return errEditInUseBackupStorage(existing.GetNamespace(), existing.GetName())
 	}
 
-	existingStorages, err := h.kubeConnector.ListBackupStorages(ctx, ctrlclient.InNamespace(existing.GetNamespace()))
+	existingStorages, err := h.kubeConnector.ListBackupStoragesV1(ctx, ctrlclient.InNamespace(existing.GetNamespace()))
 	if err != nil {
 		return err
 	}

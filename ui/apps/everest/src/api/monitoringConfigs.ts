@@ -1,5 +1,3 @@
-// everest
-// Copyright (C) 2023 Percona LLC
 // Copyright (C) 2026 The OpenEverest Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,14 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {test as teardown} from '@playwright/test';
-import {PG_BACKUP_STORAGE_NAME_ENV} from "@tests/pg/consts";
-import * as th from "@tests/utils/api";
+import { api } from 'api/api';
+import { MonitoringConfig, MonitoringConfigList } from 'shared-types/api.types';
 
-teardown.describe.serial('PG Backup Storage teardown', () => {
-  teardown.describe.configure({timeout: 300 * 1000});
+// TODO: When all monitoring APIs migrate to v2, consolidate this file
+//       into api/monitoring.ts and unify the monitoring hooks layer.
 
-  teardown('Removing Backup Storage for PG DB cluster', async ({request}) => {
-    await th.deleteBackupStorageV1(request, process.env[PG_BACKUP_STORAGE_NAME_ENV])
-  });
-});
+export const getMonitoringConfigsFn = async (
+  cluster: string,
+  namespace: string
+): Promise<MonitoringConfig[]> => {
+  const response = await api.get<MonitoringConfigList>(
+    `clusters/${cluster}/namespaces/${namespace}/monitoring-configs`
+  );
+  return response.data?.items ?? [];
+};

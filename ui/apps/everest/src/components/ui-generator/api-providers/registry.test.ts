@@ -1,5 +1,3 @@
-// everest
-// Copyright (C) 2023 Percona LLC
 // Copyright (C) 2026 The OpenEverest Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,14 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {test as teardown} from '@playwright/test';
-import {PG_BACKUP_STORAGE_NAME_ENV} from "@tests/pg/consts";
-import * as th from "@tests/utils/api";
+import { describe, expect, it } from 'vitest';
+import { providerRegistry, useProviderOptions } from './index';
 
-teardown.describe.serial('PG Backup Storage teardown', () => {
-  teardown.describe.configure({timeout: 300 * 1000});
+describe('ApiProviderRegistry', () => {
+  it('built-in providers are registered via side-effect import', () => {
+    expect(providerRegistry.has('monitoringConfigs')).toBe(true);
+    expect(providerRegistry.has('storageClasses')).toBe(true);
+  });
 
-  teardown('Removing Backup Storage for PG DB cluster', async ({request}) => {
-    await th.deleteBackupStorageV1(request, process.env[PG_BACKUP_STORAGE_NAME_ENV])
+  it('useProviderOptions throws for unknown provider key', () => {
+    expect(() =>
+      useProviderOptions('nonExistent', { namespace: 'ns', cluster: 'cl' })
+    ).toThrow('Unknown API provider');
   });
 });

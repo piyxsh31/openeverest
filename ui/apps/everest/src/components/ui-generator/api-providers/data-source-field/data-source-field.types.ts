@@ -1,5 +1,3 @@
-// everest
-// Copyright (C) 2023 Percona LLC
 // Copyright (C) 2026 The OpenEverest Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,14 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {test as teardown} from '@playwright/test';
-import {PG_BACKUP_STORAGE_NAME_ENV} from "@tests/pg/consts";
-import * as th from "@tests/utils/api";
+import type React from 'react';
+import type { Component, DataSource } from '../../ui-generator.types';
 
-teardown.describe.serial('PG Backup Storage teardown', () => {
-  teardown.describe.configure({timeout: 300 * 1000});
+export type ComponentWithDataSource = Component & { dataSource: DataSource };
 
-  teardown('Removing Backup Storage for PG DB cluster', async ({request}) => {
-    await th.deleteBackupStorageV1(request, process.env[PG_BACKUP_STORAGE_NAME_ENV])
-  });
-});
+export interface DataSourceFieldProps {
+  item: ComponentWithDataSource;
+  name: string;
+  children: (patchedItem: Component) => React.ReactNode;
+}
