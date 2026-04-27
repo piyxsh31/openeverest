@@ -1,5 +1,4 @@
-// everest
-// Copyright (C) 2023 Percona LLC
+// Copyright (C) 2026 The OpenEverest Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,12 +11,5 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-export const Messages = {
-  monitoring: 'Monitoring',
-  caption:
-    'Monitor the health of your database to detect issues quickly and improve its performance.',
-  monitoringEnabled: 'Enable monitoring',
-  monitoringInstanceLabel: 'Monitoring endpoint',
-  command: 'everestctl monitoring enable',
-  addMonitoringEndpoint: 'Add monitoring endpoint',
-};
+
+export { MonitoringEmptyFallback } from './monitoring-empty-fallback';

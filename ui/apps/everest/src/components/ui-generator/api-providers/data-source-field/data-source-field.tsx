@@ -15,7 +15,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
 import type { Component } from '../../ui-generator.types';
-import { useProviderOptions } from '../registry';
+import { providerRegistry, useProviderOptions } from '../registry';
 import { useUiGeneratorContext } from '../../ui-generator-context';
 import { useClusterName } from 'hooks/useClusterName';
 import type { DataSourceFieldProps } from './data-source-field.types';
@@ -87,8 +87,14 @@ export const DataSourceField: React.FC<DataSourceFieldProps> = ({
     } as Component;
   }, [baseComponent, options, isLoading, error, isEmpty]);
 
-  // TODO: Render fallback component when isEmpty/error and fallback is defined
-  // (requires Alert component — see separate issue)
+  const FallbackComponent = useMemo(() => {
+    const entry = providerRegistry.get(dataSource.provider);
+    return entry?.emptyStateFallback?.component ?? null;
+  }, [dataSource.provider]);
+
+  if (isEmpty && !isLoading && FallbackComponent && namespace) {
+    return <FallbackComponent namespace={namespace} cluster={cluster} />;
+  }
 
   return <>{children(patchedItem)}</>;
 };
