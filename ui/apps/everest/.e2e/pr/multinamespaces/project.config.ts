@@ -73,5 +73,4 @@ export const multinamespacesProject: PlaywrightTestProject[] = [
       storageState: CI_USER_STORAGE_STATE_FILE,
     },
   },
-  l,
 ];
