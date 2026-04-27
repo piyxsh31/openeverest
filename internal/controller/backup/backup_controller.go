@@ -184,14 +184,14 @@ func (r *BackupReconciler) Reconcile( //nolint:nonamedreturns
 	}
 
 	// Create RBAC resources.
-	requiresRbac := len(bc.Spec.Permissions) > 0 || len(bc.Spec.ClusterPermissions) > 0
+	requiresRbac := len(bc.Spec.Job.Permissions) > 0 || len(bc.Spec.Job.ClusterPermissions) > 0
 	if requiresRbac { //nolint:nestif
 		if err := r.ensureServiceAccount(ctx, backup); err != nil {
 			backup.Status.State = backupv1alpha1.BackupStateError
 			backup.Status.Message = fmt.Errorf("failed to ensure service account: %w", err).Error()
 			return ctrl.Result{}, err
 		}
-		if err := r.ensureRBACResources(ctx, backup, bc.Spec.Permissions, bc.Spec.ClusterPermissions); err != nil {
+		if err := r.ensureRBACResources(ctx, backup, bc.Spec.Job.Permissions, bc.Spec.Job.ClusterPermissions); err != nil {
 			backup.Status.State = backupv1alpha1.BackupStateError
 			backup.Status.Message = fmt.Errorf("failed to ensure RBAC resources: %w", err).Error()
 			return ctrl.Result{}, err
@@ -282,8 +282,8 @@ func (r *BackupReconciler) getJobSpec(
 				RestartPolicy:                 corev1.RestartPolicyNever,
 				Containers: []corev1.Container{{
 					Name:    "importer",
-					Image:   bc.Spec.JobSpec.Image,
-					Command: bc.Spec.JobSpec.Command,
+					Image:   bc.Spec.Job.JobSpec.Image,
+					Command: bc.Spec.Job.JobSpec.Command,
 					Args:    []string{fmt.Sprintf("%s/%s", payloadMountPath, backupJobJSONSecretKey)},
 				}},
 			},
