@@ -1074,7 +1074,7 @@ export interface paths {
         };
         /**
          * List backups for an instance
-         * @description This API lists all backups for the database instance specified by the `instance` name
+         * @description This API lists all backups for the instance specified by the `instance` name
          *     in the specified `namespace` and `cluster`.
          */
         get: operations["listInstanceBackups"];
