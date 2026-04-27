@@ -2234,6 +2234,8 @@ export interface components {
                 latestRestorableTime?: string;
                 /** @description State is the DatabaseBackup state. */
                 state?: string;
+                /** @description Size is the size of the backup */
+                size?: string;
             };
         };
         /** @description DatabaseClusterRestore is the Schema for the databaseclusterrestores API. */
