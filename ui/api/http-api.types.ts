@@ -11164,8 +11164,8 @@ export interface operations {
                     "application/json": components["schemas"]["RestoreList"];
                 };
             };
-            /** @description Instance not found */
-            404: {
+            /** @description Unsuccessful operation */
+            400: {
                 headers: {
                     [name: string]: unknown;
                 };

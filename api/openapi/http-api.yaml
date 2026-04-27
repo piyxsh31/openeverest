@@ -2914,8 +2914,8 @@ paths:
             application/json:
               schema:
                 $ref: 'crds.gen.yaml#/components/schemas/RestoreList'
-        '404':
-          description: Instance not found
+        '400':
+          description: Unsuccessful operation
           content:
             application/json:
               schema:
