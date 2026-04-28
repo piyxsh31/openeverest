@@ -63,9 +63,6 @@ on:
 
 permissions:
   contents: read
-  packages: write
-  checks: write
-  pull-requests: write
 
 env:
   GONOPROXY: 'github.com/percona'
@@ -110,6 +107,9 @@ jobs:
             platform: linux/arm64
 
     runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
+      packages: write
 
     env:
       TOOLS_PATH: "/opt/tools/bin"
@@ -482,6 +482,9 @@ jobs:
     name: Create multi-arch manifests
     needs: [prepare, build]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     
     env:
       REGISTRY: ghcr.io
