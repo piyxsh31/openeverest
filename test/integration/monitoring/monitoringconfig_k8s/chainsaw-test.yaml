@@ -25,16 +25,8 @@ spec:
         tail: 100
     name: step-00
     try:
-    - command:
-        args:
-        - patch
-        - ns
-        - ${NAMESPACE}
-        - -p
-        - '{"metadata":{"labels":{"app.kubernetes.io/managed-by":"everest"}}}'
-        - --type
-        - merge
-        entrypoint: kubectl
+    - script:
+        content: kubectl patch ns ${NAMESPACE} -p '{"metadata":{"labels":{"app.kubernetes.io/managed-by":"everest"}}}' --type merge
     - apply:
         file: 00-install.yaml
     - assert:
@@ -205,4 +197,3 @@ spec:
         content: kubectl wait --for=delete secret/mc-1-secret  -n $NAMESPACE
     - script:
         content: kubectl wait --for=delete secret/mc-2-secret  -n $NAMESPACE
-
