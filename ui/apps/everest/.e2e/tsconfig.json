@@ -1,6 +1,13 @@
 {
   "include": ["./**/*.ts"],
-  "exclude": ["./tests-out"],
+  "exclude": [
+    "./tests-out",
+    // Excluded until DBClusterDetailsTabs enum values (components, backups, restores, logs)
+    // are re-enabled. Remove these excludes when those tabs are connected to the new instance API.
+    "./pr/db-cluster-details/components/**",
+    "./pr/db-cluster-details/schedules.e2e.ts",
+    "./pr/multinamespaces/**"
+  ],
   "compilerOptions": {
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,

@@ -192,9 +192,7 @@ export const MonitoringEndpoints = () => {
   return (
     <>
       <Table
-        getRowId={(row) =>
-          row.namespace != null ? `${row.namespace}/${row.name}` : null!
-        }
+        getRowId={(row) => `${row.namespace}/${row.name}`}
         tableName="monitoringEndpoints"
         hideExpandAllIcon
         data={tableData}

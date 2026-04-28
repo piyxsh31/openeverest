@@ -17,7 +17,7 @@ import { useFormContext } from 'react-hook-form';
 import type { Component } from '../../ui-generator.types';
 import { providerRegistry, useProviderOptions } from '../registry';
 import { useUiGeneratorContext } from '../../ui-generator-context';
-import { useClusterName } from 'hooks/useClusterName';
+import { useClusterName } from 'hooks/api/useClusterName';
 import type { DataSourceFieldProps } from './data-source-field.types';
 
 export const DataSourceField: React.FC<DataSourceFieldProps> = ({

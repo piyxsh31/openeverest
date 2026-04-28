@@ -65,9 +65,6 @@ export const useProviderOptions = (
     );
   }
 
-  const result = entry.useOptions(params);
-
-  // When disabled (e.g. namespace not yet available), return empty options
   if (options?.enabled === false) {
     return {
       options: [],
@@ -78,5 +75,5 @@ export const useProviderOptions = (
     };
   }
 
-  return result;
+  return entry.useOptions(params);
 };

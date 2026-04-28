@@ -19,7 +19,7 @@ import { hasDataSource } from './data-source-field';
 import { useProviderOptions } from './registry';
 import { ComponentErrorBoundary } from '../component-error-boundary';
 import { getComponentSourcePath } from '../utils/preprocess/normalized-component';
-import { useClusterName } from 'hooks/useClusterName';
+import { useClusterName } from 'hooks/api/useClusterName';
 
 type DataSourceDeclaration = {
   provider: string;
