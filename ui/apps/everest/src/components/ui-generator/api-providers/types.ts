@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type React from 'react';
+
 export interface ProviderParams {
   namespace: string;
   cluster: string;
@@ -29,6 +31,11 @@ export interface ProviderOptions {
 export interface ProviderRegistryEntry {
   useOptions: (params: ProviderParams) => ProviderOptions;
   description: string;
+  emptyStateFallback?: {
+    component: React.ComponentType<{ namespace: string; cluster: string }>;
+  };
+  // TODO RBAC: Add permission config (resource, action) so DataSourceField can check
+  // useRBACPermissions and conditionally hide "create new" CTA or disable the field.
   // TODO: Add lifecycle hooks — beforeFetch, afterFetch, onError
   // TODO: Add optional `validate` callback for dev-time schema validation
 }
