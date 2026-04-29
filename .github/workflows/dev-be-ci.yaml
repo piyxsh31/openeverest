@@ -8,6 +8,8 @@ on:
 
 permissions:
   contents: read
+  checks: read
+  pull-requests: read
 
 env:
   GONOPROXY: 'github.com/percona'

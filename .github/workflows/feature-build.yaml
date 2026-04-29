@@ -63,6 +63,7 @@ on:
 
 permissions:
   contents: read
+  packages: read
 
 env:
   GONOPROXY: 'github.com/percona'
