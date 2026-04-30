@@ -91,7 +91,7 @@ When a provider registers an `emptyStateFallback`, `DataSourceField` automatical
    });
    ```
 
-4. Use `provider: xxx` in the schema.
+3. Use `provider: xxx` in the schema.
 
 ### ProviderParams / ProviderOptions types
 
