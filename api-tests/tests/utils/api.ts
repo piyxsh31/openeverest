@@ -673,3 +673,202 @@ export const deleteLoadBalancerConfig = async (request, name) => {
 export const deleteLoadBalancerConfigRaw = async (request, name) => {
   return await request.delete(`/v1/load-balancer-configs/${name}`)
 }
+
+// --------------------- Provider helpers -----------------------------------------------
+const CLUSTER_NAME = 'main'
+
+export const listProviders = async (request) => {
+  const response = await listProvidersRaw(request)
+  await checkError(response)
+  return (await response.json())
+}
+
+export const listProvidersRaw = async (request) => {
+  return await request.get(`/v1/clusters/${CLUSTER_NAME}/providers`)
+}
+
+export const getProvider = async (request, name) => {
+  const response = await getProviderRaw(request, name)
+  await checkError(response)
+  return (await response.json())
+}
+
+export const getProviderRaw = async (request, name) => {
+  return await request.get(`/v1/clusters/${CLUSTER_NAME}/providers/${name}`)
+}
+
+export const getInstanceDataSimple = (name: string, providerName: string) => {
+  const data = {
+    apiVersion: 'core.openeverest.io/v1alpha1',
+    kind: 'Instance',
+    metadata: {
+      name: name,
+    },
+    spec: {
+      provider: providerName,
+    },
+  }
+  return JSON.parse(JSON.stringify(data))
+}
+
+// --------------------- Instance helpers -----------------------------------------------
+
+export const createInstance = async (request, data) => {
+  const response = await createInstanceRaw(request, data)
+  await checkError(response)
+  return (await response.json())
+}
+
+export const createInstanceRaw = async (request, data) => {
+  return await request.post(`/v1/clusters/${CLUSTER_NAME}/namespaces/${EVEREST_CI_NAMESPACE}/instances`, {data})
+}
+
+export const getInstance = async (request, name) => {
+  const response = await getInstanceRaw(request, name)
+  await checkError(response)
+  return (await response.json())
+}
+
+export const getInstanceRaw = async (request, name) => {
+  return await request.get(`/v1/clusters/${CLUSTER_NAME}/namespaces/${EVEREST_CI_NAMESPACE}/instances/${name}`)
+}
+
+export const listInstances = async (request) => {
+  const response = await listInstancesRaw(request)
+  await checkError(response)
+  return (await response.json())
+}
+
+export const listInstancesRaw = async (request) => {
+  return await request.get(`/v1/clusters/${CLUSTER_NAME}/namespaces/${EVEREST_CI_NAMESPACE}/instances`)
+}
+
+export const updateInstance = async (request, name, data) => {
+  const response = await updateInstanceRaw(request, name, data)
+  await checkError(response)
+  return (await response.json())
+}
+
+export const updateInstanceRaw = async (request, name, data) => {
+  return await request.put(`/v1/clusters/${CLUSTER_NAME}/namespaces/${EVEREST_CI_NAMESPACE}/instances/${name}`, {data})
+}
+
+export const deleteInstance = async (request, name) => {
+  await expect(async () => {
+    await deleteInstanceRaw(request, name)
+    const res = await getInstanceRaw(request, name)
+    await checkResourceDeletion(res)
+  }).toPass({
+    intervals: [1000],
+    timeout: 60 * 1000,
+  })
+}
+
+export const deleteInstanceRaw = async (request, name) => {
+  return await request.delete(`/v1/clusters/${CLUSTER_NAME}/namespaces/${EVEREST_CI_NAMESPACE}/instances/${name}`)
+}
+
+export const waitForInstanceToBeReady = async (request, name) => {
+  await expect.poll(async () => {
+    const instance = await getInstance(request, name)
+    return instance.status.status
+  }, {
+    intervals: [TIMEOUTS.TenSeconds],
+    timeout: TIMEOUTS.TenMinutes,
+  }).toBe('ready')
+}
+
+export const getInstanceConnection = async (request, name) => {
+  const response = await getInstanceConnectionRaw(request, name)
+  await checkError(response)
+  return (await response.json())
+}
+
+export const getInstanceConnectionRaw = async (request, name) => {
+  return await request.get(`/v1/clusters/${CLUSTER_NAME}/namespaces/${EVEREST_CI_NAMESPACE}/instances/${name}/connection`)
+}
+
+// --------------------- Backup (v2) helpers -----------------------------------------------
+export const getBackupData = (name: string, instanceName: string, backupClassName: string, storageName: string) => {
+  const data = {
+    apiVersion: 'core.openeverest.io/v1alpha1',
+    kind: 'Backup',
+    metadata: {
+      name: name,
+    },
+    spec: {
+      instanceName: instanceName,
+      backupClassName: backupClassName,
+      storageName: storageName,
+    },
+  }
+  return JSON.parse(JSON.stringify(data))
+}
+
+export const createBackup = async (request, data) => {
+  const response = await createBackupRaw(request, data)
+  await checkError(response)
+  return (await response.json())
+}
+
+export const createBackupRaw = async (request, data) => {
+  return await request.post(`/v1/clusters/${CLUSTER_NAME}/namespaces/${EVEREST_CI_NAMESPACE}/backups`, {data})
+}
+
+export const getBackup = async (request, name) => {
+  const response = await getBackupRaw(request, name)
+  await checkError(response)
+  return (await response.json())
+}
+
+export const getBackupRaw = async (request, name) => {
+  return await request.get(`/v1/clusters/${CLUSTER_NAME}/namespaces/${EVEREST_CI_NAMESPACE}/backups/${name}`)
+}
+
+export const deleteBackup = async (request, name) => {
+  await expect(async () => {
+    await deleteBackupRaw(request, name)
+    const res = await getBackupRaw(request, name)
+    await checkResourceDeletion(res)
+  }).toPass({
+    intervals: [1000],
+    timeout: 60 * 1000,
+  })
+}
+
+export const deleteBackupRaw = async (request, name) => {
+  return await request.delete(`/v1/clusters/${CLUSTER_NAME}/namespaces/${EVEREST_CI_NAMESPACE}/backups/${name}`)
+}
+
+// --------------------- Instance Backup helpers -----------------------------------------------
+
+export const listInstanceBackups = async (request, instanceName) => {
+  const response = await listInstanceBackupsRaw(request, instanceName)
+  await checkError(response)
+  return (await response.json())
+}
+
+export const listInstanceBackupsRaw = async (request, instanceName) => {
+  return await request.get(`/v1/clusters/${CLUSTER_NAME}/namespaces/${EVEREST_CI_NAMESPACE}/instances/${instanceName}/backups`)
+}
+
+// --------------------- Backup Class helpers -----------------------------------------------
+export const listBackupClasses = async (request) => {
+  const response = await listBackupClassesRaw(request)
+  await checkError(response)
+  return (await response.json())
+}
+
+export const listBackupClassesRaw = async (request) => {
+  return await request.get(`/v1/clusters/${CLUSTER_NAME}/backup-classes`)
+}
+
+export const getBackupClass = async (request, name) => {
+  const response = await getBackupClassRaw(request, name)
+  await checkError(response)
+  return (await response.json())
+}
+
+export const getBackupClassRaw = async (request, name) => {
+  return await request.get(`/v1/clusters/${CLUSTER_NAME}/backup-classes/${name}`)
+}

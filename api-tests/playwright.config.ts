@@ -142,6 +142,7 @@ export default defineConfig({
         'monitoring-config-v2',
         'settings',
         'version',
+        'instance',
         'pg',
         'psmdb',
         'pxc',
@@ -255,6 +256,18 @@ export default defineConfig({
       name: 'version',
       testDir: 'tests',
       testMatch: /version\.spec\.ts/,
+      dependencies: ['global:auth:ci:setup'],
+      use: {
+        extraHTTPHeaders: {
+          'Authorization': `Bearer ${process.env[API_CI_TOKEN]}`,
+        }
+      },
+    },
+    // instance tests
+    {
+      name: 'instance',
+      testDir: 'tests',
+      testMatch: /instance\.spec\.ts/,
       dependencies: ['global:auth:ci:setup'],
       use: {
         extraHTTPHeaders: {
