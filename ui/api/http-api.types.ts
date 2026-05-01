@@ -11226,8 +11226,8 @@ export interface operations {
                     "application/json": components["schemas"]["InstanceConnectionDetails"];
                 };
             };
-            /** @description Unsuccessful operation */
-            400: {
+            /** @description Instance or connection details not found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -11271,8 +11271,8 @@ export interface operations {
                     "application/json": components["schemas"]["BackupList"];
                 };
             };
-            /** @description Instance not found */
-            404: {
+            /** @description Unsuccessful operation */
+            400: {
                 headers: {
                     [name: string]: unknown;
                 };
