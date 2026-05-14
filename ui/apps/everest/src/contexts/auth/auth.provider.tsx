@@ -98,7 +98,20 @@ const AuthProvider = ({ children, isSsoEnabled }: AuthProviderProps) => {
 
   const logout = async () => {
     const token = localStorage.getItem('everestToken');
-    await api.delete('/session', { headers: { token: token } });
+    if (token) {
+      try {
+        await api.delete('/session', {
+          headers: { token },
+          disableNotifications: true,
+        });
+      } catch {
+        enqueueSnackbar(
+          'Signed out here, but the server could not revoke your session. Try again later.',
+          { variant: 'warning' }
+        );
+      }
+    }
+
     if (isSsoEnabled) {
       await userManager.clearStaleState();
       await setLogoutStatus();
