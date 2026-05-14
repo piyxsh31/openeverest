@@ -98,7 +98,21 @@ const AuthProvider = ({ children, isSsoEnabled }: AuthProviderProps) => {
 
   const logout = async () => {
     const token = localStorage.getItem('everestToken');
-    await api.delete('/session', { headers: { token: token } });
+    removeApiErrorInterceptor();
+
+    if (token) {
+      try {
+        await api.delete('/session', {
+          headers: { token },
+        });
+      } catch {
+        enqueueSnackbar(
+          'Signed out on this device, but the server did not end your session. If others use this machine, change your password when you can.',
+          { variant: 'warning' }
+        );
+      }
+    }
+
     if (isSsoEnabled) {
       await userManager.clearStaleState();
       await setLogoutStatus();
@@ -108,7 +122,6 @@ const AuthProvider = ({ children, isSsoEnabled }: AuthProviderProps) => {
     localStorage.removeItem('everestToken');
     sessionStorage.clear();
     setRedirect(null);
-    removeApiErrorInterceptor();
     removeApiAuthInterceptor();
   };
 
